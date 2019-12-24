@@ -4,13 +4,45 @@
     <Filter Include="Core">
       <UniqueIdentifier>{800146bd-eba3-43b5-ad7c-4c3d60171606}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Source">
-      <UniqueIdentifier>{21c00898-8c84-4f54-a3d1-0a7b0376c766}</UniqueIdentifier>
+    <Filter Include="Core\Graphics">
+      <UniqueIdentifier>{bcd00267-ee7c-424a-b444-3f366d287906}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="User">
+      <UniqueIdentifier>{8b3227a5-b1b8-4904-8eca-e4782777df8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{f1f292db-6e17-4d55-a2ed-f9759e190879}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Core\Source\main.cpp">
-      <Filter>Core\Source</Filter>
+    <ClCompile Include="Core\Core.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Graphics\Reneder.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Scene.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="User\main.cpp">
+      <Filter>User</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Core\Core.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Reneder.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Scene.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Define.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Setting.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
