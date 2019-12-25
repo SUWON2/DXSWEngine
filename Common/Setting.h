@@ -13,11 +13,13 @@ public:
 		return setting;
 	}
 
-	inline int GetWidth() { return 800; }
+	inline int GetWidth() const { return 800; }
 
-	inline int GetHeight() { return 600; }
+	inline int GetHeight() const { return 600; }
 
-	inline bool IsVsync() { return true; }
+	inline bool IsWindow() const { return true; }
+
+	inline bool IsVsync() const { return true; }
 
 private:
 	Setting() = default;

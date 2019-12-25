@@ -9,7 +9,7 @@ Core::Core()
 {
 	InitializeWindows();
 
-	mReneder = std::make_unique<Reneder>();
+	mReneder = std::make_unique<Reneder>(mHWnd);
 
 	MSG msg = { 0 };
 	do
@@ -34,7 +34,7 @@ Core::~Core()
 void Core::InitializeWindows()
 {
 	HINSTANCE hInstance = GetModuleHandle(nullptr);
-	const wchar_t* applicationName = L"DXSWEngine";
+	const char* applicationName = "DXSWEngine";
 
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof(WNDCLASSEX);

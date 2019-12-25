@@ -19,7 +19,7 @@ public:
 	~Core();
 
 private:
-	void InitializeWindows();	
+	void InitializeWindows();
 
 private:
 	HWND mHWnd = nullptr;

@@ -1,6 +1,6 @@
 #pragma once
 
-class Scene
+class Scene abstract
 {
 public:
 	Scene();
@@ -9,5 +9,9 @@ public:
 
 	Scene& operator=(const Scene&) = delete;
 
-	~Scene();
+	virtual ~Scene();
+
+	virtual void Initialize() = 0;
+
+	virtual void Update(const float deltaTime) = 0;
 };
