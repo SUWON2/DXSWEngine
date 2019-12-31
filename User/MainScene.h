@@ -1,10 +1,18 @@
 #pragma once
 
-#include "../Core/Scene.h"
+#include "../Core/Scene/Scene.h"
 
-class MainScene : public Scene
+class MainScene final : public Scene
 {
 public:
+	MainScene();
+
+	MainScene(const MainScene&) = delete;
+
+	MainScene& operator=(const MainScene&) = delete;
+
+	virtual ~MainScene();
+
 	void Initialize() override;
 
 	void Update(const float deltaTime) override;

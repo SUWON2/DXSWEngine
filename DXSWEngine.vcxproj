@@ -20,17 +20,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Core.cpp" />
+    <ClCompile Include="Core\Graphics\DXDevice.cpp" />
+    <ClCompile Include="Core\Graphics\Mesh\Mesh.cpp" />
+    <ClCompile Include="Core\Graphics\Mesh\MeshManager.cpp" />
     <ClCompile Include="Core\Graphics\Reneder.cpp" />
-    <ClCompile Include="Core\Scene.cpp" />
+    <ClCompile Include="Core\Scene\Scene.cpp" />
     <ClCompile Include="User\main.cpp" />
     <ClCompile Include="User\MainScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Define.h" />
+    <ClInclude Include="Common\DirectXMath.h" />
     <ClInclude Include="Common\Setting.h" />
     <ClInclude Include="Core\Core.h" />
+    <ClInclude Include="Core\Graphics\DXDevice.h" />
+    <ClInclude Include="Core\Graphics\Mesh\Mesh.h" />
+    <ClInclude Include="Core\Graphics\Mesh\MeshManager.h" />
     <ClInclude Include="Core\Graphics\Reneder.h" />
-    <ClInclude Include="Core\Scene.h" />
+    <ClInclude Include="Core\Scene\Scene.h" />
     <ClInclude Include="User\MainScene.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -107,7 +114,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -120,7 +127,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -137,7 +144,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,10 +161,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

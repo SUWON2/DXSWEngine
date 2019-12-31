@@ -36,7 +36,7 @@
 	#endif
 #else
 	#ifndef HR
-		#define	HR(x) ((void)0)
+		#define	HR(x) (x);
 	#endif
 #endif
 

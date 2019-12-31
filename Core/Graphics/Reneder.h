@@ -1,12 +1,15 @@
 #pragma once
 
+#include <memory>
 #include <d3d11.h>
-#include <dxgi.h>
+
+#include "../../Common/Define.h"
+#include "Mesh/MeshManager.h"
 
 class Reneder final
 {
 public:
-	Reneder(HWND hWnd);
+	Reneder();
 
 	Reneder(const Reneder&) = default;
 
@@ -14,17 +17,21 @@ public:
 
 	~Reneder();
 
+	void Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+
 	void Draw();
 
-private:
-	void InitializeDevice(HWND hWnd);
+	inline void AddMesh(Mesh* mesh)
+	{
+		ASSERT(mesh != nullptr, "The mesh must not be null");
+		mMeshManager->AddMesh(mesh);
+	}
 
 private:
-	ID3D11Device* mDevice = nullptr;
+	// HACk:
+	ID3D11VertexShader* mVertexShader = nullptr;
+	ID3D11InputLayout* mInputLayout = nullptr;
+	ID3D11PixelShader* mPixelShader = nullptr;
 
-	ID3D11DeviceContext* mDeviceContext = nullptr;
-
-	IDXGISwapChain* mSwapChain = nullptr;
-
-	ID3D11RenderTargetView* mRenderTargetView = nullptr;
+	std::unique_ptr<MeshManager> mMeshManager = nullptr;
 };

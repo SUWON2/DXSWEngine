@@ -1,125 +1,123 @@
-#pragma warning(disable: 26812)
+#include <d3dcompiler.h>
 
 #include "Reneder.h"
 #include "../../Common/Define.h"
 #include "../../Common/Setting.h"
+#include "../../common/DirectXMath.h"
 
-Reneder::Reneder(HWND hWnd)
+using namespace DirectX;
+
+static void CompileShader(const wchar_t* fileName, const char* entryPoint, const char* shaderModel, ID3DBlob** outShaderByteCode);
+
+Reneder::Reneder()
 {
-	ASSERT(hWnd != nullptr, "The hWnd must not be null");
-
-	InitializeDevice(hWnd);
 }
 
 Reneder::~Reneder()
 {
-	ReleaseCOM(mRenderTargetView);
-	ReleaseCOM(mSwapChain);
-	ReleaseCOM(mDeviceContext);
-	ReleaseCOM(mDevice);
+	ReleaseCOM(mPixelShader);
+	ReleaseCOM(mInputLayout);
+	ReleaseCOM(mVertexShader);
+}
+
+void Reneder::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+{
+	ASSERT(device != nullptr, "The device must not be null");
+	ASSERT(deviceContext != nullptr, "The deviceContext must not be null");
+
+	mMeshManager = std::make_unique<MeshManager>(device, deviceContext);
+
+	// HACK: Initialize vertex shader and pixel shader
+	{
+		ID3DBlob* vsByteCode = nullptr;
+		CompileShader(L"./Shaders/BasicShaderVS.hlsl", "VS", "vs_4_0", &vsByteCode);
+		HR(device->CreateVertexShader(vsByteCode->GetBufferPointer(), vsByteCode->GetBufferSize(), nullptr, &mVertexShader));
+
+		const D3D11_INPUT_ELEMENT_DESC inputLayout[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		};
+		constexpr UINT inputLayoutCount = sizeof(inputLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC);
+
+		HR(device->CreateInputLayout(inputLayout, inputLayoutCount
+			, vsByteCode->GetBufferPointer(), vsByteCode->GetBufferSize(), &mInputLayout));
+		ReleaseCOM(vsByteCode);
+
+		deviceContext->IASetInputLayout(mInputLayout);
+
+		ID3DBlob* psByteCode = nullptr;
+		CompileShader(L"./Shaders/BasicShaderPS.hlsl", "PS", "ps_4_0", &psByteCode);
+
+		HR(device->CreatePixelShader(psByteCode->GetBufferPointer(), psByteCode->GetBufferSize(), nullptr, &mPixelShader));
+		ReleaseCOM(psByteCode);
+
+		// HACK: ShaderManager를 만들 때 동안 임시로 처리한다.
+		deviceContext->VSSetShader(mVertexShader, nullptr, 0);
+		deviceContext->PSSetShader(mPixelShader, nullptr, 0);
+	}
+
+	// HACK: Initialize matrixs
+	{
+		const XMMATRIX world = XMMatrixIdentity();
+
+		const XMVECTOR eye = XMVectorSet(0.0f, 0.5f, -1.0f, 0.0f);
+		const XMVECTOR lookAt = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+		const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+		const XMMATRIX view = XMMatrixLookAtLH(eye, lookAt, up);
+
+		const XMMATRIX projection = XMMatrixPerspectiveFovLH(XM_PIDIV2
+			, Setting::Get().GetWidth() / static_cast<float>(Setting::Get().GetHeight()), 0.01f, 100.0f);
+
+		struct WVP
+		{
+			XMMATRIX mWorld = {};
+			XMMATRIX mView = {};
+			XMMATRIX mProjection = {};
+		};
+
+		D3D11_BUFFER_DESC constantBufferDesc = {};
+		constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		constantBufferDesc.ByteWidth = sizeof(WVP);
+		constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		constantBufferDesc.CPUAccessFlags = 0;
+
+		ID3D11Buffer* constantBuffer = nullptr;
+		HR(device->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer));
+
+		WVP wvp;
+		wvp.mWorld = XMMatrixTranspose(world);
+		wvp.mView = XMMatrixTranspose(view);
+		wvp.mProjection = XMMatrixTranspose(projection);
+		deviceContext->UpdateSubresource(constantBuffer, 0, nullptr, &wvp, 0, 0);
+	
+		deviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
+		ReleaseCOM(constantBuffer);
+	}
 }
 
 void Reneder::Draw()
 {
-	const float color[] = { 0.098039225f, 0.098039225f, 0.439215720f, 1.000000000f };
-	mDeviceContext->ClearRenderTargetView(mRenderTargetView, color);
-
-	HR(mSwapChain->Present(Setting::Get().IsVsync(), 0));
+	mMeshManager->Draw();
 }
 
-void Reneder::InitializeDevice(HWND hWnd)
+void CompileShader(const wchar_t* fileName, const char* entryPoint, const char* shaderModel, ID3DBlob** outShaderByteCode)
 {
-	// Create device and device context
-	{
-		UINT flags = 0;
+	ASSERT(fileName != nullptr, "The fileName must not be null");
+	ASSERT(entryPoint != nullptr, "The entryPoint must not be null");
+	ASSERT(shaderModel != nullptr, "The shaderModel must not be null");
+	ASSERT(outShaderByteCode != nullptr, "The outShaderByteCode must not be null");
+
+	DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 
 #if defined(DEBUG) | defined(_DEBUG)
-		flags |= D3D11_CREATE_DEVICE_DEBUG;
+	shaderFlags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-		const D3D_DRIVER_TYPE driverTypes[] =
-		{
-			D3D_DRIVER_TYPE_HARDWARE,
-			D3D_DRIVER_TYPE_WARP,
-			D3D_DRIVER_TYPE_REFERENCE
-		};
+	ID3DBlob* errorBlob = nullptr;
+	HR(D3DCompileFromFile(fileName, nullptr, nullptr, entryPoint, shaderModel,
+		shaderFlags, 0, outShaderByteCode, &errorBlob));
 
-		const D3D_FEATURE_LEVEL featureLevels[] =
-		{
-			D3D_FEATURE_LEVEL_11_1,
-			D3D_FEATURE_LEVEL_11_0,
-			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0,
-		};
-		constexpr UINT featureLevelCount = sizeof(featureLevels) / sizeof(D3D_FEATURE_LEVEL);
-
-		HRESULT hCreatingDevice = S_OK;
-
-		for (const auto driverType : driverTypes)
-		{
-			hCreatingDevice = D3D11CreateDevice(nullptr, driverType, nullptr, flags, featureLevels, featureLevelCount,
-				D3D11_SDK_VERSION, &mDevice, nullptr, &mDeviceContext);
-
-			if (SUCCEEDED(hCreatingDevice))
-			{
-				break;
-			}
-		}
-
-		HR(hCreatingDevice);
-	}
-
-	// Obtain DXGI factory from device and Create swap chain
-	{
-		IDXGIDevice* dxgiDevice = nullptr;
-		HR(mDevice->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgiDevice)));
-
-		IDXGIAdapter* dxgiAdapter = nullptr;
-		HR(dxgiDevice->GetAdapter(&dxgiAdapter));
-		ReleaseCOM(dxgiDevice);
-
-		IDXGIFactory1* dxgiFactory = nullptr;
-		HR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&dxgiFactory)));
-		ReleaseCOM(dxgiAdapter);
-
-		DXGI_SWAP_CHAIN_DESC swapChainDesc;
-		swapChainDesc.BufferCount = 2;
-		swapChainDesc.BufferDesc.Width = Setting::Get().GetWidth();
-		swapChainDesc.BufferDesc.Height = Setting::Get().GetHeight();
-		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.OutputWindow = hWnd;
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.SampleDesc.Quality = 0;
-		swapChainDesc.Windowed = Setting::Get().IsWindow();
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		swapChainDesc.Flags = 0;
-		HR(dxgiFactory->CreateSwapChain(mDevice, &swapChainDesc, &mSwapChain));
-		ReleaseCOM(dxgiFactory);
-	}
-
-	// Create a render target view
-	{
-		ID3D11Texture2D* backBuffer = nullptr;
-		HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
-
-		HR(mDevice->CreateRenderTargetView(backBuffer, nullptr, &mRenderTargetView));
-		ReleaseCOM(backBuffer);
-
-		mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, nullptr);
-	}
-
-	// Set the viewport
-	{
-		D3D11_VIEWPORT viewPort;
-		viewPort.Width = static_cast<float>(Setting::Get().GetWidth());
-		viewPort.Height = static_cast<float>(Setting::Get().GetHeight());
-		viewPort.MinDepth = 0.0f;
-		viewPort.MaxDepth = 1.0f;
-		viewPort.TopLeftX = 0;
-		viewPort.TopLeftY = 0;
-		mDeviceContext->RSSetViewports(1, &viewPort);
-	}
+	ASSERT(errorBlob == nullptr, static_cast<const char*>(errorBlob->GetBufferPointer()));
+	ReleaseCOM(errorBlob);
 }

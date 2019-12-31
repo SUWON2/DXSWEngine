@@ -13,6 +13,12 @@
     <Filter Include="Common">
       <UniqueIdentifier>{f1f292db-6e17-4d55-a2ed-f9759e190879}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Scene">
+      <UniqueIdentifier>{bfb5937a-0817-4e91-a4d9-6d26d7716a31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Graphics\Mesh">
+      <UniqueIdentifier>{eb285e4e-c9e9-4712-b79a-4b33e98883ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Core.cpp">
@@ -21,14 +27,23 @@
     <ClCompile Include="Core\Graphics\Reneder.cpp">
       <Filter>Core\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Scene.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="User\main.cpp">
       <Filter>User</Filter>
     </ClCompile>
     <ClCompile Include="User\MainScene.cpp">
       <Filter>User</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Scene\Scene.cpp">
+      <Filter>Core\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Mesh\Mesh.cpp">
+      <Filter>Core\Graphics\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Mesh\MeshManager.cpp">
+      <Filter>Core\Graphics\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\DXDevice.cpp">
+      <Filter>Core\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -38,9 +53,6 @@
     <ClInclude Include="Core\Graphics\Reneder.h">
       <Filter>Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Scene.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Common\Define.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -49,6 +61,21 @@
     </ClInclude>
     <ClInclude Include="User\MainScene.h">
       <Filter>User</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\DirectXMath.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Scene\Scene.h">
+      <Filter>Core\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Mesh\Mesh.h">
+      <Filter>Core\Graphics\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Mesh\MeshManager.h">
+      <Filter>Core\Graphics\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\DXDevice.h">
+      <Filter>Core\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

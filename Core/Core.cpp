@@ -1,15 +1,22 @@
 #include "Core.h"
 #include "../Common/Define.h"
 #include "../Common/Setting.h"
+#include "Scene/Scene.h"
 #include "Graphics/Reneder.h"
+#include "Graphics/DXDevice.h"
 
 static LRESULT CALLBACK HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-Core::Core()
+Core::Core(Scene* scene)
 {
-	InitializeWindows();
+	ASSERT(scene != nullptr, "The scene must not be null");
 
-	mReneder = std::make_unique<Reneder>(mHWnd);
+	InitializeWindows();
+	mDXDevice = std::make_unique<DXDevice>(mHWnd);
+
+	mScene = std::unique_ptr<Scene>(scene);
+	mScene->GetReneder()->Initialize(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
+	mScene->Initialize();
 
 	MSG msg = { 0 };
 	do
@@ -21,7 +28,12 @@ Core::Core()
 		}
 		else
 		{
-			mReneder->Draw();
+			mDXDevice->BeginUpdate();
+
+			mScene->Update(0.016f); // HACK: temp deltaTime
+			mScene->GetReneder()->Draw();
+
+			mDXDevice->EndUpdate();
 		}
 	}
 	while (msg.message != WM_QUIT);
