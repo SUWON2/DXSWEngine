@@ -30,6 +30,11 @@ public:
 		mReneder->AddMesh(mesh);
 	}
 
+	inline Camera* GetCamera() const
+	{
+		return mReneder->GetCamera();
+	}
+
 private:
 	inline Reneder* GetReneder() const
 	{

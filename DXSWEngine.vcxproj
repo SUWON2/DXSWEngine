@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Core.cpp" />
+    <ClCompile Include="Core\Graphics\Camera\Camera.cpp" />
     <ClCompile Include="Core\Graphics\DXDevice.cpp" />
     <ClCompile Include="Core\Graphics\Mesh\Mesh.cpp" />
     <ClCompile Include="Core\Graphics\Mesh\MeshManager.cpp" />
@@ -33,6 +34,7 @@
     <ClInclude Include="Common\DirectXMath.h" />
     <ClInclude Include="Common\Setting.h" />
     <ClInclude Include="Core\Core.h" />
+    <ClInclude Include="Core\Graphics\Camera\Camera.h" />
     <ClInclude Include="Core\Graphics\DXDevice.h" />
     <ClInclude Include="Core\Graphics\Mesh\Mesh.h" />
     <ClInclude Include="Core\Graphics\Mesh\MeshManager.h" />

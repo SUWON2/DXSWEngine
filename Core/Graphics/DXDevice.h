@@ -18,7 +18,7 @@ public:
 
 	inline void BeginUpdate()
 	{
-		const float color[] = { 0.098039225f, 0.098039225f, 0.439215720f, 1.000000000f };
+		const float color[] = { 0.0f, 0.70f, 0.67f, 1.0f };
 		mDeviceContext->ClearRenderTargetView(mRenderTargetView, color);
 	}
 

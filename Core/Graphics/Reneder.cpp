@@ -15,6 +15,7 @@ Reneder::Reneder()
 
 Reneder::~Reneder()
 {
+	ReleaseCOM(mConstantBuffer);
 	ReleaseCOM(mPixelShader);
 	ReleaseCOM(mInputLayout);
 	ReleaseCOM(mVertexShader);
@@ -25,6 +26,9 @@ void Reneder::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 	ASSERT(device != nullptr, "The device must not be null");
 	ASSERT(deviceContext != nullptr, "The deviceContext must not be null");
 
+	mDevice = device;
+	mDeviceContext = deviceContext;
+	mCamera = std::make_unique<Camera>();
 	mMeshManager = std::make_unique<MeshManager>(device, deviceContext);
 
 	// HACK: Initialize vertex shader and pixel shader
@@ -52,23 +56,13 @@ void Reneder::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 		HR(device->CreatePixelShader(psByteCode->GetBufferPointer(), psByteCode->GetBufferSize(), nullptr, &mPixelShader));
 		ReleaseCOM(psByteCode);
 
-		// HACK: ShaderManager를 만들 때 동안 임시로 처리한다.
+		// HACK: ShaderManager를 만들 때 동안만 임시로 처리한다.
 		deviceContext->VSSetShader(mVertexShader, nullptr, 0);
 		deviceContext->PSSetShader(mPixelShader, nullptr, 0);
 	}
 
 	// HACK: Initialize matrixs
 	{
-		const XMMATRIX world = XMMatrixIdentity();
-
-		const XMVECTOR eye = XMVectorSet(0.0f, 0.5f, -1.0f, 0.0f);
-		const XMVECTOR lookAt = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-		const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-		const XMMATRIX view = XMMatrixLookAtLH(eye, lookAt, up);
-
-		const XMMATRIX projection = XMMatrixPerspectiveFovLH(XM_PIDIV2
-			, Setting::Get().GetWidth() / static_cast<float>(Setting::Get().GetHeight()), 0.01f, 100.0f);
-
 		struct WVP
 		{
 			XMMATRIX mWorld = {};
@@ -81,23 +75,67 @@ void Reneder::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 		constantBufferDesc.ByteWidth = sizeof(WVP);
 		constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		constantBufferDesc.CPUAccessFlags = 0;
+		HR(device->CreateBuffer(&constantBufferDesc, nullptr, &mConstantBuffer));
 
-		ID3D11Buffer* constantBuffer = nullptr;
-		HR(device->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer));
-
-		WVP wvp;
-		wvp.mWorld = XMMatrixTranspose(world);
-		wvp.mView = XMMatrixTranspose(view);
-		wvp.mProjection = XMMatrixTranspose(projection);
-		deviceContext->UpdateSubresource(constantBuffer, 0, nullptr, &wvp, 0, 0);
-	
-		deviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
-		ReleaseCOM(constantBuffer);
+		deviceContext->VSSetConstantBuffers(0, 1, &mConstantBuffer);
 	}
 }
 
 void Reneder::Draw()
 {
+	// HACK: Update constant buffer
+	{
+		struct WVP
+		{
+			XMMATRIX mWorld = {};
+			XMMATRIX mView = {};
+			XMMATRIX mProjection = {};
+		};
+
+		const XMMATRIX matWorld = XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+
+		// TODO: 책에 나온 방법으로 내가 생각한 것과 달리 회전 결과가 다르고 처리하는 연산도 많음
+		// , 따라서 이 방식의 결과를 이해한 뒤 코드를 지우면 될듯
+		/*{
+			const XMFLOAT3& cameraPos = mCamera->GetPosition();
+			const XMFLOAT3& cameraRot = mCamera->GetRotation();
+
+			const XMVECTOR vecEye = XMVectorSet(cameraPos.x, cameraPos.y, cameraPos.z, 0.0f);
+			const XMVECTOR vecLookAt = XMVectorSet(cameraPos.x, cameraPos.y, 1.0f + cameraPos.z, 0.0f);
+			const XMVECTOR vecUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+			XMVECTOR vecZAxis = XMVector3Normalize(vecLookAt - vecEye);
+			XMVECTOR vecXAxis = XMVector3Normalize(XMVector3Cross(vecUp, vecZAxis));
+			XMVECTOR vecYAxis = XMVector3Cross(vecZAxis, vecXAxis);
+
+			const XMMATRIX matRotY = XMMatrixRotationAxis(vecXAxis, -(cameraRot.x));
+			vecXAxis = XMVector3Normalize(XMVector3TransformNormal(vecXAxis, matRotY));
+			vecYAxis = XMVector3Normalize(XMVector3TransformNormal(vecYAxis, matRotY));
+			vecZAxis = XMVector3Normalize(XMVector3TransformNormal(vecZAxis, matRotY));
+
+			const XMMATRIX matRotX = XMMatrixRotationY(-(cameraRot.y));
+			vecYAxis = XMVector3Normalize(XMVector3TransformNormal(vecYAxis, matRotX));
+			vecZAxis = XMVector3Normalize(XMVector3TransformNormal(vecZAxis, matRotX));
+
+			vecZAxis = XMVector3Normalize(vecZAxis);
+			vecYAxis = XMVector3Normalize(XMVector3Cross(vecZAxis, vecXAxis));
+			vecXAxis = XMVector3Cross(vecYAxis, vecZAxis);
+		}*/
+
+		XMMATRIX matView;
+		mCamera->LoadViewMatrix(&matView);
+
+		const XMMATRIX matProjection = XMMatrixPerspectiveFovLH(XM_PIDIV4
+			, Setting::Get().GetWidth() / static_cast<float>(Setting::Get().GetHeight()), 1.0f, 100.0f);
+
+		WVP wvp;
+		wvp.mWorld = XMMatrixTranspose(matWorld);
+		wvp.mView = XMMatrixTranspose(matView);
+		wvp.mProjection = XMMatrixTranspose(matProjection);
+
+		mDeviceContext->UpdateSubresource(mConstantBuffer, 0, nullptr, &wvp, 0, 0);
+	}
+
 	mMeshManager->Draw();
 }
 

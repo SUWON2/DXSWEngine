@@ -19,6 +19,9 @@
     <Filter Include="Core\Graphics\Mesh">
       <UniqueIdentifier>{eb285e4e-c9e9-4712-b79a-4b33e98883ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Graphics\Camera">
+      <UniqueIdentifier>{886f7a17-62b2-4a6d-acfb-868cd45f2bd5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Core.cpp">
@@ -44,6 +47,9 @@
     </ClCompile>
     <ClCompile Include="Core\Graphics\DXDevice.cpp">
       <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Camera\Camera.cpp">
+      <Filter>Core\Graphics\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="Core\Graphics\DXDevice.h">
       <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Camera\Camera.h">
+      <Filter>Core\Graphics\Camera</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

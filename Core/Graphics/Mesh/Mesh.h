@@ -34,7 +34,7 @@ public:
 	}
 
 private:
-	Mesh(const char* fileName);
+	explicit Mesh(const char* fileName);
 
 private:
 	std::string mObjName;
