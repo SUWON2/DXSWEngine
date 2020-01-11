@@ -22,6 +22,9 @@
     <Filter Include="Core\Graphics\Camera">
       <UniqueIdentifier>{886f7a17-62b2-4a6d-acfb-868cd45f2bd5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Graphics\Material">
+      <UniqueIdentifier>{93bbffd6-a73c-42b2-9321-feb599962f31}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Core.cpp">
@@ -42,14 +45,20 @@
     <ClCompile Include="Core\Graphics\Mesh\Mesh.cpp">
       <Filter>Core\Graphics\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Graphics\Mesh\MeshManager.cpp">
-      <Filter>Core\Graphics\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Graphics\DXDevice.cpp">
       <Filter>Core\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Core\Graphics\Camera\Camera.cpp">
       <Filter>Core\Graphics\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Material\Material.cpp">
+      <Filter>Core\Graphics\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Material\MaterialResource.cpp">
+      <Filter>Core\Graphics\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Mesh\MeshResource.cpp">
+      <Filter>Core\Graphics\Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,14 +86,23 @@
     <ClInclude Include="Core\Graphics\Mesh\Mesh.h">
       <Filter>Core\Graphics\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Graphics\Mesh\MeshManager.h">
-      <Filter>Core\Graphics\Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Graphics\DXDevice.h">
       <Filter>Core\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Core\Graphics\Camera\Camera.h">
       <Filter>Core\Graphics\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\DirectXTex.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Material\MaterialResource.h">
+      <Filter>Core\Graphics\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Material\Material.h">
+      <Filter>Core\Graphics\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Mesh\MeshResource.h">
+      <Filter>Core\Graphics\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

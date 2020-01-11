@@ -15,8 +15,9 @@ Core::Core(Scene* scene)
 	mDXDevice = std::make_unique<DXDevice>(mHWnd);
 
 	mScene = std::unique_ptr<Scene>(scene);
-	mScene->GetReneder()->Initialize(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
+	mScene->GetReneder()->InitializeManager(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
 	mScene->Initialize();
+	mScene->GetReneder()->SortMesh();
 
 	MSG msg = { 0 };
 	do

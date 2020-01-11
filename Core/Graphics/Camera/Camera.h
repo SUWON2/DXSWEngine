@@ -22,7 +22,7 @@ public:
 
 	void RotateX(const float angle);
 
-	void LoadViewMatrix(DirectX::XMMATRIX* matView);
+	void LoadViewMatrix(DirectX::XMMATRIX* matViewProjection);
 
 	inline const DirectX::XMFLOAT3& GetPosition() const
 	{

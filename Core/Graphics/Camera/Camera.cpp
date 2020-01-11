@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "../../../Common/Define.h"
+#include "../../../Common/Setting.h"
 
 using namespace DirectX;
 
@@ -44,9 +45,9 @@ void Camera::RotateX(const float angle)
 	XMStoreFloat3(&mZAxis, XMVector3TransformNormal(XMLoadFloat3(&mZAxis), matRotationX));
 }
 
-void Camera::LoadViewMatrix(DirectX::XMMATRIX* matView)
+void Camera::LoadViewMatrix(DirectX::XMMATRIX* matViewProjection)
 {
-	ASSERT(matView != nullptr, "The matView must not be null");
+	ASSERT(matViewProjection != nullptr, "The matViewProjection must not be null");
 
 	XMStoreFloat3(&mXAxis, XMVector3Normalize(XMLoadFloat3(&mXAxis)));
 	XMStoreFloat3(&mZAxis, XMVector3Normalize(XMLoadFloat3(&mZAxis)));
@@ -56,11 +57,16 @@ void Camera::LoadViewMatrix(DirectX::XMMATRIX* matView)
 	const float dotY = -XMVectorGetX(XMVector3Dot(XMLoadFloat3(&mPosition), XMLoadFloat3(&mYAxis)));
 	const float dotZ = -XMVectorGetX(XMVector3Dot(XMLoadFloat3(&mPosition), XMLoadFloat3(&mZAxis)));
 
-	*matView =
+	*matViewProjection =
 	{
 		mXAxis.x, mYAxis.x, mZAxis.x, 0.0f,
 		mXAxis.y, mYAxis.y, mZAxis.y, 0.0f,
 		mXAxis.z, mYAxis.z, mZAxis.z, 0.0f,
 		dotX,	  dotY,	    dotZ,	  1.0f
 	};
+
+	const static XMMATRIX projection = XMMatrixPerspectiveFovLH(XM_PIDIV4
+		, Setting::Get().GetWidth() / static_cast<float>(Setting::Get().GetHeight()), 1.0f, 100.0f);
+
+	*matViewProjection *= projection;
 }

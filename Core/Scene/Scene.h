@@ -5,8 +5,6 @@
 #include "../../Common/Define.h"
 #include "../Graphics/Reneder.h"
 
-class Mesh;
-
 class Scene abstract
 {
 	friend class Core;
@@ -28,6 +26,12 @@ public:
 	{
 		ASSERT(mesh != nullptr, "The mesh must not be null");
 		mReneder->AddMesh(mesh);
+	}
+
+	inline size_t AddMaterial(Material* material)
+	{
+		ASSERT(material != nullptr, "The material must not be null");
+		return mReneder->AddMaterial(material);
 	}
 
 	inline Camera* GetCamera() const

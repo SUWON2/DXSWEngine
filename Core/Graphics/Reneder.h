@@ -1,11 +1,14 @@
 #pragma once
 
-#include <memory>
 #include <d3d11.h>
+#include <memory>
+#include <vector>
+#include <unordered_map>
 
-#include "../../Common/Define.h"
 #include "Camera/Camera.h"
-#include "Mesh/MeshManager.h"
+#include "Mesh/Mesh.h"
+#include "Material/Material.h"
+#include "../../Common/Define.h"
 
 class Reneder final
 {
@@ -18,15 +21,15 @@ public:
 
 	~Reneder();
 
-	void Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	void InitializeManager(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+
+	void SortMesh();
 
 	void Draw();
 
-	inline void AddMesh(Mesh* mesh)
-	{
-		ASSERT(mesh != nullptr, "The mesh must not be null");
-		mMeshManager->AddMesh(mesh);
-	}
+	void AddMesh(Mesh* mesh);
+
+	size_t AddMaterial(Material* material);
 
 	inline Camera* GetCamera() const
 	{
@@ -34,15 +37,15 @@ public:
 	}
 
 private:
-	// HACk: 셰이더 구조를 정할 때 까지만 임시적으로 처리한다.
 	ID3D11Device* mDevice = nullptr;
+
 	ID3D11DeviceContext* mDeviceContext = nullptr;
-	ID3D11VertexShader* mVertexShader = nullptr;
-	ID3D11InputLayout* mInputLayout = nullptr;
-	ID3D11PixelShader* mPixelShader = nullptr;
-	ID3D11Buffer* mConstantBuffer = nullptr;
 
 	std::unique_ptr<Camera> mCamera = nullptr;
 
-	std::unique_ptr<MeshManager> mMeshManager = nullptr;
+	// mesh id, mesh
+	std::vector<Mesh*> mMeshes;
+
+	// material id, material
+ 	std::unordered_map<size_t, std::unique_ptr<Material>> mMaterials;
 };

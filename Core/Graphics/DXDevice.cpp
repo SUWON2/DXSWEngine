@@ -53,11 +53,11 @@ DXDevice::DXDevice(HWND hWnd)
 
 		IDXGIAdapter* dxgiAdapter = nullptr;
 		HR(dxgiDevice->GetAdapter(&dxgiAdapter));
-		ReleaseCOM(dxgiDevice);
+		RELEASE_COM(dxgiDevice);
 
 		IDXGIFactory1* dxgiFactory = nullptr;
 		HR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&dxgiFactory)));
-		ReleaseCOM(dxgiAdapter);
+		RELEASE_COM(dxgiAdapter);
 
 		DXGI_SWAP_CHAIN_DESC swapChainDesc;
 		swapChainDesc.BufferCount = 1;
@@ -74,7 +74,7 @@ DXDevice::DXDevice(HWND hWnd)
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		swapChainDesc.Flags = 0;
 		HR(dxgiFactory->CreateSwapChain(mDevice, &swapChainDesc, &mSwapChain));
-		ReleaseCOM(dxgiFactory);
+		RELEASE_COM(dxgiFactory);
 	}
 
 	// Create a render target view
@@ -83,7 +83,7 @@ DXDevice::DXDevice(HWND hWnd)
 		HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
 
 		HR(mDevice->CreateRenderTargetView(backBuffer, nullptr, &mRenderTargetView));
-		ReleaseCOM(backBuffer);
+		RELEASE_COM(backBuffer);
 
 		mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, nullptr);
 	}
@@ -117,13 +117,34 @@ DXDevice::DXDevice(HWND hWnd)
 
 		mDeviceContext->RSSetState(mRasterizerState);
 	}
+
+	// Initialize sampler state
+	{
+		D3D11_SAMPLER_DESC samplerStateDesc = {};
+		samplerStateDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerStateDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		samplerStateDesc.MinLOD = 0;
+		samplerStateDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		ID3D11SamplerState* samplerState = nullptr;
+		HR(mDevice->CreateSamplerState(&samplerStateDesc, &samplerState));
+
+		mDeviceContext->PSSetSamplers(0, 1, &samplerState);
+		RELEASE_COM(samplerState);
+	}
+
+	// 드로우할 때는 항상 삼각형을 기준으로 지정합니다.
+	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 DXDevice::~DXDevice()
 {
-	ReleaseCOM(mRasterizerState);
-	ReleaseCOM(mRenderTargetView);
-	ReleaseCOM(mSwapChain);
-	ReleaseCOM(mDeviceContext);
-	ReleaseCOM(mDevice);
+	RELEASE_COM(mRasterizerState);
+	RELEASE_COM(mRenderTargetView);
+	RELEASE_COM(mSwapChain);
+	RELEASE_COM(mDeviceContext);
+	RELEASE_COM(mDevice);
 }
