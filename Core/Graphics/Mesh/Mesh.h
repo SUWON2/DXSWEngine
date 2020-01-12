@@ -4,12 +4,11 @@
 #include <string>
 
 #include "MeshResource.h"
+#include "../../Graphics/RenederKey.h"
 #include "../../../Common/DirectXMath.h"
 
 class Mesh final
 {
-	friend class Reneder;
-
 public:
 	Mesh(const Mesh&) = delete;
 
@@ -52,14 +51,17 @@ public:
 		mMaterialID = materialID;
 	}
 
+public:
+	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
+	static void Initialize(RenederKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+
+	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
+	void Draw(RenederKey);
+
 private:
 	explicit Mesh(const char* fileName);
 
 	explicit Mesh(const char* fileName, const size_t materialID);
-
-	static void Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
-
-	void Draw();
 
 private:
 	static ID3D11Device* mDevice;

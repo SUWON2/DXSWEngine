@@ -28,8 +28,8 @@ void Reneder::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devic
 
 	mCamera = std::make_unique<Camera>();
 	
-	Mesh::Initialize(mDevice, mDeviceContext);
-	Material::Initialize(mDevice, mDeviceContext);
+	Mesh::Initialize({}, mDevice, mDeviceContext);
+	Material::Initialize({}, mDevice, mDeviceContext);
 }
 
 void Reneder::SortMesh()
@@ -61,14 +61,14 @@ void Reneder::Draw()
 			ASSERT(targetMaterialID > 0, "메쉬에 등록된 머티리얼이 없습니다.");
 
 			targetMaterial = mMaterials.at(targetMaterialID).get();
-			targetMaterial->Activate();
+			targetMaterial->Activate({});
 		}
 
 		// 타겟 머티리얼의 worldViewProjection matrix를 업데이트합니다.
 		targetMaterial->UpdateBuffer(0, XMMatrixTranspose(matWorld));
 		targetMaterial->UpdateBuffer(1, XMMatrixTranspose(matViewProjection));
 
-		mesh->Draw();
+		mesh->Draw({});
 	}
 }
 

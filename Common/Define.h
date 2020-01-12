@@ -38,14 +38,6 @@
 	}
 #endif
 
-#ifndef CHECK_CALL_COUNT
-	#define CHECK_CALL_COUNT(x) \
-	{ \
-		static int calls = 0; \
-		ASSERT(++calls <= (x), "이 함수는 엔진에만 사용되므로 유저 층에서는 호출할 수 없습니다."); \
-	}
-#endif
-
 #if defined(DEBUG) | defined(_DEBUG)
 	#ifndef HR
 		#define HR(x) \

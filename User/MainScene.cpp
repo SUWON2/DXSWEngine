@@ -21,7 +21,7 @@ void MainScene::Initialize()
 	{
 		Material* material = Material::Create("./Shaders/LightShaderVS.hlsl", "./Shaders/LightShaderPS.hlsl");
 		const size_t materialID = AddMaterial(material);
-		
+
 		XMVECTOR lightPosition = { -5.0f, 2.0f, 3.0f };
 		material->RegisterBuffer(2, sizeof(DirectX::XMVECTOR), lightPosition);
 		material->RegisterTexture(0, "./Resource/seafloor.dds");

@@ -13,7 +13,6 @@ Mesh::Mesh(const char* fileName)
 	mVertexBufferID = mMeshResource->RegisterVertexBuffer(fileName);
 }
 
-
 Mesh::Mesh(const char* fileName, const size_t materialID)
 	: mMaterialID(materialID)
 {
@@ -27,7 +26,7 @@ Mesh::~Mesh()
 {
 }
 
-void Mesh::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+void Mesh::Initialize(RenederKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	ASSERT(device != nullptr, "The device must not be null");
 	ASSERT(deviceContext != nullptr, "The deviceContext must not be null");
@@ -37,7 +36,7 @@ void Mesh::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	mMeshResource = std::make_unique<MeshResource>(device, deviceContext);
 }
 
-void Mesh::Draw()
+void Mesh::Draw(RenederKey)
 {
 	const MeshResource::VertexBuffer& vertexBuffer = mMeshResource->GetVertexBuffer(mVertexBufferID);
 

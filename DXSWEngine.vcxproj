@@ -44,6 +44,7 @@
     <ClInclude Include="Core\Graphics\Mesh\Mesh.h" />
     <ClInclude Include="Core\Graphics\Mesh\MeshResource.h" />
     <ClInclude Include="Core\Graphics\Reneder.h" />
+    <ClInclude Include="Core\Graphics\RenederKey.h" />
     <ClInclude Include="Core\Scene\Scene.h" />
     <ClInclude Include="User\MainScene.h" />
   </ItemGroup>

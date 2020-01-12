@@ -104,5 +104,8 @@
     <ClInclude Include="Core\Graphics\Mesh\MeshResource.h">
       <Filter>Core\Graphics\Mesh</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Graphics\RenederKey.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
