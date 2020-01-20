@@ -5,21 +5,13 @@ ID3D11Device* Mesh::mDevice = nullptr;
 ID3D11DeviceContext* Mesh::mDeviceContext = nullptr;
 std::unique_ptr<MeshResource> Mesh::mMeshResource = nullptr;
 
-Mesh::Mesh(const char* fileName)
-{
-	ASSERT(fileName != nullptr, "The fileName must not be null");
-	ASSERT(mMeshResource != nullptr, "The mMeshResource is null");
-
-	mVertexBufferID = mMeshResource->RegisterVertexBuffer(fileName);
-}
-
 Mesh::Mesh(const char* fileName, const size_t materialID)
 	: mMaterialID(materialID)
 {
 	ASSERT(fileName != nullptr, "The fileName must not be null");
 	ASSERT(mMeshResource != nullptr, "The mMeshResource is null");
 
-	mVertexBufferID = mMeshResource->RegisterVertexBuffer(fileName);
+	mVertexBufferID = mMeshResource->LoadVertexBuffer(fileName);
 }
 
 Mesh::~Mesh()
@@ -40,7 +32,7 @@ void Mesh::Draw(RenederKey)
 {
 	const MeshResource::VertexBuffer& vertexBuffer = mMeshResource->GetVertexBuffer(mVertexBufferID);
 
-	const UINT stride = vertexBuffer.Size;
+	const UINT stride = vertexBuffer.VertexSize;
 	const UINT offset = 0;
 	mDeviceContext->IASetVertexBuffers(0, 1, &vertexBuffer.Interface, &stride, &offset);
 

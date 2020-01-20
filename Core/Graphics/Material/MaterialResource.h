@@ -22,11 +22,11 @@ public:
 
 	~MaterialResource();
 
-	size_t RegisterVertexShader(const char* fileName);
+	size_t LoadVertexShader(const char* fileName);
 	
-	size_t RegisterPixelShader(const char* fileName);
+	size_t LoadPixelShader(const char* fileName);
 
-	size_t RegisterTexture(const char* fileName);
+	size_t LoadTexture(const char* fileName);
 
 	inline const std::string& GetResourceName(const size_t id) const
 	{

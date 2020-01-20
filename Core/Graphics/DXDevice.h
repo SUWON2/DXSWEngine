@@ -20,6 +20,7 @@ public:
 	{
 		const float color[] = { 0.0f, 0.70f, 0.67f, 1.0f };
 		mDeviceContext->ClearRenderTargetView(mRenderTargetView, color);
+		mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
 	inline void EndUpdate()
@@ -45,6 +46,8 @@ private:
 	IDXGISwapChain* mSwapChain = nullptr;
 
 	ID3D11RenderTargetView* mRenderTargetView = nullptr;
+
+	ID3D11DepthStencilView* mDepthStencilView = nullptr;
 
 	ID3D11RasterizerState* mRasterizerState = nullptr;
 };

@@ -12,8 +12,8 @@ Material::Material(const char* vertexShaderName, const char* pixelShaderName)
 	ASSERT(mMaterialResource != nullptr, "The mMaterialResourceManager must not be null");
 
 	// 셰이더를 등록합니다.
-	mVertexShaderID = mMaterialResource->RegisterVertexShader(vertexShaderName);
-	mPixelShaderID = mMaterialResource->RegisterPixelShader(pixelShaderName);
+	mVertexShaderID = mMaterialResource->LoadVertexShader(vertexShaderName);
+	mPixelShaderID = mMaterialResource->LoadPixelShader(pixelShaderName);
 
 	// 모든 버텍스 셰이더의 world, viewProjection matrix는 항상 최초로 자동 설정되도록 가정합니다. 따라서 각각 0번째, 1번째 버퍼에 설정합니다.
 	// world와 viewProjection를 나눈 기준은 업데이트되는 시기입니다.
@@ -61,6 +61,6 @@ void Material::RegisterTexture(const unsigned int textureIndex, const char* file
 	ASSERT(fileName != nullptr, "The fileName must not be null");
 	ASSERT(mTextureIDs.find(textureIndex) == mTextureIDs.end(), "이미 사용되고 있는 텍스처 인덱스입니다. 다른 인덱스로 등록해 주세요");
 
-	const size_t textureID = mMaterialResource->RegisterTexture(fileName);
+	const size_t textureID = mMaterialResource->LoadTexture(fileName);
 	mTextureIDs.insert(std::make_pair(textureIndex, textureID));
 }

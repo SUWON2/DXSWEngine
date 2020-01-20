@@ -10,9 +10,9 @@ DXDevice::DXDevice(HWND hWnd)
 	{
 		UINT flags = 0;
 
-#if defined(DEBUG) | defined(_DEBUG)
+		#if defined(DEBUG) | defined(_DEBUG)
 		flags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
+		#endif
 
 		const D3D_DRIVER_TYPE driverTypes[] =
 		{
@@ -77,27 +77,76 @@ DXDevice::DXDevice(HWND hWnd)
 		RELEASE_COM(dxgiFactory);
 	}
 
-	// Create a render target view
+	// Initialize depth stencil view and render target view
 	{
+		D3D11_TEXTURE2D_DESC depthBufferDesc = {};
+		depthBufferDesc.Width = Setting::Get().GetWidth();
+		depthBufferDesc.Height = Setting::Get().GetHeight();
+		depthBufferDesc.MipLevels = 1;
+		depthBufferDesc.ArraySize = 1;
+		depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthBufferDesc.SampleDesc.Count = 1;
+		depthBufferDesc.SampleDesc.Quality = 0;
+		depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthBufferDesc.CPUAccessFlags = 0;
+		depthBufferDesc.MiscFlags = 0;
+
+		// 깊이 스텐실 버퍼를 생성합니다.
+		ID3D11Texture2D* depthStencilBuffer = nullptr;
+		HR(mDevice->CreateTexture2D(&depthBufferDesc, nullptr, &depthStencilBuffer));
+
+		// 깊이 스텐실 뷰를 생성합니다.
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		depthStencilViewDesc.Texture2D.MipSlice = 0;
+		HR(mDevice->CreateDepthStencilView(depthStencilBuffer, &depthStencilViewDesc, &mDepthStencilView));
+
+		RELEASE_COM(depthStencilBuffer);
+
 		ID3D11Texture2D* backBuffer = nullptr;
 		HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
 
+		// 렌더 타겟 뷰를 생성합니다.
 		HR(mDevice->CreateRenderTargetView(backBuffer, nullptr, &mRenderTargetView));
 		RELEASE_COM(backBuffer);
 
-		mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, nullptr);
+		// 렌더링 타겟 뷰와 스텐실 버퍼를 바인딩합니다.
+		mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 	}
 
-	// Set the viewport
+	// Initialize depth stencil state
 	{
-		D3D11_VIEWPORT viewPort;
-		viewPort.Width = static_cast<float>(Setting::Get().GetWidth());
-		viewPort.Height = static_cast<float>(Setting::Get().GetHeight());
-		viewPort.MinDepth = 0.0f;
-		viewPort.MaxDepth = 1.0f;
-		viewPort.TopLeftX = 0;
-		viewPort.TopLeftY = 0;
-		mDeviceContext->RSSetViewports(1, &viewPort);
+		CD3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+		depthStencilDesc.DepthEnable = true;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+		depthStencilDesc.StencilEnable = true;
+		depthStencilDesc.StencilReadMask = 0xFF;
+		depthStencilDesc.StencilWriteMask = 0xFF;
+
+		// 픽셀 정면의 스텐실 정보를 설정 합니다.
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// 픽셀 뒷면의 스텐실 정보를 설정합니다.
+		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// 깊이 스텐실 상태를 생성합니다.
+		ID3D11DepthStencilState* depthStencilState = nullptr;
+		HR(mDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState));
+
+		// 깊이 스텐실 상태를 지정합니다.
+		mDeviceContext->OMSetDepthStencilState(depthStencilState, 1);
+
+		RELEASE_COM(depthStencilState);
 	}
 
 	// Initialize Rasterizer
@@ -118,6 +167,18 @@ DXDevice::DXDevice(HWND hWnd)
 		mDeviceContext->RSSetState(mRasterizerState);
 	}
 
+	// Set the viewport
+	{
+		D3D11_VIEWPORT viewPort;
+		viewPort.Width = static_cast<float>(Setting::Get().GetWidth());
+		viewPort.Height = static_cast<float>(Setting::Get().GetHeight());
+		viewPort.MinDepth = 0.0f;
+		viewPort.MaxDepth = 1.0f;
+		viewPort.TopLeftX = 0;
+		viewPort.TopLeftY = 0;
+		mDeviceContext->RSSetViewports(1, &viewPort);
+	}
+
 	// Initialize sampler state
 	{
 		D3D11_SAMPLER_DESC samplerStateDesc = {};
@@ -136,6 +197,27 @@ DXDevice::DXDevice(HWND hWnd)
 		RELEASE_COM(samplerState);
 	}
 
+	// Initialize blend
+	{
+		D3D11_BLEND_DESC blendDesc = {};
+		blendDesc.RenderTarget[0].BlendEnable = true;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].RenderTargetWriteMask = 0x0F;
+
+		ID3D11BlendState* blendState = nullptr;
+		HR(mDevice->CreateBlendState(&blendDesc, &blendState));
+
+		const float blendFactor[4] = {};
+		mDeviceContext->OMSetBlendState(blendState, blendFactor, 0xFFFFFFFF);
+
+		RELEASE_COM(blendState);
+	}
+
 	// 드로우할 때는 항상 삼각형을 기준으로 지정합니다.
 	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -143,6 +225,7 @@ DXDevice::DXDevice(HWND hWnd)
 DXDevice::~DXDevice()
 {
 	RELEASE_COM(mRasterizerState);
+	RELEASE_COM(mDepthStencilView);
 	RELEASE_COM(mRenderTargetView);
 	RELEASE_COM(mSwapChain);
 	RELEASE_COM(mDeviceContext);

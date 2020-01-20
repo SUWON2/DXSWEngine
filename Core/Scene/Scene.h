@@ -28,6 +28,12 @@ public:
 		mReneder->AddMesh(mesh);
 	}
 
+	inline void AddText(Text* text)
+	{
+		ASSERT(text != nullptr, "The text must not be null");
+		mReneder->AddText(text);
+	}
+
 	inline size_t AddMaterial(Material* material)
 	{
 		ASSERT(material != nullptr, "The material must not be null");

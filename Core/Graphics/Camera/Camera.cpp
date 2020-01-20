@@ -45,7 +45,7 @@ void Camera::RotateX(const float angle)
 	XMStoreFloat3(&mZAxis, XMVector3TransformNormal(XMLoadFloat3(&mZAxis), matRotationX));
 }
 
-void Camera::LoadViewMatrix(DirectX::XMMATRIX* matViewProjection)
+void Camera::LoadViewProjectionMatrix(DirectX::XMMATRIX* matViewProjection)
 {
 	ASSERT(matViewProjection != nullptr, "The matViewProjection must not be null");
 
@@ -69,4 +69,19 @@ void Camera::LoadViewMatrix(DirectX::XMMATRIX* matViewProjection)
 		, Setting::Get().GetWidth() / static_cast<float>(Setting::Get().GetHeight()), 1.0f, 100.0f);
 
 	*matViewProjection *= projection;
+}
+
+void Camera::LoadViewProjection2DMatrix(DirectX::XMMATRIX* matViewProjection2D)
+{
+	ASSERT(matViewProjection2D != nullptr, "The matViewProjection must not be null");
+
+	const XMVECTOR eye = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+	const XMVECTOR at = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	*matViewProjection2D = XMMatrixLookAtLH(eye, at, up);
+
+	const static XMMATRIX projection = XMMatrixOrthographicLH(static_cast<float>(Setting::Get().GetWidth())
+		, static_cast<float>(Setting::Get().GetHeight()), 0.1f, 1000.0f);
+
+	*matViewProjection2D *= projection;
 }

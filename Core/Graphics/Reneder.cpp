@@ -12,6 +12,11 @@ Reneder::Reneder()
 
 Reneder::~Reneder()
 {
+	for (auto& i : mTexts)
+	{
+		RELEASE(i);
+	}
+
 	for (auto& i : mMeshes)
 	{
 		RELEASE(i);
@@ -27,15 +32,27 @@ void Reneder::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devic
 	mDeviceContext = deviceContext;
 
 	mCamera = std::make_unique<Camera>();
-	
+
 	Mesh::Initialize({}, mDevice, mDeviceContext);
+	Text::Initialize({}, mDevice, mDeviceContext);
 	Material::Initialize({}, mDevice, mDeviceContext);
+
+	// 폰트를 따로 지정하지 않은 텍스트를 위해 제공하는 기본 폰트 머티리얼을 미리 추가합니다.
+	Material* fontMaterial = Material::Create("Shaders/BasicFontShaderVS.hlsl", "Shaders/BasicFontShaderPS.hlsl");
+	fontMaterial->RegisterTexture(0, "Resource/BasicFont.dds");
+	mFontMaterialID = AddMaterial(fontMaterial);
 }
 
-void Reneder::SortMesh()
+void Reneder::SortMeshAndText()
 {
-	// 머티리얼을 한 번에 패스하기 위해 머티리얼 아이디를 기준으로 메쉬를 정렬합니다.
+	// 머티리얼을 한 번에 패스하기 위해 머티리얼 아이디를 기준으로 메쉬와 텍스트를 정렬합니다.
+
 	std::sort(begin(mMeshes), end(mMeshes), [](const Mesh* a, const Mesh* b)
+		{
+			return a->GetMaterialID() < b->GetMaterialID();
+		});
+
+	std::sort(begin(mTexts), end(mTexts), [](const Text* a, const Text* b)
 		{
 			return a->GetMaterialID() < b->GetMaterialID();
 		});
@@ -43,45 +60,71 @@ void Reneder::SortMesh()
 
 void Reneder::Draw()
 {
-	XMMATRIX matViewProjection;
-	mCamera->LoadViewMatrix(&matViewProjection);
-
-	static int targetMaterialID = 0;
-	static Material* targetMaterial = nullptr;
-
-	for (const auto& mesh : mMeshes)
+	// Draw meshes
 	{
-		const XMFLOAT3& meshPosition = mesh->GetPosition();
-		const XMMATRIX matWorld = XMMatrixTranslation(meshPosition.x, meshPosition.y, meshPosition.z);
+		XMMATRIX matViewProjection;
+		mCamera->LoadViewProjectionMatrix(&matViewProjection);
 
-		// 현재 메쉬가 가지는 머티리얼 아이디가 이전 아이디와 달라지는 경우만 머티리얼을 활성화시킴으로써 성능을 향상시킵니다.
-		if (targetMaterialID != mesh->GetMaterialID())
+		Material* currentMaterial = nullptr;
+
+		for (const auto& mesh : mMeshes)
 		{
-			targetMaterialID = mesh->GetMaterialID();
-			ASSERT(targetMaterialID > 0, "메쉬에 등록된 머티리얼이 없습니다.");
+			const XMMATRIX matWorld = XMMatrixScaling(mesh->GetScale().x, mesh->GetScale().y, mesh->GetScale().z)
+				* XMMatrixTranslation(mesh->GetPosition().x, mesh->GetPosition().y, mesh->GetPosition().z);
 
-			targetMaterial = mMaterials.at(targetMaterialID).get();
-			targetMaterial->Activate({});
+			// 현재 메쉬가 가지는 머티리얼 아이디가 이전 아이디와 달라지는 경우만 머티리얼을 활성화시킴으로써 성능을 향상시킵니다.
+			if (reinterpret_cast<size_t>(currentMaterial) != mesh->GetMaterialID())
+			{
+				currentMaterial = mMaterials.at(mesh->GetMaterialID()).get();
+				currentMaterial->Activate({});
+			}
+
+			// 타겟 머티리얼의 worldViewProjection matrix를 업데이트합니다.
+			currentMaterial->UpdateBuffer(0, XMMatrixTranspose(matWorld));
+			currentMaterial->UpdateBuffer(1, XMMatrixTranspose(matViewProjection));
+
+			mesh->Draw({});
 		}
-
-		// 타겟 머티리얼의 worldViewProjection matrix를 업데이트합니다.
-		targetMaterial->UpdateBuffer(0, XMMatrixTranspose(matWorld));
-		targetMaterial->UpdateBuffer(1, XMMatrixTranspose(matViewProjection));
-
-		mesh->Draw({});
 	}
-}
 
-void Reneder::AddMesh(Mesh* mesh)
-{
-	ASSERT(mesh != nullptr, "The mesh must not be null");
-	mMeshes.push_back(mesh);
+	// Draw texts
+	{
+		XMMATRIX matViewProjection2D;
+		mCamera->LoadViewProjection2DMatrix(&matViewProjection2D);
+
+		Material* currentMaterial = nullptr;
+
+		for (const auto& text : mTexts)
+		{
+			const XMMATRIX matWorld = XMMatrixTranslation(text->GetPosition().x, text->GetPosition().y, 0.0f);
+
+			// 현재 텍스트가 가지는 머티리얼 아이디가 이전 아이디와 달라지는 경우만 머티리얼을 활성화시킴으로써 성능을 향상시킵니다.
+			if (text->GetMaterialID() == 0
+				&& reinterpret_cast<size_t>(currentMaterial) != mFontMaterialID)
+			{
+				currentMaterial = mMaterials.at(mFontMaterialID).get();
+				currentMaterial->Activate({});
+			}
+			else if (text->GetMaterialID() != 0
+				&& reinterpret_cast<size_t>(currentMaterial) != text->GetMaterialID())
+			{
+				currentMaterial = mMaterials.at(text->GetMaterialID()).get();
+				currentMaterial->Activate({});
+			}
+
+			// 타겟 머티리얼의 worldViewProjection matrix를 업데이트합니다.
+			currentMaterial->UpdateBuffer(0, XMMatrixTranspose(matWorld));
+			currentMaterial->UpdateBuffer(1, XMMatrixTranspose(matViewProjection2D));
+
+			text->Draw({});
+		}
+	}
 }
 
 size_t Reneder::AddMaterial(Material* material)
 {
 	ASSERT(material != nullptr, "The material must not be null");
-	
+
 	const size_t materialID = reinterpret_cast<size_t>(material);
 	mMaterials.insert(std::make_pair(materialID, std::unique_ptr<Material>(material)));
 

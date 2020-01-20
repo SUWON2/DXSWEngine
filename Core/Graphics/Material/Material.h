@@ -75,7 +75,7 @@ private:
 	// texture index, texture id
 	std::unordered_map<unsigned int, size_t> mTextureIDs;
 
-	// buffer index, buffer size
+	// buffer index, constant buffer
 	std::unordered_map<unsigned int, ID3D11Buffer*> mConstantBuffers;
 };
 

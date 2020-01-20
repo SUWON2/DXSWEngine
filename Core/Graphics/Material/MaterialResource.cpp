@@ -38,7 +38,7 @@ MaterialResource::~MaterialResource()
 	}
 }
 
-size_t MaterialResource::RegisterVertexShader(const char* fileName)
+size_t MaterialResource::LoadVertexShader(const char* fileName)
 {
 	ASSERT(fileName != nullptr, "The fileName msut not be null");
 
@@ -156,7 +156,7 @@ size_t MaterialResource::RegisterVertexShader(const char* fileName)
 	return reinterpret_cast<size_t>(&mVertexShaderBuffers.find(fileName)->first);
 }
 
-size_t MaterialResource::RegisterPixelShader(const char* fileName)
+size_t MaterialResource::LoadPixelShader(const char* fileName)
 {
 	ASSERT(fileName != nullptr, "The fileName msut not be null");
 
@@ -180,7 +180,9 @@ size_t MaterialResource::RegisterPixelShader(const char* fileName)
 	return reinterpret_cast<size_t>(&mPixelShaders.find(fileName)->first);
 }
 
-size_t MaterialResource::RegisterTexture(const char* fileName)
+#include <fstream> // HACK: юс╫ц
+
+size_t MaterialResource::LoadTexture(const char* fileName)
 {
 	ASSERT(fileName != nullptr, "The fileName must not be null");
 
@@ -199,6 +201,8 @@ size_t MaterialResource::RegisterTexture(const char* fileName)
 	ID3D11ShaderResourceView* texture = nullptr;
 	HR(DirectX::CreateShaderResourceView(mDevice, image.GetImages()
 		, image.GetImageCount(), image.GetMetadata(), &texture));
+	
+	image.Release();
 
 	mTextures.insert(std::make_pair(str, texture));
 

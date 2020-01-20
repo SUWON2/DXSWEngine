@@ -23,7 +23,7 @@ MeshResource::~MeshResource()
 	}
 }
 
-size_t MeshResource::RegisterVertexBuffer(const char* fileName)
+size_t MeshResource::LoadVertexBuffer(const char* fileName)
 {
 	ASSERT(fileName != nullptr, "the fileName must not be null");
 
@@ -125,7 +125,7 @@ size_t MeshResource::RegisterVertexBuffer(const char* fileName)
 	};
 
 	VertexBuffer vertexBuffer;
-	vertexBuffer.Size = sizeof(Vertex);
+	vertexBuffer.VertexSize = sizeof(Vertex);
 	vertexBuffer.VertexCount = fList.size() * 3;
 
 	auto vertices = std::make_unique<Vertex[]>(vertexBuffer.VertexCount);

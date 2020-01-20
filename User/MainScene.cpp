@@ -12,44 +12,38 @@ MainScene::~MainScene()
 {
 }
 
-#include <memory>
 void MainScene::Initialize()
 {
-	GetCamera()->SetPosition(XMFLOAT3(0.0f, 0.0f, -10.0f));
+	GetCamera()->SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
 
-	// LightShader 기준
+	Material* material = Material::Create("./Shaders/BasicShaderVS.hlsl", "./Shaders/BasicShaderPS.hlsl");
+	material->RegisterTexture(0, "./Resource/block.DDS");
+	const int materialID = AddMaterial(material);
+
+	for (float z = 0.0f; z <= 10.0f; ++z)
 	{
-		Material* material = Material::Create("./Shaders/LightShaderVS.hlsl", "./Shaders/LightShaderPS.hlsl");
-		const size_t materialID = AddMaterial(material);
-
-		XMVECTOR lightPosition = { -5.0f, 2.0f, 3.0f };
-		material->RegisterBuffer(2, sizeof(DirectX::XMVECTOR), lightPosition);
-		material->RegisterTexture(0, "./Resource/seafloor.dds");
-
-		Mesh* wolf = Mesh::Create("./Resource/wolf.obj", materialID);
-		AddMesh(wolf);
-
-		Mesh* cube = Mesh::Create("./Resource/cube.obj", materialID);
-		cube->SetPosition({ 3.0f, 0.0f, 0.0f });
-		AddMesh(cube);
+		for (float x = -4.5; x <= 4.5f; ++x)
+		{
+			auto block = Mesh::Create("Resource/Block.obj", materialID);
+			block->SetPosition({ x, -5.0f, z });
+			AddMesh(block);
+		}
 	}
 
-	// BasicShader 기준
-	{
-		Material* material = Material::Create("./Shaders/BasicShaderVS.hlsl", "./Shaders/BasicShaderPS.hlsl");
-		const int materialID = AddMaterial(material);
-
-		Mesh* wolf = Mesh::Create("./Resource/wolf.obj", materialID);
-		wolf->SetPosition({ 0.0f, 0.0f, -5.0f });
-		AddMesh(wolf);
-
-		Mesh* cube = Mesh::Create("./Resource/cube.obj", materialID);
-		cube->SetPosition({ 3.0f, 0.0f, -3.0f });
-		AddMesh(cube);
-	}
+	mFrameText = Text::Create();
+	mFrameText->SetPosition({ -390.0f, 290.0f });
+	AddText(mFrameText);
 }
 
 void MainScene::Update(const float deltaTime)
+{
+	// Show frame
+	mFrameText->SetSentence(("DELTA_TIME: " + std::to_string(deltaTime)).c_str());
+
+	UpdateCamera(deltaTime);
+}
+
+void MainScene::UpdateCamera(const float deltaTime)
 {
 	static Camera* camera = GetCamera();
 
@@ -67,7 +61,7 @@ void MainScene::Update(const float deltaTime)
 		static int forwardDirection = 0;
 		static int xDirection = 0;
 
-		if (GetAsyncKeyState('W') 
+		if (GetAsyncKeyState('W')
 			|| GetAsyncKeyState('S'))
 		{
 			forwardDirection = GetAsyncKeyState('W') ? 1 : GetAsyncKeyState('S') ? -1 : 0;

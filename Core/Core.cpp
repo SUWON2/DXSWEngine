@@ -1,9 +1,11 @@
+#include <chrono>
+
 #include "Core.h"
+#include "Graphics/DXDevice.h"
+#include "Graphics/Reneder.h"
+#include "Scene/Scene.h"
 #include "../Common/Define.h"
 #include "../Common/Setting.h"
-#include "Scene/Scene.h"
-#include "Graphics/Reneder.h"
-#include "Graphics/DXDevice.h"
 
 static LRESULT CALLBACK HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -17,9 +19,12 @@ Core::Core(Scene* scene)
 	mScene = std::unique_ptr<Scene>(scene);
 	mScene->GetReneder()->InitializeManager(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
 	mScene->Initialize();
-	mScene->GetReneder()->SortMesh();
+	mScene->GetReneder()->SortMeshAndText();
 
 	MSG msg = { 0 };
+	static float deltaTime = 0;
+	static auto startTime = std::chrono::system_clock::now();
+
 	do
 	{
 		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -31,7 +36,12 @@ Core::Core(Scene* scene)
 		{
 			mDXDevice->BeginUpdate();
 
-			mScene->Update(0.016f); // HACK: temp deltaTime
+			deltaTime = std::chrono::duration<float>(std::chrono::system_clock::now() - startTime).count();
+
+			startTime = std::chrono::system_clock::now();
+
+			mScene->Update(deltaTime);
+
 			mScene->GetReneder()->Draw();
 
 			mDXDevice->EndUpdate();

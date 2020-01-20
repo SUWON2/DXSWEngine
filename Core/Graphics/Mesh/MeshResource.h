@@ -9,7 +9,7 @@ public:
 	struct VertexBuffer
 	{
 		ID3D11Buffer* Interface;
-		UINT Size;
+		UINT VertexSize;
 		UINT VertexCount;
 	};
 
@@ -23,7 +23,7 @@ public:
 	~MeshResource();
 
 	// return vertex buffer id
-	size_t RegisterVertexBuffer(const char* fileName);
+	size_t LoadVertexBuffer(const char* fileName);
 
 	inline const std::string& GetResourceName(const size_t id) const
 	{
@@ -40,5 +40,6 @@ private:
 
 	ID3D11DeviceContext* mDeviceContext = nullptr;
 
+	// obj file name, vertex buffer
 	std::unordered_map<std::string, VertexBuffer> mVertexBuffers;
 };

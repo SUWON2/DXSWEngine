@@ -27,6 +27,8 @@
     <ClCompile Include="Core\Graphics\Mesh\Mesh.cpp" />
     <ClCompile Include="Core\Graphics\Mesh\MeshResource.cpp" />
     <ClCompile Include="Core\Graphics\Reneder.cpp" />
+    <ClCompile Include="Core\Graphics\Text\Text.cpp" />
+    <ClCompile Include="Core\Graphics\Text\TextResource.cpp" />
     <ClCompile Include="Core\Scene\Scene.cpp" />
     <ClCompile Include="User\main.cpp" />
     <ClCompile Include="User\MainScene.cpp" />
@@ -45,6 +47,8 @@
     <ClInclude Include="Core\Graphics\Mesh\MeshResource.h" />
     <ClInclude Include="Core\Graphics\Reneder.h" />
     <ClInclude Include="Core\Graphics\RenederKey.h" />
+    <ClInclude Include="Core\Graphics\Text\Text.h" />
+    <ClInclude Include="Core\Graphics\Text\TextResource.h" />
     <ClInclude Include="Core\Scene\Scene.h" />
     <ClInclude Include="User\MainScene.h" />
   </ItemGroup>

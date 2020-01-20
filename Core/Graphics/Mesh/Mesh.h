@@ -4,7 +4,7 @@
 #include <string>
 
 #include "MeshResource.h"
-#include "../../Graphics/RenederKey.h"
+#include "../RenederKey.h"
 #include "../../../Common/DirectXMath.h"
 
 class Mesh final
@@ -15,11 +15,6 @@ public:
 	Mesh& operator=(const Mesh&) = delete;
 
 	~Mesh();
-
-	static inline Mesh* Create(const char* fileName)
-	{
-		return new Mesh(fileName);
-	}
 
 	static inline Mesh* Create(const char* fileName, const size_t materialID)
 	{
@@ -41,14 +36,24 @@ public:
 		return mPosition;
 	}
 
-	inline void SetPosition(const DirectX::XMFLOAT3& position)
+	inline const DirectX::XMFLOAT3& GetScale() const
 	{
-		mPosition = position;
+		return mScale;
 	}
 
 	inline void SetMaterialID(const size_t materialID)
 	{
 		mMaterialID = materialID;
+	}
+
+	inline void SetPosition(const DirectX::XMFLOAT3& position)
+	{
+		mPosition = position;
+	}
+
+	inline void SetScale(const DirectX::XMFLOAT3& scale)
+	{
+		mScale = scale;
 	}
 
 public:
@@ -59,8 +64,6 @@ public:
 	void Draw(RenederKey);
 
 private:
-	explicit Mesh(const char* fileName);
-
 	explicit Mesh(const char* fileName, const size_t materialID);
 
 private:
@@ -75,4 +78,6 @@ private:
 	size_t mMaterialID = 0;
 
 	DirectX::XMFLOAT3 mPosition = {};
+
+	DirectX::XMFLOAT3 mScale = { 1.0f, 1.0f, 1.0f };
 };

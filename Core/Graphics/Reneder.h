@@ -7,6 +7,7 @@
 
 #include "Camera/Camera.h"
 #include "Mesh/Mesh.h"
+#include "Text/Text.h"
 #include "Material/Material.h"
 #include "../../Common/Define.h"
 
@@ -23,11 +24,22 @@ public:
 
 	void InitializeManager(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
-	void SortMesh();
+	// HACK: 함수명 다시 생각해 보자
+	void SortMeshAndText();
 
 	void Draw();
 
-	void AddMesh(Mesh* mesh);
+	void AddMesh(Mesh* mesh)
+	{
+		ASSERT(mesh != nullptr, "The mesh must not be null");
+		mMeshes.push_back(mesh);
+	}
+
+	void AddText(Text* text)
+	{
+		ASSERT(text != nullptr, "The text must not be null");
+		mTexts.push_back(text);
+	}
 
 	size_t AddMaterial(Material* material);
 
@@ -43,8 +55,11 @@ private:
 
 	std::unique_ptr<Camera> mCamera = nullptr;
 
-	// mesh id, mesh
 	std::vector<Mesh*> mMeshes;
+
+	std::vector<Text*> mTexts;
+
+	size_t mFontMaterialID = 0;
 
 	// material id, material
  	std::unordered_map<size_t, std::unique_ptr<Material>> mMaterials;

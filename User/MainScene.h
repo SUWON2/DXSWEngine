@@ -16,4 +16,10 @@ public:
 	void Initialize() override;
 
 	void Update(const float deltaTime) override;
+
+private:
+	void UpdateCamera(const float deltaTime);
+
+private:
+	Text* mFrameText = nullptr;
 };
