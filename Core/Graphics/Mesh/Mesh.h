@@ -41,6 +41,11 @@ public:
 		return mScale;
 	}
 
+	inline const DirectX::XMFLOAT3& GetRotation() const
+	{
+		return mRotation;
+	}
+
 	inline void SetMaterialID(const size_t materialID)
 	{
 		mMaterialID = materialID;
@@ -54,6 +59,11 @@ public:
 	inline void SetScale(const DirectX::XMFLOAT3& scale)
 	{
 		mScale = scale;
+	}
+
+	inline void SetRotation(const DirectX::XMFLOAT3& rotation)
+	{
+		mRotation = rotation;
 	}
 
 public:
@@ -80,4 +90,6 @@ private:
 	DirectX::XMFLOAT3 mPosition = {};
 
 	DirectX::XMFLOAT3 mScale = { 1.0f, 1.0f, 1.0f };
+
+	DirectX::XMFLOAT3 mRotation = {};
 };

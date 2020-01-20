@@ -69,7 +69,9 @@ void Reneder::Draw()
 
 		for (const auto& mesh : mMeshes)
 		{
-			const XMMATRIX matWorld = XMMatrixScaling(mesh->GetScale().x, mesh->GetScale().y, mesh->GetScale().z)
+			const XMMATRIX matWorld = 
+				XMMatrixScaling(mesh->GetScale().x, mesh->GetScale().y, mesh->GetScale().z)
+				* XMMatrixRotationRollPitchYaw(XMConvertToRadians(mesh->GetRotation().x), XMConvertToRadians(mesh->GetRotation().y), XMConvertToRadians(mesh->GetRotation().z))
 				* XMMatrixTranslation(mesh->GetPosition().x, mesh->GetPosition().y, mesh->GetPosition().z);
 
 			// 현재 메쉬가 가지는 머티리얼 아이디가 이전 아이디와 달라지는 경우만 머티리얼을 활성화시킴으로써 성능을 향상시킵니다.
