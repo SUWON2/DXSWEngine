@@ -16,13 +16,14 @@ void MainScene::Initialize()
 {
 	GetCamera()->SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
 
-	Material* material = Material::Create("./Shaders/BasicShaderVS.hlsl", "./Shaders/BasicShaderPS.hlsl");
-	material->RegisterTexture(0, "./Resource/block.DDS");
-	const int materialID = AddMaterial(material);
+	Material* planeMaterial = Material::Create("./Shaders/BasicShaderVS.hlsl", "./Shaders/BasicShaderPS.hlsl");
+	planeMaterial->RegisterTexture(0, "./Resource/block.DDS");
+	planeMaterial->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT2(1.0f, 1.0f));
+	const int materialID = AddMaterial(planeMaterial);
 
-	for (float z = 0.0f; z <= 10.0f; ++z)
+	for (float z = 0.0f; z <= 20.0f; ++z)
 	{
-		for (float x = -4.5; x <= 4.5f; ++x)
+		for (float x = -9.5; x <= 9.5f; ++x)
 		{
 			auto block = Mesh::Create("Resource/Block.obj", materialID);
 			block->SetPosition({ x, -5.0f, z });
@@ -33,6 +34,8 @@ void MainScene::Initialize()
 	mFrameText = Text::Create();
 	mFrameText->SetPosition({ -390.0f, 290.0f });
 	AddText(mFrameText);
+
+	// Set sky dome
 }
 
 void MainScene::Update(const float deltaTime)

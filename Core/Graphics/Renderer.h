@@ -11,16 +11,16 @@
 #include "Material/Material.h"
 #include "../../Common/Define.h"
 
-class Reneder final
+class Renderer final
 {
 public:
-	Reneder();
+	Renderer();
 
-	Reneder(const Reneder&) = default;
+	Renderer(const Renderer&) = default;
 
-	Reneder& operator=(const Reneder&) = delete;
+	Renderer& operator=(const Renderer&) = delete;
 
-	~Reneder();
+	~Renderer();
 
 	void InitializeManager(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 

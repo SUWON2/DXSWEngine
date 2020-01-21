@@ -2,8 +2,8 @@
 
 #include "Core.h"
 #include "Graphics/DXDevice.h"
-#include "Graphics/Reneder.h"
 #include "Scene/Scene.h"
+#include "Graphics/RendererKey.h"
 #include "../Common/Define.h"
 #include "../Common/Setting.h"
 

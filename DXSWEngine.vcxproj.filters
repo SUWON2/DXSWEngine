@@ -33,9 +33,6 @@
     <ClCompile Include="Core\Core.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Graphics\Reneder.cpp">
-      <Filter>Core\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="User\main.cpp">
       <Filter>User</Filter>
     </ClCompile>
@@ -69,13 +66,13 @@
     <ClCompile Include="Core\Graphics\Text\TextResource.cpp">
       <Filter>Core\Graphics\Text</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Graphics\Renderer.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\Core.h">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Graphics\Reneder.h">
-      <Filter>Core\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Common\Define.h">
       <Filter>Common</Filter>
@@ -113,14 +110,17 @@
     <ClInclude Include="Core\Graphics\Mesh\MeshResource.h">
       <Filter>Core\Graphics\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Graphics\RenederKey.h">
-      <Filter>Core\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Graphics\Text\Text.h">
       <Filter>Core\Graphics\Text</Filter>
     </ClInclude>
     <ClInclude Include="Core\Graphics\Text\TextResource.h">
       <Filter>Core\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Renderer.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\RendererKey.h">
+      <Filter>Core\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

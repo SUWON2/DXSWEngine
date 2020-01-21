@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "../../Common/Define.h"
-#include "../Graphics/Reneder.h"
+#include "../Graphics/Renderer.h"
 
 class Scene abstract
 {
@@ -25,32 +25,32 @@ public:
 	inline void AddMesh(Mesh* mesh)
 	{
 		ASSERT(mesh != nullptr, "The mesh must not be null");
-		mReneder->AddMesh(mesh);
+		mRenderer->AddMesh(mesh);
 	}
 
 	inline void AddText(Text* text)
 	{
 		ASSERT(text != nullptr, "The text must not be null");
-		mReneder->AddText(text);
+		mRenderer->AddText(text);
 	}
 
 	inline size_t AddMaterial(Material* material)
 	{
 		ASSERT(material != nullptr, "The material must not be null");
-		return mReneder->AddMaterial(material);
+		return mRenderer->AddMaterial(material);
 	}
 
 	inline Camera* GetCamera() const
 	{
-		return mReneder->GetCamera();
+		return mRenderer->GetCamera();
 	}
 
 private:
-	inline Reneder* GetReneder() const
+	inline Renderer* GetReneder() const
 	{
-		return mReneder.get();
+		return mRenderer.get();
 	}
 
 private:
-	std::unique_ptr<Reneder> mReneder = nullptr;
+	std::unique_ptr<Renderer> mRenderer = nullptr;
 };

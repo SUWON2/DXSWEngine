@@ -1,16 +1,16 @@
 #include <algorithm>
 
-#include "Reneder.h"
+#include "Renderer.h"
 #include "../../Common/Define.h"
 #include "../../common/DirectXMath.h"
 
 using namespace DirectX;
 
-Reneder::Reneder()
+Renderer::Renderer()
 {
 }
 
-Reneder::~Reneder()
+Renderer::~Renderer()
 {
 	for (auto& i : mTexts)
 	{
@@ -23,7 +23,7 @@ Reneder::~Reneder()
 	}
 }
 
-void Reneder::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+void Renderer::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	ASSERT(device != nullptr, "The device must not be null");
 	ASSERT(deviceContext != nullptr, "The deviceContext must not be null");
@@ -43,9 +43,13 @@ void Reneder::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devic
 	mFontMaterialID = AddMaterial(fontMaterial);
 }
 
-void Reneder::SortMeshAndText()
+void Renderer::SortMeshAndText()
 {
-	// 머티리얼을 한 번에 패스하기 위해 머티리얼 아이디를 기준으로 메쉬와 텍스트를 정렬합니다.
+	// HACK: 함수명 바꾸자
+
+	/*
+		머티리얼을 한 번에 패스하기 위해 머티리얼 아이디를 기준으로 메쉬와 텍스트를 정렬합니다.
+	*/
 
 	std::sort(begin(mMeshes), end(mMeshes), [](const Mesh* a, const Mesh* b)
 		{
@@ -58,7 +62,7 @@ void Reneder::SortMeshAndText()
 		});
 }
 
-void Reneder::Draw()
+void Renderer::Draw()
 {
 	// Draw meshes
 	{
@@ -123,7 +127,7 @@ void Reneder::Draw()
 	}
 }
 
-size_t Reneder::AddMaterial(Material* material)
+size_t Renderer::AddMaterial(Material* material)
 {
 	ASSERT(material != nullptr, "The material must not be null");
 

@@ -2,7 +2,7 @@
 
 Scene::Scene()
 {
-	mReneder = std::make_unique<Reneder>();
+	mRenderer = std::make_unique<Renderer>();
 }
 
 Scene::~Scene()

@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "TextResource.h"
-#include "../RenederKey.h"
+#include "../RendererKey.h"
 #include "../../../Common/DirectXMath.h"
 
 class Text final
@@ -23,6 +23,7 @@ public:
 
 	~Text();
 
+	// 폰트 데이터와 머티리얼을 따로 지정하지 않아도 기본적으로 제공하는 폰트가 적용됩니다.
 	static inline Text* Create()
 	{
 		return new Text();
@@ -57,13 +58,12 @@ public:
 
 public:
 	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	static void Initialize(RenederKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	static void Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
 	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	void Draw(RenederKey);
+	void Draw(RendererKey);
 
 private:
-	// 폰트 데이터와 머티리얼을 따로 지정하지 않아도 기본적으로 제공하는 폰트가 적용됩니다.
 	Text();
 
 	Text(const char* fontDataName, const size_t materialID);

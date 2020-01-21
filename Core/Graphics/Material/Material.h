@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 #include "MaterialResource.h"
-#include "../../Graphics/RenederKey.h"
+#include "../../Graphics/RendererKey.h"
 #include "../../../Common/Define.h"
 #include "../../../Common/DirectXMath.h"
 
@@ -53,10 +53,10 @@ public:
 
 public:
 	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	static void Initialize(RenederKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	static void Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
 	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	void Activate(RenederKey);
+	void Activate(RendererKey);
 
 private:
 	explicit Material(const char* vertexShaderName, const char* pixelShaderName);

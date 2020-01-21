@@ -4,7 +4,7 @@
 #include <string>
 
 #include "MeshResource.h"
-#include "../RenederKey.h"
+#include "../RendererKey.h"
 #include "../../../Common/DirectXMath.h"
 
 class Mesh final
@@ -68,10 +68,10 @@ public:
 
 public:
 	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	static void Initialize(RenederKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	static void Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
 	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	void Draw(RenederKey);
+	void Draw(RendererKey);
 
 private:
 	explicit Mesh(const char* fileName, const size_t materialID);
