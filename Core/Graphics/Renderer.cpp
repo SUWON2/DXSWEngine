@@ -31,11 +31,12 @@ void Renderer::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devi
 	mDevice = device;
 	mDeviceContext = deviceContext;
 
-	mCamera = std::make_unique<Camera>();
-
 	Mesh::Initialize({}, mDevice, mDeviceContext);
 	Text::Initialize({}, mDevice, mDeviceContext);
 	Material::Initialize({}, mDevice, mDeviceContext);
+
+	mCamera = std::make_unique<Camera>();
+	mSkyDome = std::make_unique<SkyDome>();
 
 	// 폰트를 따로 지정하지 않은 텍스트를 위해 제공하는 기본 폰트 머티리얼을 미리 추가합니다.
 	Material* fontMaterial = Material::Create("Shaders/BasicFontShaderVS.hlsl", "Shaders/BasicFontShaderPS.hlsl");
@@ -45,24 +46,32 @@ void Renderer::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devi
 
 void Renderer::SortMeshAndText()
 {
-	// HACK: 함수명 바꾸자
+	// 머티리얼을 한 번에 패스하기 위해 머티리얼 아이디를 기준으로 메쉬와 텍스트를 정렬합니다.
+	{
+		std::sort(begin(mMeshes), end(mMeshes), [](const Mesh* a, const Mesh* b)
+			{
+				return a->GetMaterialID() < b->GetMaterialID();
+			});
 
-	/*
-		머티리얼을 한 번에 패스하기 위해 머티리얼 아이디를 기준으로 메쉬와 텍스트를 정렬합니다.
-	*/
-
-	std::sort(begin(mMeshes), end(mMeshes), [](const Mesh* a, const Mesh* b)
-		{
-			return a->GetMaterialID() < b->GetMaterialID();
-		});
-
-	std::sort(begin(mTexts), end(mTexts), [](const Text* a, const Text* b)
-		{
-			return a->GetMaterialID() < b->GetMaterialID();
-		});
+		std::sort(begin(mTexts), end(mTexts), [](const Text* a, const Text* b)
+			{
+				return a->GetMaterialID() < b->GetMaterialID();
+			});
+	}
 }
 
-void Renderer::Draw()
+void Renderer::DrawSkyDome()
+{
+	const XMMATRIX matWorld = 
+		XMMatrixTranslation(mCamera->GetPosition().x, mCamera->GetPosition().y, mCamera->GetPosition().z);
+
+	XMMATRIX matViewProjection;
+	mCamera->LoadViewProjectionMatrix(&matViewProjection);
+
+	mSkyDome->Draw({}, matWorld, matViewProjection);
+}
+
+void Renderer::DrawMeshAndText()
 {
 	// Draw meshes
 	{

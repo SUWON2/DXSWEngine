@@ -36,6 +36,7 @@ void MainScene::Initialize()
 	AddText(mFrameText);
 
 	// Set sky dome
+
 }
 
 void MainScene::Update(const float deltaTime)

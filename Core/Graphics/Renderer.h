@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "Camera/Camera.h"
+#include "SkyDome/SkyDome.h"
 #include "Mesh/Mesh.h"
 #include "Text/Text.h"
 #include "Material/Material.h"
@@ -24,10 +25,11 @@ public:
 
 	void InitializeManager(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
-	// HACK: 함수명 다시 생각해 보자
 	void SortMeshAndText();
 
-	void Draw();
+	void DrawSkyDome();
+
+	void DrawMeshAndText();
 
 	void AddMesh(Mesh* mesh)
 	{
@@ -48,12 +50,19 @@ public:
 		return mCamera.get();
 	}
 
+	inline SkyDome* GetSkyDome() const
+	{
+		return mSkyDome.get();
+	}
+
 private:
 	ID3D11Device* mDevice = nullptr;
 
 	ID3D11DeviceContext* mDeviceContext = nullptr;
 
 	std::unique_ptr<Camera> mCamera = nullptr;
+
+	std::unique_ptr<SkyDome> mSkyDome = nullptr;
 
 	std::vector<Mesh*> mMeshes;
 

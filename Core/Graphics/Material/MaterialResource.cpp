@@ -180,8 +180,6 @@ size_t MaterialResource::LoadPixelShader(const char* fileName)
 	return reinterpret_cast<size_t>(&mPixelShaders.find(fileName)->first);
 }
 
-#include <fstream> // HACK: юс╫ц
-
 size_t MaterialResource::LoadTexture(const char* fileName)
 {
 	ASSERT(fileName != nullptr, "The fileName must not be null");

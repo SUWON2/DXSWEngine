@@ -140,16 +140,37 @@ DXDevice::DXDevice(HWND hWnd)
 		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 		// 깊이 스텐실 상태를 생성합니다.
-		ID3D11DepthStencilState* depthStencilState = nullptr;
-		HR(mDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState));
-
-		// 깊이 스텐실 상태를 지정합니다.
-		mDeviceContext->OMSetDepthStencilState(depthStencilState, 1);
-
-		RELEASE_COM(depthStencilState);
+		HR(mDevice->CreateDepthStencilState(&depthStencilDesc, &mDepthStencilState));
 	}
 
-	// Initialize Rasterizer
+	// Initialize depth disabled stencil state
+	{
+		CD3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+		depthStencilDesc.DepthEnable = false;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+		depthStencilDesc.StencilEnable = true;
+		depthStencilDesc.StencilReadMask = 0xFF;
+		depthStencilDesc.StencilWriteMask = 0xFF;
+
+		// 픽셀 정면의 스텐실 정보를 설정 합니다.
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// 픽셀 뒷면의 스텐실 정보를 설정합니다.
+		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// 깊이 스텐실 상태를 생성합니다.
+		HR(mDevice->CreateDepthStencilState(&depthStencilDesc, &mDepthDisabledStencilState));
+	}
+
+	// Initialize rasterizer state
 	{
 		D3D11_RASTERIZER_DESC rasterizerDesc;
 		rasterizerDesc.AntialiasedLineEnable = false;
@@ -163,8 +184,22 @@ DXDevice::DXDevice(HWND hWnd)
 		rasterizerDesc.ScissorEnable = false;
 		rasterizerDesc.SlopeScaledDepthBias = 0.0f;
 		HR(mDevice->CreateRasterizerState(&rasterizerDesc, &mRasterizerState));
+	}
 
-		mDeviceContext->RSSetState(mRasterizerState);
+	// Initialize culling disabled rasterizer state
+	{
+		D3D11_RASTERIZER_DESC rasterizerDesc;
+		rasterizerDesc.AntialiasedLineEnable = false;
+		rasterizerDesc.CullMode = D3D11_CULL_NONE;
+		rasterizerDesc.DepthBias = 0;
+		rasterizerDesc.DepthBiasClamp = 0.0f;
+		rasterizerDesc.DepthClipEnable = true;
+		rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+		rasterizerDesc.FrontCounterClockwise = false;
+		rasterizerDesc.MultisampleEnable = false;
+		rasterizerDesc.ScissorEnable = false;
+		rasterizerDesc.SlopeScaledDepthBias = 0.0f;
+		HR(mDevice->CreateRasterizerState(&rasterizerDesc, &mRasterizerStateNoCulling));
 	}
 
 	// Set the viewport
@@ -224,10 +259,45 @@ DXDevice::DXDevice(HWND hWnd)
 
 DXDevice::~DXDevice()
 {
+	RELEASE_COM(mRasterizerStateNoCulling);
 	RELEASE_COM(mRasterizerState);
+	RELEASE_COM(mDepthDisabledStencilState);
+	RELEASE_COM(mDepthStencilState);
 	RELEASE_COM(mDepthStencilView);
 	RELEASE_COM(mRenderTargetView);
 	RELEASE_COM(mSwapChain);
 	RELEASE_COM(mDeviceContext);
 	RELEASE_COM(mDevice);
+}
+
+void DXDevice::BeginUpdate()
+{
+	const float color[] = { 0.0f, 0.70f, 0.67f, 1.0f };
+	mDeviceContext->ClearRenderTargetView(mRenderTargetView, color);
+	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
+void DXDevice::EndUpdate()
+{
+	HR(mSwapChain->Present(Setting::Get().IsVsync(), 0));
+}
+
+void DXDevice::TurnOnZBuffer()
+{
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
+}
+
+void DXDevice::TurnOffZBuffer()
+{
+	mDeviceContext->OMSetDepthStencilState(mDepthDisabledStencilState, 1);
+}
+
+void DXDevice::TurnOnCulling()
+{
+	mDeviceContext->RSSetState(mRasterizerState);
+}
+
+void DXDevice::TurnOffCulling()
+{
+	mDeviceContext->RSSetState(mRasterizerStateNoCulling);
 }

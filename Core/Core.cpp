@@ -17,13 +17,13 @@ Core::Core(Scene* scene)
 	mDXDevice = std::make_unique<DXDevice>(mHWnd);
 
 	mScene = std::unique_ptr<Scene>(scene);
-	mScene->GetReneder()->InitializeManager(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
+	mScene->GetRenderer()->InitializeManager(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
 	mScene->Initialize();
-	mScene->GetReneder()->SortMeshAndText();
+	mScene->GetRenderer()->SortMeshAndText();
 
-	MSG msg = { 0 };
+	MSG msg = {};
 	static float deltaTime = 0;
-	static auto startTime = std::chrono::system_clock::now();
+	static std::chrono::time_point<std::chrono::system_clock> startTime;
 
 	do
 	{
@@ -34,17 +34,29 @@ Core::Core(Scene* scene)
 		}
 		else
 		{
-			mDXDevice->BeginUpdate();
-
-			deltaTime = std::chrono::duration<float>(std::chrono::system_clock::now() - startTime).count();
-
 			startTime = std::chrono::system_clock::now();
 
 			mScene->Update(deltaTime);
 
-			mScene->GetReneder()->Draw();
+			mDXDevice->BeginUpdate();
+
+			{
+				mDXDevice->TurnOffCulling();
+				mDXDevice->TurnOffZBuffer();
+
+				mScene->GetRenderer()->DrawSkyDome();
+			}
+
+			{
+				mDXDevice->TurnOnZBuffer();
+				mDXDevice->TurnOnCulling();
+
+				mScene->GetRenderer()->DrawMeshAndText();
+			}
 
 			mDXDevice->EndUpdate();
+
+			deltaTime = std::chrono::duration<float>(std::chrono::system_clock::now() - startTime).count();
 		}
 	}
 	while (msg.message != WM_QUIT);

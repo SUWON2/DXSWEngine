@@ -5,6 +5,8 @@ class RendererKey
 {
 	friend class Renderer;
 
+	friend class SkyDome;
+
 private:
 	RendererKey() = delete;
 

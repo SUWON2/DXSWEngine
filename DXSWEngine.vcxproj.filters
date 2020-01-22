@@ -28,6 +28,9 @@
     <Filter Include="Core\Graphics\Text">
       <UniqueIdentifier>{9ba64b86-f01f-4aef-8d77-d6b9641523c8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Graphics\SkyDome">
+      <UniqueIdentifier>{4fe41a6f-cbb3-40ef-ab2b-20a86674bd54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Core.cpp">
@@ -68,6 +71,9 @@
     </ClCompile>
     <ClCompile Include="Core\Graphics\Renderer.cpp">
       <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\SkyDome\SkyDome.cpp">
+      <Filter>Core\Graphics\SkyDome</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="Core\Graphics\RendererKey.h">
       <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\SkyDome\SkyDome.h">
+      <Filter>Core\Graphics\SkyDome</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -45,8 +45,13 @@ public:
 		return mRenderer->GetCamera();
 	}
 
+	inline SkyDome* GetSkyDome() const
+	{
+		return mRenderer->GetSkyDome();
+	}
+
 private:
-	inline Renderer* GetReneder() const
+	inline Renderer* GetRenderer() const
 	{
 		return mRenderer.get();
 	}

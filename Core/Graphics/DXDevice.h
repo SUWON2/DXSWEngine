@@ -16,17 +16,17 @@ public:
 
 	~DXDevice();
 
-	inline void BeginUpdate()
-	{
-		const float color[] = { 0.0f, 0.70f, 0.67f, 1.0f };
-		mDeviceContext->ClearRenderTargetView(mRenderTargetView, color);
-		mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-	}
+	void BeginUpdate();
 
-	inline void EndUpdate()
-	{
-		HR(mSwapChain->Present(Setting::Get().IsVsync(), 0));
-	}
+	void EndUpdate();
+
+	void TurnOnZBuffer();
+
+	void TurnOffZBuffer();
+
+	void TurnOnCulling();
+
+	void TurnOffCulling();
 
 	inline ID3D11Device* GetDevice() const
 	{
@@ -49,5 +49,11 @@ private:
 
 	ID3D11DepthStencilView* mDepthStencilView = nullptr;
 
+	ID3D11DepthStencilState* mDepthStencilState = nullptr;
+
+	ID3D11DepthStencilState* mDepthDisabledStencilState = nullptr;
+
 	ID3D11RasterizerState* mRasterizerState = nullptr;
+
+	ID3D11RasterizerState* mRasterizerStateNoCulling = nullptr;
 };
