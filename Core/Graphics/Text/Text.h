@@ -46,6 +46,11 @@ public:
 		return mPosition;
 	}
 
+	inline bool IsActive() const
+	{
+		return mbActive;
+	}
+
 	inline void SetMaterialID(const size_t materialID)
 	{
 		mMaterialID = materialID;
@@ -54,6 +59,11 @@ public:
 	inline void SetPosition(const DirectX::XMFLOAT2& position)
 	{
 		mPosition = position;
+	}
+
+	inline void SetActive(const bool bActive)
+	{
+		mbActive = bActive;
 	}
 
 public:
@@ -86,4 +96,6 @@ private:
 	size_t mMaterialID = 0;
 
 	DirectX::XMFLOAT2 mPosition = {};
+
+	bool mbActive = true;
 };

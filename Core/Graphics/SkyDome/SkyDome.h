@@ -18,6 +18,16 @@ public:
 
 	~SkyDome();
 
+	inline bool IsActive() const
+	{
+		return mbActive;
+	}
+
+	inline void SetActive(const bool bActive)
+	{
+		mbActive = bActive;
+	}
+
 public:
 	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
 	void Draw(RendererKey, const DirectX::XMMATRIX& matWorld, const DirectX::XMMATRIX& matViewProjection);
@@ -26,4 +36,6 @@ private:
 	Mesh* mMesh = nullptr;
 
 	Material* mMaterial = nullptr;
+
+	bool mbActive = true;
 };

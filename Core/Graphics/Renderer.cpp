@@ -82,6 +82,11 @@ void Renderer::DrawMeshAndText()
 
 		for (const auto& mesh : mMeshes)
 		{
+			if (mesh->IsActive() == false)
+			{
+				continue;
+			}
+
 			const XMMATRIX matWorld =
 				XMMatrixScaling(mesh->GetScale().x, mesh->GetScale().y, mesh->GetScale().z)
 				* XMMatrixRotationRollPitchYaw(XMConvertToRadians(mesh->GetRotation().x), XMConvertToRadians(mesh->GetRotation().y), XMConvertToRadians(mesh->GetRotation().z))
@@ -111,6 +116,11 @@ void Renderer::DrawMeshAndText()
 
 		for (const auto& text : mTexts)
 		{
+			if (text->IsActive() == false)
+			{
+				continue;
+			}
+
 			const XMMATRIX matWorld = XMMatrixTranslation(text->GetPosition().x, text->GetPosition().y, 0.0f);
 
 			// 현재 텍스트가 가지는 머티리얼 아이디가 이전 아이디와 달라지는 경우만 머티리얼을 활성화시킴으로써 성능을 향상시킵니다.

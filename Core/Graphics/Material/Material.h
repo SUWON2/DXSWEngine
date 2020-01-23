@@ -99,16 +99,19 @@ inline void Material::RegisterBuffer(const unsigned int bufferIndex, const size_
 
 	ID3D11Buffer* constantBuffer = nullptr;
 
-	#if std::is_same<T, std::nullptr_t>::value
+	if constexpr (std::is_same<T, std::nullptr_t>::value)
+	{
 		HR(mDevice->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer));
-	#else
+	}
+	else
+	{
 		ASSERT(&data != nullptr, "The data address is null");
 
 		D3D11_SUBRESOURCE_DATA subResourceData = {};
 		subResourceData.pSysMem = reinterpret_cast<const void*>(&data);
 
 		HR(mDevice->CreateBuffer(&constantBufferDesc, &subResourceData, &constantBuffer));
-	#endif
+	}
 
 	mConstantBuffers.insert(std::make_pair(bufferIndex, constantBuffer));
 }

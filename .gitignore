@@ -30,8 +30,7 @@
 *.la
 *.a
 *.lib
-!DirectXTex_D.lib
-!DirectXTex_R.lib
+!DirectXTex.lib
 
 # Executables
 *.exe

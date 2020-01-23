@@ -22,14 +22,14 @@
     <Filter Include="Core\Graphics\Camera">
       <UniqueIdentifier>{886f7a17-62b2-4a6d-acfb-868cd45f2bd5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Graphics\Material">
-      <UniqueIdentifier>{93bbffd6-a73c-42b2-9321-feb599962f31}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Graphics\Text">
       <UniqueIdentifier>{9ba64b86-f01f-4aef-8d77-d6b9641523c8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Graphics\SkyDome">
       <UniqueIdentifier>{4fe41a6f-cbb3-40ef-ab2b-20a86674bd54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Graphics\Material">
+      <UniqueIdentifier>{93bbffd6-a73c-42b2-9321-feb599962f31}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

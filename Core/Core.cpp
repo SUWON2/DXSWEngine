@@ -40,6 +40,7 @@ Core::Core(Scene* scene)
 
 			mDXDevice->BeginUpdate();
 
+			if (mScene->GetRenderer()->GetSkyDome()->IsActive())
 			{
 				mDXDevice->TurnOffCulling();
 				mDXDevice->TurnOffZBuffer();

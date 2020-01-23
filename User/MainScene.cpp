@@ -18,7 +18,7 @@ void MainScene::Initialize()
 
 	Material* planeMaterial = Material::Create("./Shaders/BasicShaderVS.hlsl", "./Shaders/BasicShaderPS.hlsl");
 	planeMaterial->RegisterTexture(0, "./Resource/block.dds");
-	planeMaterial->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT2(1.0f, 1.0f));
+	planeMaterial->RegisterBuffer(2, sizeof(XMVECTOR), nullptr);
 	const int materialID = AddMaterial(planeMaterial);
 
 	for (float z = 0.0f; z <= 20.0f; ++z)
@@ -35,14 +35,16 @@ void MainScene::Initialize()
 	mFrameText->SetPosition({ -390.0f, 290.0f });
 	AddText(mFrameText);
 
-	// Set sky dome
-
+	GetSkyDome()->SetActive(false);
 }
 
 void MainScene::Update(const float deltaTime)
 {
 	// Show frame
-	mFrameText->SetSentence(("DELTA_TIME: " + std::to_string(deltaTime)).c_str());
+	if (mFrameText->IsActive())
+	{
+		mFrameText->SetSentence(("DELTA_TIME: " + std::to_string(deltaTime)).c_str());
+	}
 
 	UpdateCamera(deltaTime);
 }

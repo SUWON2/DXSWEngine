@@ -43,6 +43,11 @@ public:
 		return mRotation;
 	}
 
+	inline bool IsActive() const
+	{
+		return mbActive;
+	}
+
 	inline void SetMaterialID(const size_t materialID)
 	{
 		mMaterialID = materialID;
@@ -61,6 +66,11 @@ public:
 	inline void SetRotation(const DirectX::XMFLOAT3& rotation)
 	{
 		mRotation = rotation;
+	}
+
+	inline void SetActive(const bool bActive)
+	{
+		mbActive = bActive;
 	}
 
 public:
@@ -89,4 +99,6 @@ private:
 	DirectX::XMFLOAT3 mScale = { 1.0f, 1.0f, 1.0f };
 
 	DirectX::XMFLOAT3 mRotation = {};
+
+	bool mbActive = true;
 };
