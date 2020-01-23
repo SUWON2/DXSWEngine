@@ -62,7 +62,7 @@ void Renderer::SortMeshAndText()
 
 void Renderer::DrawSkyDome()
 {
-	const XMMATRIX matWorld = 
+	const XMMATRIX matWorld =
 		XMMatrixTranslation(mCamera->GetPosition().x, mCamera->GetPosition().y, mCamera->GetPosition().z);
 
 	XMMATRIX matViewProjection;
@@ -82,7 +82,7 @@ void Renderer::DrawMeshAndText()
 
 		for (const auto& mesh : mMeshes)
 		{
-			const XMMATRIX matWorld = 
+			const XMMATRIX matWorld =
 				XMMatrixScaling(mesh->GetScale().x, mesh->GetScale().y, mesh->GetScale().z)
 				* XMMatrixRotationRollPitchYaw(XMConvertToRadians(mesh->GetRotation().x), XMConvertToRadians(mesh->GetRotation().y), XMConvertToRadians(mesh->GetRotation().z))
 				* XMMatrixTranslation(mesh->GetPosition().x, mesh->GetPosition().y, mesh->GetPosition().z);
@@ -139,12 +139,28 @@ void Renderer::DrawMeshAndText()
 void Renderer::AddMesh(Mesh* mesh)
 {
 	ASSERT(mesh != nullptr, "The mesh must not be null");
+
+	#if defined(DEBUG) | defined(_DEBUG)
+	for (const auto& i : mMeshes)
+	{
+		ASSERT(i != mesh, "There is already the mesh");
+	}
+	#endif
+
 	mMeshes.push_back(mesh);
 }
 
 void Renderer::AddText(Text* text)
 {
 	ASSERT(text != nullptr, "The text must not be null");
+
+	#if defined(DEBUG) | defined(_DEBUG)
+	for (const auto& i : mTexts)
+	{
+		ASSERT(i != text, "There is already the text");
+	}
+	#endif
+
 	mTexts.push_back(text);
 }
 
@@ -152,7 +168,9 @@ size_t Renderer::AddMaterial(Material* material)
 {
 	ASSERT(material != nullptr, "The material must not be null");
 
-	const size_t materialID = reinterpret_cast<size_t>(material);
+	const size_t materialID = reinterpret_cast<size_t>(material);;
+	ASSERT(mMaterials.find(materialID) == mMaterials.end(), "There is already the material");
+
 	mMaterials.insert(std::make_pair(materialID, std::unique_ptr<Material>(material)));
 
 	return materialID;
