@@ -16,10 +16,7 @@ public:
 
 	~Mesh();
 
-	static inline Mesh* Create(const char* fileName, const size_t materialID)
-	{
-		return new Mesh(fileName, materialID);
-	}
+	static Mesh* Create(const char* fileName, const size_t materialID);
 
 	inline const char* GetFileName() const
 	{

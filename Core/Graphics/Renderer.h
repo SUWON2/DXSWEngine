@@ -31,17 +31,9 @@ public:
 
 	void DrawMeshAndText();
 
-	void AddMesh(Mesh* mesh)
-	{
-		ASSERT(mesh != nullptr, "The mesh must not be null");
-		mMeshes.push_back(mesh);
-	}
+	void AddMesh(Mesh* mesh);
 
-	void AddText(Text* text)
-	{
-		ASSERT(text != nullptr, "The text must not be null");
-		mTexts.push_back(text);
-	}
+	void AddText(Text* text);
 
 	size_t AddMaterial(Material* material);
 

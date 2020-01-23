@@ -136,6 +136,18 @@ void Renderer::DrawMeshAndText()
 	}
 }
 
+void Renderer::AddMesh(Mesh* mesh)
+{
+	ASSERT(mesh != nullptr, "The mesh must not be null");
+	mMeshes.push_back(mesh);
+}
+
+void Renderer::AddText(Text* text)
+{
+	ASSERT(text != nullptr, "The text must not be null");
+	mTexts.push_back(text);
+}
+
 size_t Renderer::AddMaterial(Material* material)
 {
 	ASSERT(material != nullptr, "The material must not be null");

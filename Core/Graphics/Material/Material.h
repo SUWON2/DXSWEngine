@@ -20,13 +20,7 @@ public:
 
 	~Material();
 
-	static inline Material* Create(const char* vertexShaderName, const char* pixelShaderName)
-	{
-		ASSERT(vertexShaderName != nullptr, "The vertexShaderName must not be null");
-		ASSERT(pixelShaderName != nullptr, "The pixelShaderName must not be null");
-
-		return new Material(vertexShaderName, pixelShaderName);
-	}
+	static Material* Create(const char* vertexShaderName, const char* pixelShaderName);
 
 	template <typename T>
 	void RegisterBuffer(const unsigned int bufferIndex, const size_t bufferSize, const T& data);

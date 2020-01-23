@@ -18,6 +18,11 @@ Mesh::~Mesh()
 {
 }
 
+Mesh* Mesh::Create(const char* fileName, const size_t materialID)
+{
+	return new Mesh(fileName, materialID);
+}
+
 void Mesh::Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	ASSERT(device != nullptr, "The device must not be null");

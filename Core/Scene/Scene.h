@@ -22,23 +22,11 @@ public:
 
 	virtual void Update(const float deltaTime) = 0;
 
-	inline void AddMesh(Mesh* mesh)
-	{
-		ASSERT(mesh != nullptr, "The mesh must not be null");
-		mRenderer->AddMesh(mesh);
-	}
+	void AddMesh(Mesh* mesh);
 
-	inline void AddText(Text* text)
-	{
-		ASSERT(text != nullptr, "The text must not be null");
-		mRenderer->AddText(text);
-	}
+	void AddText(Text* text);
 
-	inline size_t AddMaterial(Material* material)
-	{
-		ASSERT(material != nullptr, "The material must not be null");
-		return mRenderer->AddMaterial(material);
-	}
+	size_t AddMaterial(Material* material);
 
 	inline Camera* GetCamera() const
 	{

@@ -56,6 +56,14 @@ Material::~Material()
 	}
 }
 
+Material* Material::Create(const char* vertexShaderName, const char* pixelShaderName)
+{
+	ASSERT(vertexShaderName != nullptr, "The vertexShaderName must not be null");
+	ASSERT(pixelShaderName != nullptr, "The pixelShaderName must not be null");
+
+	return new Material(vertexShaderName, pixelShaderName);
+}
+
 void Material::RegisterTexture(const unsigned int textureIndex, const char* fileName)
 {
 	ASSERT(fileName != nullptr, "The fileName must not be null");
