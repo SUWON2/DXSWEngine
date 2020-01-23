@@ -17,7 +17,7 @@ void MainScene::Initialize()
 	GetCamera()->SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
 
 	Material* planeMaterial = Material::Create("./Shaders/BasicShaderVS.hlsl", "./Shaders/BasicShaderPS.hlsl");
-	planeMaterial->RegisterTexture(0, "./Resource/block.DDS");
+	planeMaterial->RegisterTexture(0, "./Resource/block.dds");
 	planeMaterial->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT2(1.0f, 1.0f));
 	const int materialID = AddMaterial(planeMaterial);
 
@@ -25,7 +25,7 @@ void MainScene::Initialize()
 	{
 		for (float x = -9.5; x <= 9.5f; ++x)
 		{
-			auto block = Mesh::Create("Resource/Block.obj", materialID);
+			auto block = Mesh::Create("Resource/Block.mesh", materialID);
 			block->SetPosition({ x, -5.0f, z });
 			AddMesh(block);
 		}

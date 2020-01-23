@@ -10,7 +10,7 @@ std::unique_ptr<TextResource> Text::mTextResource = nullptr;
 
 Text::Text()
 {
-	mFontDataID = mTextResource->LoadFontData("Resource/BasicFontData.txt");
+	mFontDataID = mTextResource->LoadFontData("Resource/BasicFontData.font");
 }
 
 Text::Text(const char* fontDataName, const size_t materialID)
