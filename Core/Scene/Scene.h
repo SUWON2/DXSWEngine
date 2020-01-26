@@ -2,13 +2,12 @@
 
 #include <memory>
 
+#include "../CoreKey.h"
 #include "../Graphics/Renderer.h"
 #include "../../Common/Define.h"
 
 class Scene abstract
 {
-	friend class Core;
-
 public:
 	Scene();
 
@@ -38,8 +37,8 @@ public:
 		return mRenderer->GetSkyDome();
 	}
 
-private:
-	inline Renderer* GetRenderer() const
+public:
+	inline Renderer* _GetRenderer(CoreKey) const
 	{
 		return mRenderer.get();
 	}

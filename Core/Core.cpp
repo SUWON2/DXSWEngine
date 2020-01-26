@@ -15,12 +15,12 @@ Core::Core(Scene* scene)
 	InitializeWindows();
 	mDXDevice = std::make_unique<DXDevice>(mHWnd);
 
-	Input::Get().Initialize({}, mHWnd);
+	Input::Get()._Initialize({}, mHWnd);
 
 	mScene = std::unique_ptr<Scene>(scene);
-	mScene->GetRenderer()->InitializeManager(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
+	mScene->_GetRenderer({})->InitializeManager(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
 	mScene->Initialize();
-	mScene->GetRenderer()->SortMeshAndText();
+	mScene->_GetRenderer({})->SortMeshAndText();
 
 	MSG msg = {};
 	static float deltaTime = 0;
@@ -39,23 +39,23 @@ Core::Core(Scene* scene)
 
 			mScene->Update(deltaTime);
 
-			Input::Get().SetPreviousFrameMousePosition({});
+			Input::Get()._SetPreviousFrameMousePosition({});
 
 			mDXDevice->BeginUpdate();
 
-			if (mScene->GetRenderer()->GetSkyDome()->IsActive())
+			if (mScene->_GetRenderer({})->GetSkyDome()->IsActive())
 			{
 				mDXDevice->TurnOffCulling();
 				mDXDevice->TurnOffZBuffer();
 
-				mScene->GetRenderer()->DrawSkyDome();
+				mScene->_GetRenderer({})->DrawSkyDome();
 			}
 
 			{
 				mDXDevice->TurnOnZBuffer();
 				mDXDevice->TurnOnCulling();
 
-				mScene->GetRenderer()->DrawMeshAndText();
+				mScene->_GetRenderer({})->DrawMeshAndText();
 			}
 
 			mDXDevice->EndUpdate();
@@ -114,26 +114,26 @@ LRESULT Core::HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	{
 		case WM_KEYDOWN:
 		case WM_KEYUP:
-			Input::Get().UpdateKeyState({}, wParam, WM_KEYUP - message);
+			Input::Get()._UpdateKeyState({}, wParam, WM_KEYUP - message);
 			return 0;
 
 		case WM_MOUSEMOVE:
-			Input::Get().UpdateMousePosition({}, { static_cast<short>(LOWORD(lParam)), static_cast<short>(HIWORD(lParam)) });
+			Input::Get()._UpdateMousePosition({}, { static_cast<short>(LOWORD(lParam)), static_cast<short>(HIWORD(lParam)) });
 			return 0;
 
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONUP:
-			Input::Get().UpdateMouseButtonState({}, 0, WM_LBUTTONUP - message);
+			Input::Get()._UpdateMouseButtonState({}, 0, WM_LBUTTONUP - message);
 			return 0;
 
 		case WM_RBUTTONDOWN:
 		case WM_RBUTTONUP:
-			Input::Get().UpdateMouseButtonState({}, 1, WM_RBUTTONUP - message);
+			Input::Get()._UpdateMouseButtonState({}, 1, WM_RBUTTONUP - message);
 			return 0;
 
 		case WM_MBUTTONDOWN:
 		case WM_MBUTTONUP:
-			Input::Get().UpdateMouseButtonState({}, 2, WM_MBUTTONUP - message);
+			Input::Get()._UpdateMouseButtonState({}, 2, WM_MBUTTONUP - message);
 			return 0;
 
 		case WM_DESTROY:

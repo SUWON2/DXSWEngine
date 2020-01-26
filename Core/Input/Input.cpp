@@ -59,7 +59,7 @@ bool Input::GetMouseButtonUp(const int button)
 	return bButtonUp;
 }
 
-void Input::Initialize(CoreKey, HWND hWnd)
+void Input::_Initialize(CoreKey, HWND hWnd)
 {
 	ASSERT(hWnd != nullptr, "The hWnd must not be null");
 
@@ -72,13 +72,13 @@ void Input::Initialize(CoreKey, HWND hWnd)
 	ShowCursor(false);
 }
 
-void Input::UpdateKeyState(CoreKey, const short key, const bool bPressed)
+void Input::_UpdateKeyState(CoreKey, const short key, const bool bPressed)
 {
 	mbKeyStateChanged[key] = (mbPressedKeys[key] != bPressed);
 	mbPressedKeys[key] = bPressed;
 }
 
-void Input::UpdateMousePosition(CoreKey, const DirectX::XMINT2& mousePosition)
+void Input::_UpdateMousePosition(CoreKey, const DirectX::XMINT2& mousePosition)
 {
 	mPreviousFrameMousePosition = mMousePosition;
 	mMousePosition = mousePosition;
@@ -132,7 +132,7 @@ void Input::UpdateMousePosition(CoreKey, const DirectX::XMINT2& mousePosition)
 	}
 }
 
-void Input::UpdateMouseButtonState(CoreKey, const int button, const bool bPressed)
+void Input::_UpdateMouseButtonState(CoreKey, const int button, const bool bPressed)
 {
 	ASSERT(0 <= button && button < MOUSE_BUTTON_CUONT, "지원하지 않는 버튼입니다.");
 	mbMouseButtonStateChanged[button] = (mbPressedMouseButton[button] != bPressed);

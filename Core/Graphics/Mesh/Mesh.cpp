@@ -23,7 +23,7 @@ Mesh* Mesh::Create(const char* fileName, const size_t materialID)
 	return new Mesh(fileName, materialID);
 }
 
-void Mesh::Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+void Mesh::_Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	ASSERT(device != nullptr, "The device must not be null");
 	ASSERT(deviceContext != nullptr, "The deviceContext must not be null");
@@ -33,7 +33,7 @@ void Mesh::Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* de
 	mMeshResource = std::make_unique<MeshResource>(device, deviceContext);
 }
 
-void Mesh::Draw(RendererKey)
+void Mesh::_Draw(RendererKey)
 {
 	const MeshResource::VertexBuffer& vertexBuffer = mMeshResource->GetVertexBuffer(mVertexBufferID);
 

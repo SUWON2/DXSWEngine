@@ -6,7 +6,7 @@ class CoreKey final
 private:
 	friend class Core;
 
-public:
+private:
 	CoreKey() = delete;
 
 	CoreKey(const CoreKey&) = default;

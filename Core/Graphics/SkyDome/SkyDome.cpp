@@ -17,11 +17,11 @@ SkyDome::~SkyDome()
 	RELEASE(mMesh);
 }
 
-void SkyDome::Draw(RendererKey, const DirectX::XMMATRIX& matWorld, const XMMATRIX& matViewProjection)
+void SkyDome::_Draw(RendererKey, const DirectX::XMMATRIX& matWorld, const XMMATRIX& matViewProjection)
 {
-	mMaterial->Activate({});
+	mMaterial->_Activate({});
 	mMaterial->UpdateBuffer(0, XMMatrixTranspose(matWorld));
 	mMaterial->UpdateBuffer(1, XMMatrixTranspose(matViewProjection));
 
-	mMesh->Draw({});
+	mMesh->_Draw({});
 }

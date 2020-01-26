@@ -52,20 +52,15 @@ public:
 	bool GetMouseButtonUp(const int button);
 
 public:
-	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	void Initialize(CoreKey, HWND hWnd);
+	void _Initialize(CoreKey, HWND hWnd);
 
-	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	void UpdateKeyState(CoreKey, const short key, const bool bPressed);
+	void _UpdateKeyState(CoreKey, const short key, const bool bPressed);
 
-	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	void UpdateMousePosition(CoreKey, const DirectX::XMINT2& mousePosition);
+	void _UpdateMousePosition(CoreKey, const DirectX::XMINT2& mousePosition);
 
-	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	void UpdateMouseButtonState(CoreKey, const int button, const bool bPressed);
+	void _UpdateMouseButtonState(CoreKey, const int button, const bool bPressed);
 
-	// 이 함수는 엔진 내부에서만 사용되는 함수입니다.
-	inline void SetPreviousFrameMousePosition(CoreKey)
+	inline void _SetPreviousFrameMousePosition(CoreKey)
 	{
 		mPreviousFrameMousePosition = mMousePosition;
 	}

@@ -117,7 +117,7 @@ void Text::SetSentence(const char* sentence)
 	}
 }
 
-void Text::Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+void Text::_Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	ASSERT(device != nullptr, "The device must not be null");
 	ASSERT(deviceContext != nullptr, "The deviceContext must not be null");
@@ -127,7 +127,7 @@ void Text::Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* de
 	mTextResource = std::make_unique<TextResource>(device, deviceContext);
 }
 
-void Text::Draw(RendererKey)
+void Text::_Draw(RendererKey)
 {
 	const UINT stride = sizeof(Vertex);
 	const UINT offset = 0;

@@ -21,7 +21,7 @@ Material::Material(const char* vertexShaderName, const char* pixelShaderName)
 	RegisterBuffer(1, sizeof(XMMATRIX), nullptr); // register viewProjection
 }
 
-void Material::Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+void Material::_Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	ASSERT(device != nullptr, "The device must not be null");
 	ASSERT(deviceContext != nullptr, "The deviceContext must not be null");
@@ -31,7 +31,7 @@ void Material::Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext
 	mMaterialResource = std::make_unique<MaterialResource>(device, deviceContext);
 }
 
-void Material::Activate(RendererKey)
+void Material::_Activate(RendererKey)
 {
 	mDeviceContext->VSSetShader(mMaterialResource->GetVertexShaderBuffer(mVertexShaderID).Interface, nullptr, 0);
 	mDeviceContext->IASetInputLayout(mMaterialResource->GetVertexShaderBuffer(mVertexShaderID).InputLayout);

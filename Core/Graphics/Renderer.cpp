@@ -31,9 +31,9 @@ void Renderer::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devi
 	mDevice = device;
 	mDeviceContext = deviceContext;
 
-	Mesh::Initialize({}, mDevice, mDeviceContext);
-	Text::Initialize({}, mDevice, mDeviceContext);
-	Material::Initialize({}, mDevice, mDeviceContext);
+	Mesh::_Initialize({}, mDevice, mDeviceContext);
+	Text::_Initialize({}, mDevice, mDeviceContext);
+	Material::_Initialize({}, mDevice, mDeviceContext);
 
 	mCamera = std::make_unique<Camera>();
 	mSkyDome = std::make_unique<SkyDome>();
@@ -68,7 +68,7 @@ void Renderer::DrawSkyDome()
 	XMMATRIX matViewProjection;
 	mCamera->LoadViewProjectionMatrix(&matViewProjection);
 
-	mSkyDome->Draw({}, matWorld, matViewProjection);
+	mSkyDome->_Draw({}, matWorld, matViewProjection);
 }
 
 void Renderer::DrawMeshAndText()
@@ -96,14 +96,14 @@ void Renderer::DrawMeshAndText()
 			if (reinterpret_cast<size_t>(currentMaterial) != mesh->GetMaterialID())
 			{
 				currentMaterial = mMaterials.at(mesh->GetMaterialID()).get();
-				currentMaterial->Activate({});
+				currentMaterial->_Activate({});
 			}
 
 			// 타겟 머티리얼의 worldViewProjection matrix를 업데이트합니다.
 			currentMaterial->UpdateBuffer(0, XMMatrixTranspose(matWorld));
 			currentMaterial->UpdateBuffer(1, XMMatrixTranspose(matViewProjection));
 
-			mesh->Draw({});
+			mesh->_Draw({});
 		}
 	}
 
@@ -128,20 +128,20 @@ void Renderer::DrawMeshAndText()
 				&& reinterpret_cast<size_t>(currentMaterial) != mFontMaterialID)
 			{
 				currentMaterial = mMaterials.at(mFontMaterialID).get();
-				currentMaterial->Activate({});
+				currentMaterial->_Activate({});
 			}
 			else if (text->GetMaterialID() != 0
 				&& reinterpret_cast<size_t>(currentMaterial) != text->GetMaterialID())
 			{
 				currentMaterial = mMaterials.at(text->GetMaterialID()).get();
-				currentMaterial->Activate({});
+				currentMaterial->_Activate({});
 			}
 
 			// 타겟 머티리얼의 worldViewProjection matrix를 업데이트합니다.
 			currentMaterial->UpdateBuffer(0, XMMatrixTranspose(matWorld));
 			currentMaterial->UpdateBuffer(1, XMMatrixTranspose(matViewProjection2D));
 
-			text->Draw({});
+			text->_Draw({});
 		}
 	}
 }
