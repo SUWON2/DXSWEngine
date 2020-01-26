@@ -2,12 +2,11 @@
 
 #include "Core.h"
 #include "Graphics/DXDevice.h"
+#include "Input/Input.h"
 #include "Scene/Scene.h"
 #include "Graphics/RendererKey.h"
 #include "../Common/Define.h"
 #include "../Common/Setting.h"
-
-static LRESULT CALLBACK HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 Core::Core(Scene* scene)
 {
@@ -15,6 +14,8 @@ Core::Core(Scene* scene)
 
 	InitializeWindows();
 	mDXDevice = std::make_unique<DXDevice>(mHWnd);
+
+	Input::Get().Initialize({}, mHWnd);
 
 	mScene = std::unique_ptr<Scene>(scene);
 	mScene->GetRenderer()->InitializeManager(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
@@ -37,6 +38,8 @@ Core::Core(Scene* scene)
 			startTime = std::chrono::system_clock::now();
 
 			mScene->Update(deltaTime);
+
+			Input::Get().SetPreviousFrameMousePosition({});
 
 			mDXDevice->BeginUpdate();
 
@@ -105,10 +108,34 @@ void Core::InitializeWindows()
 	ShowWindow(mHWnd, SW_SHOW);
 }
 
-LRESULT CALLBACK HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT Core::HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
+		case WM_KEYDOWN:
+		case WM_KEYUP:
+			Input::Get().UpdateKeyState({}, wParam, WM_KEYUP - message);
+			return 0;
+
+		case WM_MOUSEMOVE:
+			Input::Get().UpdateMousePosition({}, { static_cast<short>(LOWORD(lParam)), static_cast<short>(HIWORD(lParam)) });
+			return 0;
+
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONUP:
+			Input::Get().UpdateMouseButtonState({}, 0, WM_LBUTTONUP - message);
+			return 0;
+
+		case WM_RBUTTONDOWN:
+		case WM_RBUTTONUP:
+			Input::Get().UpdateMouseButtonState({}, 1, WM_RBUTTONUP - message);
+			return 0;
+
+		case WM_MBUTTONDOWN:
+		case WM_MBUTTONUP:
+			Input::Get().UpdateMouseButtonState({}, 2, WM_MBUTTONUP - message);
+			return 0;
+
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			return 0;

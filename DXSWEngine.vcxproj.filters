@@ -31,6 +31,9 @@
     <Filter Include="Core\Graphics\Material">
       <UniqueIdentifier>{93bbffd6-a73c-42b2-9321-feb599962f31}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Input">
+      <UniqueIdentifier>{89d97c53-9c01-4b21-98d7-e3addf0d4c57}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Core.cpp">
@@ -74,6 +77,9 @@
     </ClCompile>
     <ClCompile Include="Core\Graphics\SkyDome\SkyDome.cpp">
       <Filter>Core\Graphics\SkyDome</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Input\Input.cpp">
+      <Filter>Core\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +136,12 @@
     </ClInclude>
     <ClInclude Include="Core\Graphics\SkyDome\SkyDome.h">
       <Filter>Core\Graphics\SkyDome</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Input\Input.h">
+      <Filter>Core\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CoreKey.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

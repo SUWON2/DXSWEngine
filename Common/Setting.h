@@ -7,7 +7,7 @@ public:
 
 	Setting& operator=(const Setting&) = delete;
 
-	inline static Setting& Get()
+	static inline Setting& Get()
 	{
 		static Setting setting;
 		return setting;

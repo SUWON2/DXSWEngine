@@ -26,7 +26,7 @@ public:
 	// 폰트 데이터와 머티리얼을 따로 지정하지 않아도 기본적으로 제공하는 폰트가 적용됩니다.
 	static inline Text* Create()
 	{
-		return new Text();
+		return new Text;
 	}
 
 	static inline Text* Create(const char* fontDataName, const size_t materialID)

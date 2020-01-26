@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "../../Common/Define.h"
 #include "../Graphics/Renderer.h"
+#include "../../Common/Define.h"
 
 class Scene abstract
 {

@@ -1,4 +1,5 @@
 #include "MainScene.h"
+#include "../Core/Input/Input.h"
 
 #include <string>
 
@@ -31,29 +32,48 @@ void MainScene::Initialize()
 		}
 	}
 
-	mFrameText = Text::Create();
-	mFrameText->SetPosition({ -390.0f, 290.0f });
-	AddText(mFrameText);
-
 	GetSkyDome()->SetActive(false);
+
+	// HACK: Debugging
+	{
+		mFrameText = Text::Create();
+		mFrameText->SetPosition({ -390.0f, 290.0f });
+		AddText(mFrameText);
+	}
 }
 
 void MainScene::Update(const float deltaTime)
 {
-	// Show frame
-	if (mFrameText->IsActive())
-	{
-		mFrameText->SetSentence(("DELTA_TIME: " + std::to_string(deltaTime)).c_str());
-	}
-
 	UpdateCamera(deltaTime);
+
+	// HACK: Debugging
+	{
+		if (Input::Get().GetKeyDown(VK_F1))
+		{
+			mFrameText->SetActive(!mFrameText->IsActive());
+		}
+
+		if (Input::Get().GetKeyDown(VK_F2))
+		{
+			GetSkyDome()->SetActive(!GetSkyDome()->IsActive());
+		}
+
+		if (Input::Get().GetKeyDown(VK_F3))
+		{
+			system("cls");
+		}
+
+		if (mFrameText->IsActive())
+		{
+			mFrameText->SetSentence(("DELTA_TIME: " + std::to_string(deltaTime)).c_str());
+		}
+	}
 }
 
 void MainScene::UpdateCamera(const float deltaTime)
 {
 	static Camera* camera = GetCamera();
 
-	// HACK: 카메라 테스트를 위해 키보드 입력 처리는 간단히 윈도우 함수로 한다.
 	{
 		constexpr float accX = 0.008f;
 		constexpr float accY = 0.008f;
@@ -67,10 +87,9 @@ void MainScene::UpdateCamera(const float deltaTime)
 		static int forwardDirection = 0;
 		static int xDirection = 0;
 
-		if (GetAsyncKeyState('W')
-			|| GetAsyncKeyState('S'))
+		if (Input::Get().GetKey('W') || Input::Get().GetKey('S'))
 		{
-			forwardDirection = GetAsyncKeyState('W') ? 1 : GetAsyncKeyState('S') ? -1 : 0;
+			forwardDirection = Input::Get().GetKey('W') - Input::Get().GetKey('S');
 
 			if (forwardDirection > 0)
 			{
@@ -119,10 +138,9 @@ void MainScene::UpdateCamera(const float deltaTime)
 			}
 		}
 
-		if (GetAsyncKeyState('A')
-			|| GetAsyncKeyState('D'))
+		if (Input::Get().GetKey('A') || Input::Get().GetKey('D'))
 		{
-			xDirection = GetAsyncKeyState('D') ? 1 : GetAsyncKeyState('A') ? -1 : 0;
+			xDirection = Input::Get().GetKey('D') - Input::Get().GetKey('A');
 
 			if (xDirection > 0)
 			{
@@ -186,25 +204,22 @@ void MainScene::UpdateCamera(const float deltaTime)
 
 	// 카메라 회전을 처리한다.
 	{
-		POINT cursorPoint = {};
-		GetCursorPos(&cursorPoint);
-
-		static POINT beforeCursorPoint = cursorPoint;
-
-		if (cursorPoint.x - beforeCursorPoint.x != 0.0f)
+		const XMINT2 mouseMovement =
 		{
-			const float grapY = (cursorPoint.x - beforeCursorPoint.x) * 0.08f;
-			camera->RotateY(XMConvertToRadians(grapY));
+			Input::Get().GetMousePosition().x - Input::Get().GetPreviousFrameMousePosition().x,
+			Input::Get().GetMousePosition().y - Input::Get().GetPreviousFrameMousePosition().y
+		};
 
-			beforeCursorPoint.x = cursorPoint.x;
+		if (mouseMovement.x != 0)
+		{
+			const float grapY = mouseMovement.x * 0.08f;
+			camera->RotateY(grapY);
 		}
 
-		if (cursorPoint.y - beforeCursorPoint.y != 0.0f)
+		if (mouseMovement.y != 0)
 		{
-			const float grapX = (cursorPoint.y - beforeCursorPoint.y) * 0.08f;
-			camera->RotateX(XMConvertToRadians(grapX));
-
-			beforeCursorPoint.y = cursorPoint.y;
+			const float grapX = mouseMovement.y * 0.08f;
+			camera->RotateX(grapX);
 		}
 	}
 }

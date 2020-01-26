@@ -1,7 +1,7 @@
 #pragma once
 
 // HACK: 무슨 기능을 하는지 명시하자
-class RendererKey
+class RendererKey final
 {
 	friend class Renderer;
 

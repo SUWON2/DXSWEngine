@@ -20,6 +20,8 @@ public:
 	~Core();
 
 private:
+	static LRESULT CALLBACK HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
 	void InitializeWindows();
 
 private:

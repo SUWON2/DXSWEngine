@@ -34,14 +34,14 @@ void Camera::MoveX(const float velocity)
 
 void Camera::RotateY(const float angle)
 {
-	const XMMATRIX matRotationY = XMMatrixRotationY(angle);
+	const XMMATRIX matRotationY = XMMatrixRotationY(XMConvertToRadians(angle));
 	XMStoreFloat3(&mZAxis, XMVector3TransformNormal(XMLoadFloat3(&mZAxis), matRotationY));
 	XMStoreFloat3(&mXAxis, XMVector3Cross(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMLoadFloat3(&mZAxis)));
 }
 
 void Camera::RotateX(const float angle)
 {
-	const XMMATRIX matRotationX = XMMatrixRotationAxis(XMLoadFloat3(&mXAxis), angle);
+	const XMMATRIX matRotationX = XMMatrixRotationAxis(XMLoadFloat3(&mXAxis), XMConvertToRadians(angle));
 	XMStoreFloat3(&mZAxis, XMVector3TransformNormal(XMLoadFloat3(&mZAxis), matRotationX));
 }
 
