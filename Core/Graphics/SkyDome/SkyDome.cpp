@@ -8,13 +8,14 @@ SkyDome::SkyDome()
 	mMaterial = Material::Create("Shaders/BasicSkyDomeShaderVS.hlsl", "Shaders/BasicSkyDomeShaderPS.hlsl");
 	mMaterial->RegisterTexture(0, "Resource/BasicSky.dds");
 
-	mMesh = Mesh::Create("Resource/BasicSkyDome.mesh", reinterpret_cast<size_t>(&mMaterial));
+	mModel = Model::Create("Resource/BasicSkyDome.model");
+	mModel->SetMaterial(0, reinterpret_cast<size_t>(mMaterial));
 }
 
 SkyDome::~SkyDome()
 {
 	RELEASE(mMaterial);
-	RELEASE(mMesh);
+	RELEASE(mModel);
 }
 
 void SkyDome::_Draw(RendererKey, const DirectX::XMMATRIX& matWorld, const XMMATRIX& matViewProjection)
@@ -23,5 +24,5 @@ void SkyDome::_Draw(RendererKey, const DirectX::XMMATRIX& matWorld, const XMMATR
 	mMaterial->UpdateBuffer(0, XMMatrixTranspose(matWorld));
 	mMaterial->UpdateBuffer(1, XMMatrixTranspose(matViewProjection));
 
-	mMesh->_Draw({});
+	mModel->_Draw({}, 0);
 }

@@ -20,7 +20,7 @@ Core::Core(Scene* scene)
 	mScene = std::unique_ptr<Scene>(scene);
 	mScene->_GetRenderer({})->InitializeManager(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
 	mScene->Initialize();
-	mScene->_GetRenderer({})->SortMeshAndText();
+	mScene->_GetRenderer({})->SortText();
 
 	MSG msg = {};
 	static float deltaTime = 0;
@@ -55,7 +55,7 @@ Core::Core(Scene* scene)
 				mDXDevice->TurnOnZBuffer();
 				mDXDevice->TurnOnCulling();
 
-				mScene->_GetRenderer({})->DrawMeshAndText();
+				mScene->_GetRenderer({})->DrawModelAndText();
 			}
 
 			mDXDevice->EndUpdate();

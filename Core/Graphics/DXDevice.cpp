@@ -272,7 +272,7 @@ DXDevice::~DXDevice()
 
 void DXDevice::BeginUpdate()
 {
-	const float color[] = { 0.0f, 0.70f, 0.67f, 1.0f };
+	const float color[] = { 0.84f, 0.9f, 0.96f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, color);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

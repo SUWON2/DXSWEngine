@@ -24,8 +24,8 @@
     <ClCompile Include="Core\Graphics\DXDevice.cpp" />
     <ClCompile Include="Core\Graphics\Material\Material.cpp" />
     <ClCompile Include="Core\Graphics\Material\MaterialResource.cpp" />
-    <ClCompile Include="Core\Graphics\Mesh\Mesh.cpp" />
-    <ClCompile Include="Core\Graphics\Mesh\MeshResource.cpp" />
+    <ClCompile Include="Core\Graphics\Model\Model.cpp" />
+    <ClCompile Include="Core\Graphics\Model\ModelResource.cpp" />
     <ClCompile Include="Core\Graphics\Renderer.cpp" />
     <ClCompile Include="Core\Graphics\SkyDome\SkyDome.cpp" />
     <ClCompile Include="Core\Graphics\Text\Text.cpp" />
@@ -46,8 +46,8 @@
     <ClInclude Include="Core\Graphics\DXDevice.h" />
     <ClInclude Include="Core\Graphics\Material\Material.h" />
     <ClInclude Include="Core\Graphics\Material\MaterialResource.h" />
-    <ClInclude Include="Core\Graphics\Mesh\Mesh.h" />
-    <ClInclude Include="Core\Graphics\Mesh\MeshResource.h" />
+    <ClInclude Include="Core\Graphics\Model\Model.h" />
+    <ClInclude Include="Core\Graphics\Model\ModelResource.h" />
     <ClInclude Include="Core\Graphics\Renderer.h" />
     <ClInclude Include="Core\Graphics\RendererKey.h" />
     <ClInclude Include="Core\Graphics\SkyDome\SkyDome.h" />

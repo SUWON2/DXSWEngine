@@ -21,6 +21,31 @@ Material::Material(const char* vertexShaderName, const char* pixelShaderName)
 	RegisterBuffer(1, sizeof(XMMATRIX), nullptr); // register viewProjection
 }
 
+Material::~Material()
+{
+	for (auto& i : mConstantBuffers)
+	{
+		RELEASE_COM(i.second);
+	}
+}
+
+Material* Material::Create(const char* vertexShaderName, const char* pixelShaderName)
+{
+	ASSERT(vertexShaderName != nullptr, "The vertexShaderName must not be null");
+	ASSERT(pixelShaderName != nullptr, "The pixelShaderName must not be null");
+
+	return new Material(vertexShaderName, pixelShaderName);
+}
+
+void Material::RegisterTexture(const unsigned int textureIndex, const char* fileName)
+{
+	ASSERT(fileName != nullptr, "The fileName must not be null");
+	ASSERT(mTextureIDs.find(textureIndex) == mTextureIDs.end(), "이미 사용되고 있는 텍스처 인덱스입니다. 다른 인덱스로 등록해 주세요");
+
+	const size_t textureID = mMaterialResource->LoadTexture(fileName);
+	mTextureIDs.insert(std::make_pair(textureIndex, textureID));
+}
+
 void Material::_Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	ASSERT(device != nullptr, "The device must not be null");
@@ -46,29 +71,4 @@ void Material::_Activate(RendererKey)
 	{
 		mDeviceContext->PSSetShaderResources(texture.first, 1, mMaterialResource->GetTexture(texture.second));
 	}
-}
-
-Material::~Material()
-{
-	for (auto& i : mConstantBuffers)
-	{
-		RELEASE_COM(i.second);
-	}
-}
-
-Material* Material::Create(const char* vertexShaderName, const char* pixelShaderName)
-{
-	ASSERT(vertexShaderName != nullptr, "The vertexShaderName must not be null");
-	ASSERT(pixelShaderName != nullptr, "The pixelShaderName must not be null");
-
-	return new Material(vertexShaderName, pixelShaderName);
-}
-
-void Material::RegisterTexture(const unsigned int textureIndex, const char* fileName)
-{
-	ASSERT(fileName != nullptr, "The fileName must not be null");
-	ASSERT(mTextureIDs.find(textureIndex) == mTextureIDs.end(), "이미 사용되고 있는 텍스처 인덱스입니다. 다른 인덱스로 등록해 주세요");
-
-	const size_t textureID = mMaterialResource->LoadTexture(fileName);
-	mTextureIDs.insert(std::make_pair(textureIndex, textureID));
 }

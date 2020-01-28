@@ -21,7 +21,7 @@ public:
 
 	virtual void Update(const float deltaTime) = 0;
 
-	void AddMesh(Mesh* mesh);
+	void AddModel(Model* model);
 
 	void AddText(Text* text);
 

@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "../Mesh/Mesh.h"
+#include "../Model/Model.h"
 #include "../Material/Material.h"
 #include "../RendererKey.h"
 #include "../../../Common/DirectXMath.h"
@@ -32,7 +32,7 @@ public:
 	void _Draw(RendererKey, const DirectX::XMMATRIX& matWorld, const DirectX::XMMATRIX& matViewProjection);
 
 private:
-	Mesh* mMesh = nullptr;
+	Model* mModel = nullptr;
 
 	Material* mMaterial = nullptr;
 

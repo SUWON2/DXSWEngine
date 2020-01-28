@@ -9,10 +9,10 @@ Scene::~Scene()
 {
 }
 
-void Scene::AddMesh(Mesh* mesh)
+void Scene::AddModel(Model* model)
 {
-	ASSERT(mesh != nullptr, "The mesh must not be null");
-	mRenderer->AddMesh(mesh);
+	ASSERT(model != nullptr, "The model must not be null");
+	mRenderer->AddModel(model);
 }
 
 void Scene::AddText(Text* text)

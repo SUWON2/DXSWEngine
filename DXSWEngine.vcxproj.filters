@@ -16,9 +16,6 @@
     <Filter Include="Core\Scene">
       <UniqueIdentifier>{bfb5937a-0817-4e91-a4d9-6d26d7716a31}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Graphics\Mesh">
-      <UniqueIdentifier>{eb285e4e-c9e9-4712-b79a-4b33e98883ac}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Graphics\Camera">
       <UniqueIdentifier>{886f7a17-62b2-4a6d-acfb-868cd45f2bd5}</UniqueIdentifier>
     </Filter>
@@ -34,6 +31,9 @@
     <Filter Include="Core\Input">
       <UniqueIdentifier>{89d97c53-9c01-4b21-98d7-e3addf0d4c57}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Graphics\Model">
+      <UniqueIdentifier>{eb285e4e-c9e9-4712-b79a-4b33e98883ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Core.cpp">
@@ -48,9 +48,6 @@
     <ClCompile Include="Core\Scene\Scene.cpp">
       <Filter>Core\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Graphics\Mesh\Mesh.cpp">
-      <Filter>Core\Graphics\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Graphics\DXDevice.cpp">
       <Filter>Core\Graphics</Filter>
     </ClCompile>
@@ -62,9 +59,6 @@
     </ClCompile>
     <ClCompile Include="Core\Graphics\Material\MaterialResource.cpp">
       <Filter>Core\Graphics\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Graphics\Mesh\MeshResource.cpp">
-      <Filter>Core\Graphics\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="Core\Graphics\Text\Text.cpp">
       <Filter>Core\Graphics\Text</Filter>
@@ -80,6 +74,12 @@
     </ClCompile>
     <ClCompile Include="Core\Input\Input.cpp">
       <Filter>Core\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Model\Model.cpp">
+      <Filter>Core\Graphics\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Model\ModelResource.cpp">
+      <Filter>Core\Graphics\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,9 +101,6 @@
     <ClInclude Include="Core\Scene\Scene.h">
       <Filter>Core\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Graphics\Mesh\Mesh.h">
-      <Filter>Core\Graphics\Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Graphics\DXDevice.h">
       <Filter>Core\Graphics</Filter>
     </ClInclude>
@@ -118,9 +115,6 @@
     </ClInclude>
     <ClInclude Include="Core\Graphics\Material\Material.h">
       <Filter>Core\Graphics\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Graphics\Mesh\MeshResource.h">
-      <Filter>Core\Graphics\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Core\Graphics\Text\Text.h">
       <Filter>Core\Graphics\Text</Filter>
@@ -142,6 +136,12 @@
     </ClInclude>
     <ClInclude Include="Core\CoreKey.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Model\Model.h">
+      <Filter>Core\Graphics\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Model\ModelResource.h">
+      <Filter>Core\Graphics\Model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

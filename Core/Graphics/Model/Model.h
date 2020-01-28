@@ -3,29 +3,34 @@
 #include <memory>
 #include <string>
 
-#include "MeshResource.h"
+#include "ModelResource.h"
 #include "../RendererKey.h"
 #include "../../../Common/DirectXMath.h"
 
-class Mesh final
+class Model final
 {
 public:
-	Mesh(const Mesh&) = delete;
+	Model(const Model&) = delete;
 
-	Mesh& operator=(const Mesh&) = delete;
+	Model& operator=(const Model&) = delete;
 
-	~Mesh();
+	~Model();
 
-	static Mesh* Create(const char* fileName, const size_t materialID);
+	static Model* Create(const char* fileName);
 
 	inline const char* GetFileName() const
 	{
-		return mMeshResource->GetResourceName(mVertexBufferID).c_str();
+		return mModelResource->GetResourceName(mResourceID).c_str();
 	}
 
-	inline const size_t GetMaterialID() const
+	inline const std::unique_ptr<size_t[]>& GetMaterialIDs() const
 	{
-		return mMaterialID;
+		return mMaterialIDs;
+	}
+
+	inline unsigned int GetMeshCount() const
+	{
+		return mMeshCount;
 	}
 
 	inline const DirectX::XMFLOAT3& GetPosition() const
@@ -48,10 +53,7 @@ public:
 		return mbActive;
 	}
 
-	inline void SetMaterialID(const size_t materialID)
-	{
-		mMaterialID = materialID;
-	}
+	void SetMaterial(const unsigned int materialIndex, const size_t materialID);
 
 	inline void SetPosition(const DirectX::XMFLOAT3& position)
 	{
@@ -76,21 +78,23 @@ public:
 public:
 	static void _Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
-	void _Draw(RendererKey);
+	void _Draw(RendererKey, const unsigned int meshIndex);
 
 private:
-	explicit Mesh(const char* fileName, const size_t materialID);
+	explicit Model(const char* fileName);
 
 private:
 	static ID3D11Device* mDevice;
 
 	static ID3D11DeviceContext* mDeviceContext;
 
-	static std::unique_ptr<MeshResource> mMeshResource;
+	static std::unique_ptr<ModelResource> mModelResource;
 
-	int mVertexBufferID = 0;
+	size_t mResourceID = 0;
 
-	size_t mMaterialID = 0;
+	std::unique_ptr<size_t[]> mMaterialIDs = nullptr;
+
+	unsigned int mMeshCount = 0;
 
 	DirectX::XMFLOAT3 mPosition = {};
 

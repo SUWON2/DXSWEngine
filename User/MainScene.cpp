@@ -1,7 +1,7 @@
+#include <string>
+
 #include "MainScene.h"
 #include "../Core/Input/Input.h"
-
-#include <string>
 
 using namespace DirectX;
 
@@ -17,19 +17,93 @@ void MainScene::Initialize()
 {
 	GetCamera()->SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
 
-	Material* planeMaterial = Material::Create("./Shaders/BasicShaderVS.hlsl", "./Shaders/BasicShaderPS.hlsl");
-	planeMaterial->RegisterTexture(0, "./Resource/block.dds");
-	planeMaterial->RegisterBuffer(2, sizeof(XMVECTOR), nullptr);
-	const int materialID = AddMaterial(planeMaterial);
-
-	for (float z = 0.0f; z <= 20.0f; ++z)
+	// Create tiles
+	for (float x = 0.0f; x < 10.0f; ++x)
 	{
-		for (float x = -9.5; x <= 9.5f; ++x)
+		for (float z = 0.0f; z < 10.0f; ++z)
 		{
-			auto block = Mesh::Create("Resource/Block.mesh", materialID);
-			block->SetPosition({ x, -5.0f, z });
-			AddMesh(block);
+			auto tile = Model::Create("Resource/Tile.model");
+			tile->SetPosition({ x, 0.0f, z });
+			const int meshCount = tile->GetMeshCount();
+
+			Material* material1 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+			material1->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.9764706f, 0.7137255f, 0.4509804f));
+			tile->SetMaterial(0, AddMaterial(material1));
+
+			Material* material2 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+			material2->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.2666667f, 0.7098039f, 0.5529412f));
+			tile->SetMaterial(1, AddMaterial(material2));
+
+			AddModel(tile);
 		}
+	}
+
+	// Create a tree
+	{
+		auto tree = Model::Create("Resource/Tree.model");
+		tree->SetPosition({ 0.0f, 0.2f, 0.0f });
+		const int meshCount = tree->GetMeshCount();
+
+		Material* material1 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+		material1->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.5f, 0.7098039f, 0.5529412f));
+		tree->SetMaterial(0, AddMaterial(material1));
+
+		Material* material2 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+		material2->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.8784314f, 0.5333334f, 0.3607843f));
+		tree->SetMaterial(1, AddMaterial(material2));
+
+		Material* material3 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+		material3->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(1.0f, 1.0f, 1.0f));
+		tree->SetMaterial(2, AddMaterial(material3));
+
+		AddModel(tree);
+	}
+
+	// Create a tree
+	{
+		auto tree = Model::Create("Resource/Tree.model");
+		tree->SetPosition({ 2.0f, 0.2f, 2.0f });
+		const int meshCount = tree->GetMeshCount();
+
+		Material* material1 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+		material1->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(1.0f, 0.7098039f, 0.5529412f));
+		tree->SetMaterial(0, AddMaterial(material1));
+
+		Material* material2 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+		material2->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.8784314f, 0.5333334f, 0.3607843f));
+		tree->SetMaterial(1, AddMaterial(material2));
+
+		Material* material3 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+		material3->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(1.0f, 1.0f, 1.0f));
+		tree->SetMaterial(2, AddMaterial(material3));
+
+		AddModel(tree);
+	}
+
+	// Create a ufo
+	{
+		auto ufo = Model::Create("Resource/UFO.model");
+		ufo->SetRotation({ 0.0f, 0.0f, -15.0f });
+		ufo->SetPosition({ 2.0f, 1.0f, 5.0f });
+		const int meshCount = ufo->GetMeshCount();
+
+		Material* material1 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+		material1->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.7019608f, 0.854902f, 0.8941177f));
+		ufo->SetMaterial(0, AddMaterial(material1));
+
+		Material* material2 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+		material2->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.454902f, 0.4117647f, 0.7019608f));
+		ufo->SetMaterial(1, AddMaterial(material2));
+
+		Material* material3 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+		material3->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.4740168f, 0.6086806f, 0.641f));
+		ufo->SetMaterial(2, AddMaterial(material3));
+
+		Material* material4 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
+		material4->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(1.0f, 1.0f, 1.0f));
+		ufo->SetMaterial(3, AddMaterial(material4));
+
+		AddModel(ufo);
 	}
 
 	GetSkyDome()->SetActive(false);
@@ -76,6 +150,7 @@ void MainScene::UpdateCamera(const float deltaTime)
 {
 	static Camera* camera = GetCamera();
 
+	// 카메라 이동을 처리한다.
 	{
 		constexpr float accX = 0.008f;
 		constexpr float accY = 0.008f;

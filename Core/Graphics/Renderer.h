@@ -7,7 +7,7 @@
 
 #include "Camera/Camera.h"
 #include "SkyDome/SkyDome.h"
-#include "Mesh/Mesh.h"
+#include "Model/Model.h"
 #include "Text/Text.h"
 #include "Material/Material.h"
 #include "../../Common/Define.h"
@@ -25,13 +25,13 @@ public:
 
 	void InitializeManager(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
-	void SortMeshAndText();
+	void SortText();
 
 	void DrawSkyDome();
 
-	void DrawMeshAndText();
+	void DrawModelAndText();
 
-	void AddMesh(Mesh* mesh);
+	void AddModel(Model* model);
 
 	void AddText(Text* text);
 
@@ -56,7 +56,7 @@ private:
 
 	std::unique_ptr<SkyDome> mSkyDome = nullptr;
 
-	std::vector<Mesh*> mMeshes;
+	std::vector<Model*> mModels;
 
 	std::vector<Text*> mTexts;
 

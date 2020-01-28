@@ -17,7 +17,7 @@ Renderer::~Renderer()
 		RELEASE(i);
 	}
 
-	for (auto& i : mMeshes)
+	for (auto& i : mModels)
 	{
 		RELEASE(i);
 	}
@@ -31,7 +31,7 @@ void Renderer::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devi
 	mDevice = device;
 	mDeviceContext = deviceContext;
 
-	Mesh::_Initialize({}, mDevice, mDeviceContext);
+	Model::_Initialize({}, mDevice, mDeviceContext);
 	Text::_Initialize({}, mDevice, mDeviceContext);
 	Material::_Initialize({}, mDevice, mDeviceContext);
 
@@ -44,15 +44,10 @@ void Renderer::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devi
 	mFontMaterialID = AddMaterial(fontMaterial);
 }
 
-void Renderer::SortMeshAndText()
+void Renderer::SortText()
 {
-	// 머티리얼을 한 번에 패스하기 위해 머티리얼 아이디를 기준으로 메쉬와 텍스트를 정렬합니다.
+	// 머티리얼을 한 번에 패스하기 위해 머티리얼 아이디를 기준으로 텍스트를 정렬합니다.
 	{
-		std::sort(begin(mMeshes), end(mMeshes), [](const Mesh* a, const Mesh* b)
-			{
-				return a->GetMaterialID() < b->GetMaterialID();
-			});
-
 		std::sort(begin(mTexts), end(mTexts), [](const Text* a, const Text* b)
 			{
 				return a->GetMaterialID() < b->GetMaterialID();
@@ -71,39 +66,38 @@ void Renderer::DrawSkyDome()
 	mSkyDome->_Draw({}, matWorld, matViewProjection);
 }
 
-void Renderer::DrawMeshAndText()
+void Renderer::DrawModelAndText()
 {
-	// Draw meshes
+	// Draw models
 	{
 		XMMATRIX matViewProjection;
 		mCamera->LoadViewProjectionMatrix(&matViewProjection);
 
-		Material* currentMaterial = nullptr;
-
-		for (const auto& mesh : mMeshes)
+		for (const auto& model : mModels)
 		{
-			if (mesh->IsActive() == false)
+			if (model->IsActive() == false)
 			{
 				continue;
 			}
 
 			const XMMATRIX matWorld =
-				XMMatrixScaling(mesh->GetScale().x, mesh->GetScale().y, mesh->GetScale().z)
-				* XMMatrixRotationRollPitchYaw(XMConvertToRadians(mesh->GetRotation().x), XMConvertToRadians(mesh->GetRotation().y), XMConvertToRadians(mesh->GetRotation().z))
-				* XMMatrixTranslation(mesh->GetPosition().x, mesh->GetPosition().y, mesh->GetPosition().z);
+				XMMatrixScaling(model->GetScale().x, model->GetScale().y, model->GetScale().z)
+				* XMMatrixRotationRollPitchYaw(XMConvertToRadians(model->GetRotation().x), XMConvertToRadians(model->GetRotation().y), XMConvertToRadians(model->GetRotation().z))
+				* XMMatrixTranslation(model->GetPosition().x, model->GetPosition().y, model->GetPosition().z);
 
-			// 현재 메쉬가 가지는 머티리얼 아이디가 이전 아이디와 달라지는 경우만 머티리얼을 활성화시킴으로써 성능을 향상시킵니다.
-			if (reinterpret_cast<size_t>(currentMaterial) != mesh->GetMaterialID())
+			for (unsigned int i = 0; i < model->GetMeshCount(); ++i)
 			{
-				currentMaterial = mMaterials.at(mesh->GetMaterialID()).get();
-				currentMaterial->_Activate({});
+				ASSERT(model->GetMaterialIDs()[i] != 0
+					, "머티리얼 개수가 메쉬 개수와 대응되지 않습니다. 머티리얼을 메쉬 개수에 맞게 등록해 주세요");
+
+				Material* material = mMaterials.at(model->GetMaterialIDs()[i]).get();
+				material->_Activate({});
+
+				material->UpdateBuffer(0, XMMatrixTranspose(matWorld));
+				material->UpdateBuffer(1, XMMatrixTranspose(matViewProjection));
+
+				model->_Draw({}, i);
 			}
-
-			// 타겟 머티리얼의 worldViewProjection matrix를 업데이트합니다.
-			currentMaterial->UpdateBuffer(0, XMMatrixTranspose(matWorld));
-			currentMaterial->UpdateBuffer(1, XMMatrixTranspose(matViewProjection));
-
-			mesh->_Draw({});
 		}
 	}
 
@@ -147,18 +141,18 @@ void Renderer::DrawMeshAndText()
 	}
 }
 
-void Renderer::AddMesh(Mesh* mesh)
+void Renderer::AddModel(Model* model)
 {
-	ASSERT(mesh != nullptr, "The mesh must not be null");
+	ASSERT(model != nullptr, "The model must not be null");
 
 	#if defined(DEBUG) | defined(_DEBUG)
-	for (const auto& i : mMeshes)
+	for (const auto& i : mModels)
 	{
-		ASSERT(i != mesh, "There is already the mesh");
+		ASSERT(i != model, "There is already the model");
 	}
 	#endif
 
-	mMeshes.push_back(mesh);
+	mModels.push_back(model);
 }
 
 void Renderer::AddText(Text* text)
@@ -179,7 +173,7 @@ size_t Renderer::AddMaterial(Material* material)
 {
 	ASSERT(material != nullptr, "The material must not be null");
 
-	const size_t materialID = reinterpret_cast<size_t>(material);;
+	const size_t materialID = reinterpret_cast<size_t>(material);
 	ASSERT(mMaterials.find(materialID) == mMaterials.end(), "There is already the material");
 
 	mMaterials.insert(std::make_pair(materialID, std::unique_ptr<Material>(material)));
