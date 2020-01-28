@@ -1,5 +1,6 @@
 #include "Text.h"
 #include "../../../Common/Define.h"
+#include "../../../Common/Setting.h"
 #include "../../../Common/DirectXMath.h"
 
 using namespace DirectX;
@@ -114,6 +115,46 @@ void Text::SetSentence(const char* sentence)
 		memcpy(mapResource.pData, reinterpret_cast<void*>(vertices.get()), sizeof(Vertex) * mVertexCount);
 
 		mDeviceContext->Unmap(mSentenceVertexBuffer, 0);
+	}
+}
+
+void Text::SetVerticalAnchor(const VerticalAnchor verticalAnchor)
+{
+	mVerticalAnchor = verticalAnchor;
+
+	switch (mVerticalAnchor)
+	{
+		case Text::VerticalAnchor::Top:
+			mAnchorPoint.y = Setting::Get().GetHeight() * 0.5f;
+			break;
+
+		case Text::VerticalAnchor::Middle:
+			mAnchorPoint.y = 0;
+			break;
+
+		case Text::VerticalAnchor::Bottom:
+			mAnchorPoint.y = -Setting::Get().GetHeight() * 0.5f;
+			break;
+	}
+}
+
+void Text::SetHorizontalAnchor(const HorizontalAnchor horizontalAnchor)
+{
+	mHorizontalAnchor = horizontalAnchor;
+
+	switch (mHorizontalAnchor)
+	{
+		case Text::HorizontalAnchor::Left:
+			mAnchorPoint.x = -Setting::Get().GetWidth() * 0.5f;
+			break;
+
+		case Text::HorizontalAnchor::Center:
+			mAnchorPoint.x = 0;
+			break;
+
+		case Text::HorizontalAnchor::Right:
+			mAnchorPoint.x = Setting::Get().GetWidth() * 0.5f;
+			break;
 	}
 }
 

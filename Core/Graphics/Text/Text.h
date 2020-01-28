@@ -9,11 +9,25 @@
 
 class Text final
 {
-private:
 	struct Vertex
 	{
 		DirectX::XMFLOAT4 Position;
 		DirectX::XMFLOAT2 TextureCoord;
+	};
+
+public:
+	enum class VerticalAnchor
+	{
+		Top,
+		Middle,
+		Bottom,
+	};
+
+	enum class HorizontalAnchor
+	{
+		Left,
+		Center,
+		Right
 	};
 
 public:
@@ -34,11 +48,24 @@ public:
 		return new Text(fontDataName, materialID);
 	}
 
-	void SetSentence(const char* sentence);
-
 	inline size_t GetMaterialID() const
 	{
 		return mMaterialID;
+	}
+
+	inline VerticalAnchor GetVerticalAnchor() const
+	{
+		return mVerticalAnchor;
+	}
+
+	inline HorizontalAnchor GetHorizontalAnchor() const
+	{
+		return mHorizontalAnchor;
+	}
+
+	inline const DirectX::XMFLOAT2& GetAnchorPoint() const
+	{
+		return mAnchorPoint;
 	}
 
 	inline const DirectX::XMFLOAT2& GetPosition() const
@@ -51,10 +78,16 @@ public:
 		return mbActive;
 	}
 
+	void SetSentence(const char* sentence);
+
 	inline void SetMaterialID(const size_t materialID)
 	{
 		mMaterialID = materialID;
 	}
+
+	void SetVerticalAnchor(const VerticalAnchor verticalAnchor);
+
+	void SetHorizontalAnchor(const HorizontalAnchor horizontalAnchor);
 
 	inline void SetPosition(const DirectX::XMFLOAT2& position)
 	{
@@ -92,6 +125,12 @@ private:
 	size_t mFontDataID = 0;
 
 	size_t mMaterialID = 0;
+
+	VerticalAnchor mVerticalAnchor = VerticalAnchor::Middle;
+
+	HorizontalAnchor mHorizontalAnchor = HorizontalAnchor::Center;
+
+	DirectX::XMFLOAT2 mAnchorPoint = {};
 
 	DirectX::XMFLOAT2 mPosition = {};
 

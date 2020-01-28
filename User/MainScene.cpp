@@ -37,7 +37,9 @@ void MainScene::Initialize()
 	// HACK: Debugging
 	{
 		mFrameText = Text::Create();
-		mFrameText->SetPosition({ -390.0f, 290.0f });
+		mFrameText->SetVerticalAnchor(Text::VerticalAnchor::Top);
+		mFrameText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
+		mFrameText->SetPosition({ 10.0f, -10.0f });
 		AddText(mFrameText);
 	}
 }

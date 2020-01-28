@@ -13,9 +13,9 @@ public:
 		return setting;
 	}
 
-	inline int GetWidth() const { return 800; }
+	inline int GetWidth() const { return 1280; }
 
-	inline int GetHeight() const { return 600; }
+	inline int GetHeight() const { return 720; }
 
 	inline bool IsWindow() const { return true; }
 
