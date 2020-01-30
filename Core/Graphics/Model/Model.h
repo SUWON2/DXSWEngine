@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <string>
 
 #include "ModelResource.h"
 #include "../RendererKey.h"
@@ -20,17 +19,22 @@ public:
 
 	inline const char* GetFileName() const
 	{
-		return mModelResource->GetResourceName(mResourceID).c_str();
+		return mModelResource->GetResourceName(mDataId).c_str();
 	}
 
-	inline const std::unique_ptr<size_t[]>& GetMaterialIDs() const
+	inline const std::unique_ptr<size_t[]>& GetMaterialIds() const
 	{
-		return mMaterialIDs;
+		return mMaterialIds;
 	}
 
 	inline unsigned int GetMeshCount() const
 	{
 		return mMeshCount;
+	}
+
+	inline bool IsActive() const
+	{
+		return mbActive;
 	}
 
 	inline const DirectX::XMFLOAT3& GetPosition() const
@@ -48,12 +52,12 @@ public:
 		return mRotation;
 	}
 
-	inline bool IsActive() const
-	{
-		return mbActive;
-	}
+	void SetMaterial(const unsigned int materialIndex, const size_t materialId);
 
-	void SetMaterial(const unsigned int materialIndex, const size_t materialID);
+	inline void SetActive(const bool bActive)
+	{
+		mbActive = bActive;
+	}
 
 	inline void SetPosition(const DirectX::XMFLOAT3& position)
 	{
@@ -68,11 +72,6 @@ public:
 	inline void SetRotation(const DirectX::XMFLOAT3& rotation)
 	{
 		mRotation = rotation;
-	}
-
-	inline void SetActive(const bool bActive)
-	{
-		mbActive = bActive;
 	}
 
 public:
@@ -90,17 +89,17 @@ private:
 
 	static std::unique_ptr<ModelResource> mModelResource;
 
-	size_t mResourceID = 0;
+	std::unique_ptr<size_t[]> mMaterialIds = nullptr;
 
-	std::unique_ptr<size_t[]> mMaterialIDs = nullptr;
+	size_t mDataId = 0;
 
 	unsigned int mMeshCount = 0;
+
+	bool mbActive = true;
 
 	DirectX::XMFLOAT3 mPosition = {};
 
 	DirectX::XMFLOAT3 mScale = { 1.0f, 1.0f, 1.0f };
 
 	DirectX::XMFLOAT3 mRotation = {};
-
-	bool mbActive = true;
 };

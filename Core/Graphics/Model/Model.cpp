@@ -10,10 +10,10 @@ Model::Model(const char* fileName)
 	ASSERT(fileName != nullptr, "The fileName must not be null");
 	ASSERT(mModelResource != nullptr, "The mModelResource is null");
 
-	mResourceID = mModelResource->LoadVertexBuffer(fileName);
+	mDataId = mModelResource->LoadVertexBuffer(fileName);
 
-	mMeshCount = mModelResource->GetModelData(mResourceID).size();
-	mMaterialIDs = std::make_unique<size_t[]>(mMeshCount);
+	mMeshCount = mModelResource->GetModelData(mDataId).size();
+	mMaterialIds = std::make_unique<size_t[]>(mMeshCount);
 }
 
 Model::~Model()
@@ -25,11 +25,11 @@ Model* Model::Create(const char* fileName)
 	return new Model(fileName);
 }
 
-void Model::SetMaterial(const unsigned int materialIndex, const size_t materialID)
+void Model::SetMaterial(const unsigned int materialIndex, const size_t materialId)
 {
 	// HACK: 커맨드 더 명확하게 지정하자.
-	ASSERT(0 <= materialIndex && materialIndex <= mMeshCount, "머티리얼을 model이 보유하는 메쉬 개수보다 더 많이 등록할 수 없습니다.");
-	mMaterialIDs[materialIndex] = materialID;
+	ASSERT(0 <= materialIndex && materialIndex <= mMeshCount, "model이 보유하는 메쉬 개수보다 더 큰 머티리얼 인덱스를 등록할 수 없습니다.");
+	mMaterialIds[materialIndex] = materialId;
 }
 
 void Model::_Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
@@ -44,7 +44,7 @@ void Model::_Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* 
 
 void Model::_Draw(RendererKey, const unsigned int meshIndex)
 {
-	const ModelResource::Mesh& mesh = mModelResource->GetModelData(mResourceID).at(meshIndex);
+	const ModelResource::Mesh& mesh = mModelResource->GetModelData(mDataId).at(meshIndex);
 
 	const UINT stride = mesh.VertexSize;
 	const UINT offset = 0;

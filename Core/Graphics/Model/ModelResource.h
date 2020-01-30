@@ -2,6 +2,7 @@
 
 #include <d3d11.h>
 #include <vector>
+#include <string>
 #include <unordered_map>
 
 class ModelResource final
@@ -41,6 +42,6 @@ private:
 
 	ID3D11DeviceContext* mDeviceContext = nullptr;
 
-	// obj file name, model
+	// obj file name, model data
 	std::unordered_map<std::string, std::vector<Mesh>> mModelDatas;
 };

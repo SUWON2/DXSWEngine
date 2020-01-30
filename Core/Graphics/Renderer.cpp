@@ -38,10 +38,10 @@ void Renderer::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devi
 	mCamera = std::make_unique<Camera>();
 	mSkyDome = std::make_unique<SkyDome>();
 
-	// 폰트를 따로 지정하지 않은 텍스트를 위해 제공하는 기본 폰트 머티리얼을 미리 추가합니다.
+	// 폰트를 따로 지정하지 않은 텍스트를 위해 기본 폰트 머티리얼을 미리 추가하여 제공합니다.
 	Material* fontMaterial = Material::Create("Shaders/BasicFontShaderVS.hlsl", "Shaders/BasicFontShaderPS.hlsl");
 	fontMaterial->RegisterTexture(0, "Resource/BasicFont.dds");
-	mFontMaterialID = AddMaterial(fontMaterial);
+	mBasicFontMaterialId = AddMaterial(fontMaterial);
 }
 
 void Renderer::SortText()
@@ -50,7 +50,7 @@ void Renderer::SortText()
 	{
 		std::sort(begin(mTexts), end(mTexts), [](const Text* a, const Text* b)
 			{
-				return a->GetMaterialID() < b->GetMaterialID();
+				return a->GetMaterialId() < b->GetMaterialId();
 			});
 	}
 }
@@ -87,10 +87,10 @@ void Renderer::DrawModelAndText()
 
 			for (unsigned int i = 0; i < model->GetMeshCount(); ++i)
 			{
-				ASSERT(model->GetMaterialIDs()[i] != 0
-					, "머티리얼 개수가 메쉬 개수와 대응되지 않습니다. 머티리얼을 메쉬 개수에 맞게 등록해 주세요");
+				ASSERT(model->GetMaterialIds()[i] != 0
+					, "머티리얼 개수가 메쉬 개수와 대응되지 않습니다. 머티리얼 개수를 메쉬 개수에 맞게 등록해 주세요");
 
-				Material* material = mMaterials.at(model->GetMaterialIDs()[i]).get();
+				Material* material = mMaterials.at(model->GetMaterialIds()[i]).get();
 				material->_Activate({});
 
 				material->UpdateBuffer(0, XMMatrixTranspose(matWorld));
@@ -119,16 +119,16 @@ void Renderer::DrawModelAndText()
 				, text->GetAnchorPoint().y + text->GetPosition().y, 0.0f);
 
 			// 현재 텍스트가 가지는 머티리얼 아이디가 이전 아이디와 달라지는 경우만 머티리얼을 활성화시킴으로써 성능을 향상시킵니다.
-			if (text->GetMaterialID() == 0
-				&& reinterpret_cast<size_t>(currentMaterial) != mFontMaterialID)
+			if (text->GetMaterialId() == 0
+				&& reinterpret_cast<size_t>(currentMaterial) != mBasicFontMaterialId)
 			{
-				currentMaterial = mMaterials.at(mFontMaterialID).get();
+				currentMaterial = mMaterials.at(mBasicFontMaterialId).get();
 				currentMaterial->_Activate({});
 			}
-			else if (text->GetMaterialID() != 0
-				&& reinterpret_cast<size_t>(currentMaterial) != text->GetMaterialID())
+			else if (text->GetMaterialId() != 0
+				&& reinterpret_cast<size_t>(currentMaterial) != text->GetMaterialId())
 			{
-				currentMaterial = mMaterials.at(text->GetMaterialID()).get();
+				currentMaterial = mMaterials.at(text->GetMaterialId()).get();
 				currentMaterial->_Activate({});
 			}
 
@@ -173,10 +173,10 @@ size_t Renderer::AddMaterial(Material* material)
 {
 	ASSERT(material != nullptr, "The material must not be null");
 
-	const size_t materialID = reinterpret_cast<size_t>(material);
-	ASSERT(mMaterials.find(materialID) == mMaterials.end(), "There is already the material");
+	const size_t materialId = reinterpret_cast<size_t>(material);
+	ASSERT(mMaterials.find(materialId) == mMaterials.end(), "There is already the material");
 
-	mMaterials.insert(std::make_pair(materialID, std::unique_ptr<Material>(material)));
+	mMaterials.insert(std::make_pair(materialId, std::unique_ptr<Material>(material)));
 
-	return materialID;
+	return materialId;
 }

@@ -11,16 +11,16 @@ std::unique_ptr<TextResource> Text::mTextResource = nullptr;
 
 Text::Text()
 {
-	mFontDataID = mTextResource->LoadFontData("Resource/BasicFontData.font");
+	mFontDataId = mTextResource->LoadFontData("Resource/BasicFontData.font");
 }
 
-Text::Text(const char* fontDataName, const size_t materialID)
-	: mMaterialID(materialID)
+Text::Text(const char* fontDataName, const size_t materialId)
+	: mMaterialId(materialId)
 {
 	ASSERT(fontDataName != nullptr, "The fontDataName must not be null");
 	ASSERT(mTextResource != nullptr, "The TextResource must not be null");
 
-	mFontDataID = mTextResource->LoadFontData(fontDataName);
+	mFontDataId = mTextResource->LoadFontData(fontDataName);
 }
 
 Text::~Text()
@@ -58,7 +58,7 @@ void Text::SetSentence(const char* sentence)
 
 	// 인자로 넘겨 받은 문장에 맞게 정점 버퍼를 구성합니다.
 	{
-		const TextResource::FontType* fontData = &mTextResource->GetFontData(mFontDataID);
+		const TextResource::FontType* fontData = &mTextResource->GetFontData(mFontDataId);
 
 		XMFLOAT2 drawingPosition = {};
 

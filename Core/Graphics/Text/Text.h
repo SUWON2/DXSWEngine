@@ -43,14 +43,19 @@ public:
 		return new Text;
 	}
 
-	static inline Text* Create(const char* fontDataName, const size_t materialID)
+	static inline Text* Create(const char* fontDataName, const size_t materialId)
 	{
-		return new Text(fontDataName, materialID);
+		return new Text(fontDataName, materialId);
 	}
 
-	inline size_t GetMaterialID() const
+	inline size_t GetMaterialId() const
 	{
-		return mMaterialID;
+		return mMaterialId;
+	}
+
+	inline bool IsActive() const
+	{
+		return mbActive;
 	}
 
 	inline VerticalAnchor GetVerticalAnchor() const
@@ -73,16 +78,16 @@ public:
 		return mPosition;
 	}
 
-	inline bool IsActive() const
-	{
-		return mbActive;
-	}
-
 	void SetSentence(const char* sentence);
 
-	inline void SetMaterialID(const size_t materialID)
+	inline void SetMaterialId(const size_t materialId)
 	{
-		mMaterialID = materialID;
+		mMaterialId = materialId;
+	}
+
+	inline void SetActive(const bool bActive)
+	{
+		mbActive = bActive;
 	}
 
 	void SetVerticalAnchor(const VerticalAnchor verticalAnchor);
@@ -94,11 +99,6 @@ public:
 		mPosition = position;
 	}
 
-	inline void SetActive(const bool bActive)
-	{
-		mbActive = bActive;
-	}
-
 public:
 	static void _Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
@@ -107,7 +107,7 @@ public:
 private:
 	Text();
 
-	Text(const char* fontDataName, const size_t materialID);
+	Text(const char* fontDataName, const size_t materialId);
 
 private:
 	static ID3D11Device* mDevice;
@@ -122,9 +122,11 @@ private:
 
 	size_t mMaxSentenceLength = 0;
 
-	size_t mFontDataID = 0;
+	size_t mFontDataId = 0;
 
-	size_t mMaterialID = 0;
+	size_t mMaterialId = 0;
+
+	bool mbActive = true;
 
 	VerticalAnchor mVerticalAnchor = VerticalAnchor::Middle;
 
@@ -133,6 +135,4 @@ private:
 	DirectX::XMFLOAT2 mAnchorPoint = {};
 
 	DirectX::XMFLOAT2 mPosition = {};
-
-	bool mbActive = true;
 };

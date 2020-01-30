@@ -32,17 +32,17 @@ public:
 
 	inline const char* GetVertexShaderName() const
 	{
-		return mMaterialResource->GetResourceName(mVertexShaderID).c_str();
+		return mMaterialResource->GetResourceName(mVertexShaderId).c_str();
 	}
 
 	inline const char* GetPixelShaderName() const
 	{
-		return mMaterialResource->GetResourceName(mPixelShaderID).c_str();
+		return mMaterialResource->GetResourceName(mPixelShaderId).c_str();
 	}
 
 	inline const char* GetTextureName(const unsigned int index) const
 	{
-		return mMaterialResource->GetResourceName(mTextureIDs.at(index)).c_str();
+		return mMaterialResource->GetResourceName(mTextureIds.at(index)).c_str();
 	}
 
 public:
@@ -60,12 +60,12 @@ private:
 
 	static std::unique_ptr<MaterialResource> mMaterialResource;
 
-	size_t mVertexShaderID = 0;
+	size_t mVertexShaderId = 0;
 
-	size_t  mPixelShaderID = 0;
+	size_t  mPixelShaderId = 0;
 
 	// texture index, texture id
-	std::unordered_map<unsigned int, size_t> mTextureIDs;
+	std::unordered_map<unsigned int, size_t> mTextureIds;
 
 	// buffer index, constant buffer
 	std::unordered_map<unsigned int, ID3D11Buffer*> mConstantBuffers;

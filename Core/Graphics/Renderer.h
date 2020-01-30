@@ -60,7 +60,7 @@ private:
 
 	std::vector<Text*> mTexts;
 
-	size_t mFontMaterialID = 0;
+	size_t mBasicFontMaterialId = 0;
 
 	// material id, material
  	std::unordered_map<size_t, std::unique_ptr<Material>> mMaterials;
