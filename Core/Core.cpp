@@ -40,6 +40,7 @@ Core::Core(Scene* scene)
 			mScene->Update(deltaTime);
 
 			Input::Get()._SetPreviousFrameMousePosition({});
+			Input::Get()._ClearMouseScrollWheel({});
 
 			mDXDevice->BeginUpdate();
 
@@ -134,6 +135,10 @@ LRESULT Core::HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		case WM_MBUTTONDOWN:
 		case WM_MBUTTONUP:
 			Input::Get()._UpdateMouseButtonState({}, 2, WM_MBUTTONUP - message);
+			return 0;
+
+		case WM_MOUSEWHEEL:
+			Input::Get()._SetMouseScrollWheel({}, static_cast<short>(HIWORD(wParam)));
 			return 0;
 
 		case WM_DESTROY:

@@ -27,7 +27,6 @@ Model* Model::Create(const char* fileName)
 
 void Model::SetMaterial(const unsigned int materialIndex, const size_t materialId)
 {
-	// HACK: 커맨드 더 명확하게 지정하자.
 	ASSERT(0 <= materialIndex && materialIndex <= mMeshCount, "model이 보유하는 메쉬 개수보다 더 큰 머티리얼 인덱스를 등록할 수 없습니다.");
 	mMaterialIds[materialIndex] = materialId;
 }

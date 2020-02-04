@@ -217,7 +217,7 @@ DXDevice::DXDevice(HWND hWnd)
 	// Initialize sampler state
 	{
 		D3D11_SAMPLER_DESC samplerStateDesc = {};
-		samplerStateDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerStateDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 		samplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;

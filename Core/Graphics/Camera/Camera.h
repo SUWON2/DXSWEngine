@@ -31,6 +31,11 @@ public:
 		return mPosition;
 	}
 
+	inline const DirectX::XMFLOAT3& GetViewDirection() const
+	{
+		return mZAxis;
+	}
+
 	inline void SetPosition(const DirectX::XMFLOAT3 position)
 	{
 		mPosition = position;

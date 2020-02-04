@@ -38,6 +38,11 @@ public:
 		return mPreviousFrameMousePosition;
 	}
 
+	inline int GetMouseScrollWheel() const
+	{
+		return mMouseScrollWheel;
+	}
+
 	// button - 0: 왼쪽 버튼, 1: 오른쪽 버튼, 2: 중간 버튼
 	inline bool GetMouseButton(const int button) const
 	{
@@ -65,6 +70,16 @@ public:
 		mPreviousFrameMousePosition = mMousePosition;
 	}
 
+	inline void _SetMouseScrollWheel(CoreKey, const int scrollWheel)
+	{
+		mMouseScrollWheel += scrollWheel;
+	}
+
+	inline void _ClearMouseScrollWheel(CoreKey)
+	{
+		mMouseScrollWheel = 0;
+	}
+
 private:
 	Input() = default;
 
@@ -87,4 +102,6 @@ private:
 	bool mbPressedMouseButton[MOUSE_BUTTON_CUONT] = {};
 
 	bool mbMouseButtonStateChanged[MOUSE_BUTTON_CUONT] = {};
+
+	int mMouseScrollWheel = {};
 };

@@ -12,6 +12,9 @@
 *.o
 *.obj
 
+# Resource
+Resource/*
+
 # Precompiled Headers
 *.gch
 *.pch

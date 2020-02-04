@@ -171,7 +171,6 @@ size_t ModelResource::LoadVertexBuffer(const char* fileName)
 		modelData.push_back(mesh);
 	}
 
-	// HACK: 되는지 확인하자.
 	mModelDatas.insert(std::make_pair(fileName, std::move(modelData)));
 
 	// model data id를 반환합니다.

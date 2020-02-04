@@ -16,126 +16,102 @@ MainScene::~MainScene()
 void MainScene::Initialize()
 {
 	GetCamera()->SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
-
-	// Create tiles
-	{
-		Material* material1 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material1->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.9764706f, 0.7137255f, 0.4509804f));
-		const size_t material1Id = AddMaterial(material1);
-
-		Material* material2 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material2->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.2666667f, 0.7098039f, 0.5529412f));
-		const size_t material2Id = AddMaterial(material2);
-
-		for (float x = 0.0f; x < 10.0f; ++x)
-		{
-			for (float z = 0.0f; z < 10.0f; ++z)
-			{
-				auto tile = Model::Create("Resource/Tile.model");
-				tile->SetPosition({ x, 0.0f, z });
-				tile->SetMaterial(0, material1Id);
-				tile->SetMaterial(1, material2Id);
-				AddModel(tile);
-			}
-		}
-	}
-
-	// Create a tree
-	{
-		auto tree = Model::Create("Resource/Tree.model");
-		tree->SetPosition({ 0.0f, 0.2f, 0.0f });
-		AddModel(tree);
-
-		Material* material1 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material1->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.5f, 0.7098039f, 0.5529412f));
-		tree->SetMaterial(0, AddMaterial(material1));
-
-		Material* material2 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material2->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.8784314f, 0.5333334f, 0.3607843f));
-		tree->SetMaterial(1, AddMaterial(material2));
-
-		Material* material3 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material3->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(1.0f, 1.0f, 1.0f));
-		tree->SetMaterial(2, AddMaterial(material3));
-	}
-
-	// Create a tree
-	{
-		auto tree = Model::Create("Resource/Tree.model");
-		tree->SetPosition({ 2.0f, 0.2f, 2.0f });
-		AddModel(tree);
-
-		Material* material1 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material1->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(1.0f, 0.7098039f, 0.5529412f));
-		tree->SetMaterial(0, AddMaterial(material1));
-
-		Material* material2 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material2->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.8784314f, 0.5333334f, 0.3607843f));
-		tree->SetMaterial(1, AddMaterial(material2));
-
-		Material* material3 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material3->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(1.0f, 1.0f, 1.0f));
-		tree->SetMaterial(2, AddMaterial(material3));
-	}
-
-	// Create a tree
-	{
-		auto tree = Model::Create("Resource/Tree.model");
-		tree->SetPosition({ 3.0f, 0.2f, 3.0f });
-		AddModel(tree);
-
-		Material* material1 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material1->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.5f, 0.7098039f, 0.7529412f));
-		tree->SetMaterial(0, AddMaterial(material1));
-
-		Material* material2 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material2->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.8784314f, 0.5333334f, 0.3607843f));
-		tree->SetMaterial(1, AddMaterial(material2));
-
-		Material* material3 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material3->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(1.0f, 1.0f, 1.0f));
-		tree->SetMaterial(2, AddMaterial(material3));
-	}
-
-	// Create a ufo
-	{
-		auto ufo = Model::Create("Resource/UFO.model");
-		ufo->SetRotation({ 0.0f, 0.0f, -15.0f });
-		ufo->SetPosition({ 2.0f, 1.0f, 5.0f });
-		AddModel(ufo);
-
-		Material* material1 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material1->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.7019608f, 0.854902f, 0.8941177f));
-		ufo->SetMaterial(0, AddMaterial(material1));
-
-		Material* material2 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material2->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.454902f, 0.4117647f, 0.7019608f));
-		ufo->SetMaterial(1, AddMaterial(material2));
-
-		Material* material3 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material3->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(0.4740168f, 0.6086806f, 0.641f));
-		ufo->SetMaterial(2, AddMaterial(material3));
-
-		Material* material4 = Material::Create("Shaders/Kenney/BasicVS.hlsl", "Shaders/Kenney/BasicPS.hlsl");
-		material4->RegisterBuffer(2, sizeof(XMVECTOR), XMFLOAT3(1.0f, 1.0f, 1.0f));
-		ufo->SetMaterial(3, AddMaterial(material4));
-	}
-
 	GetSkyDome()->SetActive(false);
 
-	// HACK: Debugging
+	// Create debugging texts
 	{
 		mFrameText = Text::Create();
 		mFrameText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mFrameText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
 		mFrameText->SetPosition({ 10.0f, -10.0f });
 		AddText(mFrameText);
+
+		mCameraModeText = Text::Create();
+		mCameraModeText->SetVerticalAnchor(Text::VerticalAnchor::Top);
+		mCameraModeText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
+		mCameraModeText->SetPosition({ 10.0f, -30.0f });
+		AddText(mCameraModeText);
+
+		mViewDirectionText = Text::Create();
+		mViewDirectionText->SetVerticalAnchor(Text::VerticalAnchor::Top);
+		mViewDirectionText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
+		mViewDirectionText->SetPosition({ 10.0f, -50.0f });
+		AddText(mViewDirectionText);
+	}
+
+	// Create log and target block
+	{
+		auto logTopMaterial = Material::Create("Shaders/BasicShaderVS.hlsl", "Shaders/BasicShaderPS.hlsl");
+		logTopMaterial->RegisterTexture(0, "Resource/oak_log_top.DDS");
+		const size_t logTopMaterialId = AddMaterial(logTopMaterial);
+
+		auto logMaterial = Material::Create("Shaders/BasicShaderVS.hlsl", "Shaders/BasicShaderPS.hlsl");
+		logMaterial->RegisterTexture(0, "Resource/oak_log.DDS");
+		const size_t logMaterialId = AddMaterial(logMaterial);
+
+		for (float x = 0.0f; x < 10.0f; ++x)
+		{
+			for (float z = 0.0f; z < 10.0f; ++z)
+			{
+				Model* log = Model::Create("Resource/Block.model");
+				log->SetMaterial(0, logTopMaterialId);
+				log->SetMaterial(1, logMaterialId);
+				log->SetPosition({ x, 0.0f, z });
+
+				AddModel(log);
+			}
+		}
+
+		mTargetBlock = Model::Create("Resource/Block.model");
+		mTargetBlock->SetMaterial(0, logTopMaterialId);
+		mTargetBlock->SetMaterial(1, logMaterialId);
+		AddModel(mTargetBlock);
 	}
 }
 
 void MainScene::Update(const float deltaTime)
 {
-	UpdateCamera(deltaTime);
+	static XMFLOAT3 viewPos = {};
+
+	if (Input::Get().GetKeyDown(VK_SPACE))
+	{
+		mIsCameraModeUnreal = !mIsCameraModeUnreal;
+
+		if (mIsCameraModeUnreal == false)
+		{
+			viewPos =
+			{
+				GetCamera()->GetPosition().x + GetCamera()->GetViewDirection().x * 10.0f,
+				GetCamera()->GetPosition().y + GetCamera()->GetViewDirection().y * 10.0f,
+				GetCamera()->GetPosition().z + GetCamera()->GetViewDirection().z * 10.0f,
+			};
+		}
+	}
+
+	if (mIsCameraModeUnreal)
+	{
+		UpdateUnrealCamera(deltaTime);
+	}
+	else
+	{
+		UpdateUnityCamera(deltaTime, viewPos);
+	}
+
+	// Move target block
+	{
+		XMFLOAT3 position = GetCamera()->GetViewDirection();
+
+		position.x *= 3.0f;
+		position.y *= 3.0f;
+		position.z *= 3.0f;
+
+		position.x += GetCamera()->GetPosition().x;
+		position.y += GetCamera()->GetPosition().y;
+		position.z += GetCamera()->GetPosition().z;
+
+		mTargetBlock->SetPosition(position);
+		mTargetBlock->SetActive(false); // HACK: 유니티용 카메라를 만들 때 까지 잠시 주석처리한다.
+	}
 
 	// HACK: Debugging
 	{
@@ -158,12 +134,30 @@ void MainScene::Update(const float deltaTime)
 		{
 			mFrameText->SetSentence(("DELTA_TIME: " + std::to_string(deltaTime)).c_str());
 		}
+
+		if (mCameraModeText->IsActive())
+		{
+			const std::string text = std::string("CAMERA_MODE: ") + (mIsCameraModeUnreal ? "UNREAL" : "UNITY");
+			mCameraModeText->SetSentence(text.c_str());
+		}
+
+		if (mViewDirectionText->IsActive())
+		{
+			const XMFLOAT3 viewDirection = GetCamera()->GetViewDirection();
+
+			const std::string text = ("VIEW_DIRECTION: (" 
+				+ std::to_string(viewDirection.x) + ", "
+				+ std::to_string(viewDirection.y) + ", "
+				+ std::to_string(viewDirection.z) + ")");
+
+			mViewDirectionText->SetSentence(text.c_str());
+		}
 	}
 }
 
-void MainScene::UpdateCamera(const float deltaTime)
+void MainScene::UpdateUnrealCamera(const float deltaTime)
 {
-	static Camera* camera = GetCamera();
+	Camera* camera = GetCamera();
 
 	// 카메라 이동을 처리한다.
 	{
@@ -313,5 +307,61 @@ void MainScene::UpdateCamera(const float deltaTime)
 			const float grapX = mouseMovement.y * 0.08f;
 			camera->RotateX(grapX);
 		}
+	}
+}
+
+void MainScene::UpdateUnityCamera(const float deltaTime, const DirectX::XMFLOAT3& viewPosition)
+{
+	Camera* camera = GetCamera();
+
+	// 카메라 회전을 처리한다.
+	{
+		const XMINT2 mouseMovement =
+		{
+			Input::Get().GetMousePosition().x - Input::Get().GetPreviousFrameMousePosition().x,
+			Input::Get().GetMousePosition().y - Input::Get().GetPreviousFrameMousePosition().y
+		};
+
+		if (mouseMovement.x != 0)
+		{
+			const float grapY = mouseMovement.x * 0.08f;
+			camera->RotateY(grapY);
+		}
+
+		if (mouseMovement.y != 0)
+		{
+			const float grapX = mouseMovement.y * 0.08f;
+			camera->RotateX(grapX);
+		}
+	}
+
+	static float zoomScale = 10.0f;
+
+	if (Input::Get().GetMouseScrollWheel() > 0)
+	{
+		if (zoomScale > 5)
+		{
+			--zoomScale;
+		}
+	}
+	else if (Input::Get().GetMouseScrollWheel() < 0)
+	{
+		if (zoomScale < 10)
+		{
+			++zoomScale;
+		}
+	}
+
+
+	// 카메라 이동을 처리한다.
+	{
+		const XMFLOAT3 pos =
+		{
+			viewPosition.x - camera->GetViewDirection().x * zoomScale,
+			viewPosition.y - camera->GetViewDirection().y * zoomScale,
+			viewPosition.z - camera->GetViewDirection().z * zoomScale
+		};
+
+		camera->SetPosition(pos);
 	}
 }
