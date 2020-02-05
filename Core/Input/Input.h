@@ -38,11 +38,6 @@ public:
 		return mPreviousFrameMousePosition;
 	}
 
-	inline int GetMouseScrollWheel() const
-	{
-		return mMouseScrollWheel;
-	}
-
 	// button - 0: 왼쪽 버튼, 1: 오른쪽 버튼, 2: 중간 버튼
 	inline bool GetMouseButton(const int button) const
 	{
@@ -55,6 +50,28 @@ public:
 
 	// button - 0: 왼쪽 버튼, 1: 오른쪽 버튼, 2: 중간 버튼
 	bool GetMouseButtonUp(const int button);
+
+	inline int GetMouseScrollWheel() const
+	{
+		return mMouseScrollWheel;
+	}
+
+	inline bool IsCursorVisible() const
+	{
+		return mbVisibleCursor;
+	}
+
+	inline bool IsCirculatingMouse() const
+	{
+		return mbCirculatingMouse;
+	}
+
+	void SetVisibleCursor(const bool bVisible);
+
+	inline void SetCirculatingMouse(bool bCirculating)
+	{
+		mbCirculatingMouse = bCirculating;
+	}
 
 public:
 	void _Initialize(CoreKey, HWND hWnd);
@@ -102,6 +119,10 @@ private:
 	bool mbPressedMouseButton[MOUSE_BUTTON_CUONT] = {};
 
 	bool mbMouseButtonStateChanged[MOUSE_BUTTON_CUONT] = {};
+
+	bool mbVisibleCursor = true;
+
+	bool mbCirculatingMouse = {};
 
 	int mMouseScrollWheel = {};
 };

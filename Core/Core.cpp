@@ -113,6 +113,15 @@ LRESULT Core::HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 {
 	switch (message)
 	{
+		case WM_SYSKEYDOWN:
+		case WM_SYSKEYUP:
+			if (wParam == VK_MENU)
+			{
+				Input::Get()._UpdateKeyState({}, wParam, WM_SYSKEYUP - message);
+				return 0;
+			}
+			break;
+
 		case WM_KEYDOWN:
 		case WM_KEYUP:
 			Input::Get()._UpdateKeyState({}, wParam, WM_KEYUP - message);

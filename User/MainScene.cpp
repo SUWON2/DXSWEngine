@@ -15,8 +15,8 @@ MainScene::~MainScene()
 
 void MainScene::Initialize()
 {
-	GetCamera()->SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
 	GetSkyDome()->SetActive(false);
+	GetCamera()->SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
 
 	// Create debugging texts
 	{
@@ -26,26 +26,21 @@ void MainScene::Initialize()
 		mFrameText->SetPosition({ 10.0f, -10.0f });
 		AddText(mFrameText);
 
-		mCameraModeText = Text::Create();
-		mCameraModeText->SetVerticalAnchor(Text::VerticalAnchor::Top);
-		mCameraModeText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
-		mCameraModeText->SetPosition({ 10.0f, -30.0f });
-		AddText(mCameraModeText);
-
 		mViewDirectionText = Text::Create();
 		mViewDirectionText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mViewDirectionText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
-		mViewDirectionText->SetPosition({ 10.0f, -50.0f });
+		mViewDirectionText->SetPosition({ 10.0f, -30.0f });
 		AddText(mViewDirectionText);
 	}
 
-	// Create log and target block
+	// Create log and
 	{
-		auto logTopMaterial = Material::Create("Shaders/BasicShaderVS.hlsl", "Shaders/BasicShaderPS.hlsl");
+		auto logTopMaterial = Material::Create("Shaders/BlockVS.hlsl", "Shaders/BlockPS.hlsl");
 		logTopMaterial->RegisterTexture(0, "Resource/oak_log_top.DDS");
+		logTopMaterial->RegisterBuffer(0, sizeof(XMVECTOR))
 		const size_t logTopMaterialId = AddMaterial(logTopMaterial);
 
-		auto logMaterial = Material::Create("Shaders/BasicShaderVS.hlsl", "Shaders/BasicShaderPS.hlsl");
+		auto logMaterial = Material::Create("Shaders/BlockVS.hlsl", "Shaders/BlockPS.hlsl");
 		logMaterial->RegisterTexture(0, "Resource/oak_log.DDS");
 		const size_t logMaterialId = AddMaterial(logMaterial);
 
@@ -61,71 +56,21 @@ void MainScene::Initialize()
 				AddModel(log);
 			}
 		}
-
-		mTargetBlock = Model::Create("Resource/Block.model");
-		mTargetBlock->SetMaterial(0, logTopMaterialId);
-		mTargetBlock->SetMaterial(1, logMaterialId);
-		AddModel(mTargetBlock);
 	}
 }
 
 void MainScene::Update(const float deltaTime)
 {
-	static XMFLOAT3 viewPos = {};
-
-	if (Input::Get().GetKeyDown(VK_SPACE))
-	{
-		mIsCameraModeUnreal = !mIsCameraModeUnreal;
-
-		if (mIsCameraModeUnreal == false)
-		{
-			viewPos =
-			{
-				GetCamera()->GetPosition().x + GetCamera()->GetViewDirection().x * 10.0f,
-				GetCamera()->GetPosition().y + GetCamera()->GetViewDirection().y * 10.0f,
-				GetCamera()->GetPosition().z + GetCamera()->GetViewDirection().z * 10.0f,
-			};
-		}
-	}
-
-	if (mIsCameraModeUnreal)
-	{
-		UpdateUnrealCamera(deltaTime);
-	}
-	else
-	{
-		UpdateUnityCamera(deltaTime, viewPos);
-	}
-
-	// Move target block
-	{
-		XMFLOAT3 position = GetCamera()->GetViewDirection();
-
-		position.x *= 3.0f;
-		position.y *= 3.0f;
-		position.z *= 3.0f;
-
-		position.x += GetCamera()->GetPosition().x;
-		position.y += GetCamera()->GetPosition().y;
-		position.z += GetCamera()->GetPosition().z;
-
-		mTargetBlock->SetPosition(position);
-		mTargetBlock->SetActive(false); // HACK: 유니티용 카메라를 만들 때 까지 잠시 주석처리한다.
-	}
+	UpdateCamera(deltaTime);
 
 	// HACK: Debugging
 	{
 		if (Input::Get().GetKeyDown(VK_F1))
 		{
-			mFrameText->SetActive(!mFrameText->IsActive());
-		}
-
-		if (Input::Get().GetKeyDown(VK_F2))
-		{
 			GetSkyDome()->SetActive(!GetSkyDome()->IsActive());
 		}
 
-		if (Input::Get().GetKeyDown(VK_F3))
+		if (Input::Get().GetKeyDown(VK_F2))
 		{
 			system("cls");
 		}
@@ -135,17 +80,11 @@ void MainScene::Update(const float deltaTime)
 			mFrameText->SetSentence(("DELTA_TIME: " + std::to_string(deltaTime)).c_str());
 		}
 
-		if (mCameraModeText->IsActive())
-		{
-			const std::string text = std::string("CAMERA_MODE: ") + (mIsCameraModeUnreal ? "UNREAL" : "UNITY");
-			mCameraModeText->SetSentence(text.c_str());
-		}
-
 		if (mViewDirectionText->IsActive())
 		{
 			const XMFLOAT3 viewDirection = GetCamera()->GetViewDirection();
 
-			const std::string text = ("VIEW_DIRECTION: (" 
+			const std::string text = ("VIEW_DIRECTION: ("
 				+ std::to_string(viewDirection.x) + ", "
 				+ std::to_string(viewDirection.y) + ", "
 				+ std::to_string(viewDirection.z) + ")");
@@ -155,11 +94,78 @@ void MainScene::Update(const float deltaTime)
 	}
 }
 
-void MainScene::UpdateUnrealCamera(const float deltaTime)
+void MainScene::UpdateCamera(const float deltaTime)
 {
 	Camera* camera = GetCamera();
 
+	static bool isCameraModeUnity = true;
+
+	// 카메라 모드를 설정한다.
+	if (Input::Get().GetKeyDown(VK_SPACE))
+	{
+		isCameraModeUnity = !isCameraModeUnity;
+	}
+
+	const bool isCameraRotating = (isCameraModeUnity && Input::Get().GetKey(VK_SHIFT) && Input::Get().GetMouseButton(0))
+		|| isCameraModeUnity == false;
+
+	Input::Get().SetVisibleCursor(!isCameraRotating);
+	Input::Get().SetCirculatingMouse(isCameraRotating);
+
+	// 카메라 회전을 처리한다.
+	if (isCameraRotating)
+	{
+		const XMINT2 mouseMovement =
+		{
+			Input::Get().GetMousePosition().x - Input::Get().GetPreviousFrameMousePosition().x,
+			Input::Get().GetMousePosition().y - Input::Get().GetPreviousFrameMousePosition().y
+		};
+
+		if (mouseMovement.x != 0)
+		{
+			const float grapY = mouseMovement.x * 0.08f;
+			camera->RotateY(grapY);
+		}
+
+		if (mouseMovement.y != 0)
+		{
+			const float grapX = mouseMovement.y * 0.08f;
+			camera->RotateX(grapX);
+		}
+	}
+
 	// 카메라 이동을 처리한다.
+	if (isCameraModeUnity)
+	{
+		static float zoomScale = 10.0f;
+
+		if (Input::Get().GetMouseScrollWheel() > 0)
+		{
+			if (zoomScale > 5.0f)
+			{
+				--zoomScale;
+			}
+		}
+		else if (Input::Get().GetMouseScrollWheel() < 0)
+		{
+			if (zoomScale < 15.0f)
+			{
+				++zoomScale;
+			}
+		}
+
+		const XMFLOAT3 viewPosition = { 4.5f, 0.0f, 4.5f };
+
+		const XMFLOAT3 position =
+		{
+			viewPosition.x - camera->GetViewDirection().x * zoomScale,
+			viewPosition.y - camera->GetViewDirection().y * zoomScale,
+			viewPosition.z - camera->GetViewDirection().z * zoomScale
+		};
+
+		camera->SetPosition(position);
+	}
+	else
 	{
 		constexpr float accX = 0.008f;
 		constexpr float accY = 0.008f;
@@ -286,82 +292,5 @@ void MainScene::UpdateUnrealCamera(const float deltaTime)
 			camera->MoveForward(velocityY);
 			camera->MoveX(velocityX);
 		}
-	}
-
-	// 카메라 회전을 처리한다.
-	{
-		const XMINT2 mouseMovement =
-		{
-			Input::Get().GetMousePosition().x - Input::Get().GetPreviousFrameMousePosition().x,
-			Input::Get().GetMousePosition().y - Input::Get().GetPreviousFrameMousePosition().y
-		};
-
-		if (mouseMovement.x != 0)
-		{
-			const float grapY = mouseMovement.x * 0.08f;
-			camera->RotateY(grapY);
-		}
-
-		if (mouseMovement.y != 0)
-		{
-			const float grapX = mouseMovement.y * 0.08f;
-			camera->RotateX(grapX);
-		}
-	}
-}
-
-void MainScene::UpdateUnityCamera(const float deltaTime, const DirectX::XMFLOAT3& viewPosition)
-{
-	Camera* camera = GetCamera();
-
-	// 카메라 회전을 처리한다.
-	{
-		const XMINT2 mouseMovement =
-		{
-			Input::Get().GetMousePosition().x - Input::Get().GetPreviousFrameMousePosition().x,
-			Input::Get().GetMousePosition().y - Input::Get().GetPreviousFrameMousePosition().y
-		};
-
-		if (mouseMovement.x != 0)
-		{
-			const float grapY = mouseMovement.x * 0.08f;
-			camera->RotateY(grapY);
-		}
-
-		if (mouseMovement.y != 0)
-		{
-			const float grapX = mouseMovement.y * 0.08f;
-			camera->RotateX(grapX);
-		}
-	}
-
-	static float zoomScale = 10.0f;
-
-	if (Input::Get().GetMouseScrollWheel() > 0)
-	{
-		if (zoomScale > 5)
-		{
-			--zoomScale;
-		}
-	}
-	else if (Input::Get().GetMouseScrollWheel() < 0)
-	{
-		if (zoomScale < 10)
-		{
-			++zoomScale;
-		}
-	}
-
-
-	// 카메라 이동을 처리한다.
-	{
-		const XMFLOAT3 pos =
-		{
-			viewPosition.x - camera->GetViewDirection().x * zoomScale,
-			viewPosition.y - camera->GetViewDirection().y * zoomScale,
-			viewPosition.z - camera->GetViewDirection().z * zoomScale
-		};
-
-		camera->SetPosition(pos);
 	}
 }

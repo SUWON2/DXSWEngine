@@ -18,19 +18,10 @@ public:
 	void Update(const float deltaTime) override;
 
 private:
-	void UpdateUnrealCamera(const float deltaTime);
-
-	void UpdateUnityCamera(const float deltaTime, const DirectX::XMFLOAT3& viewDirection);
+	void UpdateCamera(const float deltaTime);
 
 private:
 	Text* mFrameText = nullptr;
 
-	Text* mCameraModeText = nullptr;
-
 	Text* mViewDirectionText = nullptr;
-
-	Model* mTargetBlock = nullptr;
-
-	// true = unreal camera mode, false = unity camera mode
-	bool mIsCameraModeUnreal = false;
 };

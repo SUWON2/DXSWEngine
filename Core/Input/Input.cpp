@@ -59,6 +59,15 @@ bool Input::GetMouseButtonUp(const int button)
 	return bButtonUp;
 }
 
+void Input::SetVisibleCursor(const bool bVisible)
+{
+	if (mbVisibleCursor != bVisible)
+	{
+		mbVisibleCursor = bVisible;
+		ShowCursor(mbVisibleCursor);
+	}
+}
+
 void Input::_Initialize(CoreKey, HWND hWnd)
 {
 	ASSERT(hWnd != nullptr, "The hWnd must not be null");
@@ -68,8 +77,6 @@ void Input::_Initialize(CoreKey, HWND hWnd)
 	GetClientRect(hWnd, &clientRect);
 	MapWindowPoints(hWnd, nullptr, reinterpret_cast<LPPOINT>(&clientRect), 2);
 	ClipCursor(&clientRect);
-
-	ShowCursor(false);
 }
 
 void Input::_UpdateKeyState(CoreKey, const short key, const bool bPressed)
@@ -83,52 +90,55 @@ void Input::_UpdateMousePosition(CoreKey, const DirectX::XMINT2& mousePosition)
 	mPreviousFrameMousePosition = mMousePosition;
 	mMousePosition = mousePosition;
 
-	const RECT clientRect =
+	if (mbCirculatingMouse)
 	{
-		0,
-		0,
-		Setting::Get().GetWidth() - 1,
-		Setting::Get().GetHeight() - 1,
-	};
+		const RECT clientRect =
+		{
+			0,
+			0,
+			Setting::Get().GetWidth() - 1,
+			Setting::Get().GetHeight() - 1,
+		};
 
-	// x축 기준에서 마우스가 화면을 벗어난 경우 반대 방향으로 마우스를 이동시킵니다.
-	if (mMousePosition.x >= clientRect.right)
-	{
-		mMousePosition.x = clientRect.left + 1;
-		mPreviousFrameMousePosition.x = clientRect.left + 1;
+		// x축 기준에서 마우스가 화면을 벗어난 경우 반대 방향으로 마우스를 이동시킵니다.
+		if (mMousePosition.x >= clientRect.right)
+		{
+			mMousePosition.x = clientRect.left + 1;
+			mPreviousFrameMousePosition.x = clientRect.left + 1;
 
-		POINT point;
-		GetCursorPos(&point);
-		SetCursorPos(point.x - (clientRect.right - 1), point.y);
-	}
-	else if (mMousePosition.x <= clientRect.left)
-	{
-		mMousePosition.x = clientRect.right - 1;
-		mPreviousFrameMousePosition.x = clientRect.right - 1;
+			POINT point;
+			GetCursorPos(&point);
+			SetCursorPos(point.x - (clientRect.right - 1), point.y);
+		}
+		else if (mMousePosition.x <= clientRect.left)
+		{
+			mMousePosition.x = clientRect.right - 1;
+			mPreviousFrameMousePosition.x = clientRect.right - 1;
 
-		POINT point;
-		GetCursorPos(&point);
-		SetCursorPos(point.x + (clientRect.right - 1), point.y);
-	}
+			POINT point;
+			GetCursorPos(&point);
+			SetCursorPos(point.x + (clientRect.right - 1), point.y);
+		}
 
-	// y축 기준에서 마우스가 화면을 벗어난 경우 반대 방향으로 마우스를 이동시킵니다.
-	if (mMousePosition.y >= clientRect.bottom)
-	{
-		mMousePosition.y = clientRect.top + 1;
-		mPreviousFrameMousePosition.y = clientRect.top + 1;
+		// y축 기준에서 마우스가 화면을 벗어난 경우 반대 방향으로 마우스를 이동시킵니다.
+		if (mMousePosition.y >= clientRect.bottom)
+		{
+			mMousePosition.y = clientRect.top + 1;
+			mPreviousFrameMousePosition.y = clientRect.top + 1;
 
-		POINT point;
-		GetCursorPos(&point);
-		SetCursorPos(point.x, point.y - (clientRect.bottom - 1));
-	}
-	else if (mMousePosition.y <= clientRect.top)
-	{
-		mMousePosition.y = clientRect.bottom - 1;
-		mPreviousFrameMousePosition.y = clientRect.bottom - 1;
+			POINT point;
+			GetCursorPos(&point);
+			SetCursorPos(point.x, point.y - (clientRect.bottom - 1));
+		}
+		else if (mMousePosition.y <= clientRect.top)
+		{
+			mMousePosition.y = clientRect.bottom - 1;
+			mPreviousFrameMousePosition.y = clientRect.bottom - 1;
 
-		POINT point;
-		GetCursorPos(&point);
-		SetCursorPos(point.x, point.y + (clientRect.bottom - 1));
+			POINT point;
+			GetCursorPos(&point);
+			SetCursorPos(point.x, point.y + (clientRect.bottom - 1));
+		}
 	}
 }
 
