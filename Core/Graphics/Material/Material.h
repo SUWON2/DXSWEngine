@@ -14,6 +14,13 @@
 class Material final
 {
 public:
+	enum class ShaderType
+	{
+		VS, // vertex shader
+		PS // pixel shader
+	};
+
+public:
 	Material(const Material&) = delete;
 
 	Material& operator=(const Material&) = delete;
@@ -23,27 +30,18 @@ public:
 	static Material* Create(const char* vertexShaderName, const char* pixelShaderName);
 
 	template <typename T>
-	void RegisterBuffer(const unsigned int bufferIndex, const size_t bufferSize, const T& data);
+	void RegisterBuffer(const ShaderType shaderType, const unsigned int bufferIndex, const UINT bufferSize, const T& data);
 
 	template <typename T>
-	inline void UpdateBuffer(const unsigned int bufferIndex, const T& data);
+	void UpdateBuffer(const ShaderType shaderType, const unsigned int bufferIndex, const T& data);
 
 	void RegisterTexture(const unsigned int textureIndex, const char* fileName);
 
-	inline const char* GetVertexShaderName() const
-	{
-		return mMaterialResource->GetResourceName(mVertexShaderId).c_str();
-	}
+	const char* GetVertexShaderName() const;
 
-	inline const char* GetPixelShaderName() const
-	{
-		return mMaterialResource->GetResourceName(mPixelShaderId).c_str();
-	}
+	const char* GetPixelShaderName() const;
 
-	inline const char* GetTextureName(const unsigned int index) const
-	{
-		return mMaterialResource->GetResourceName(mTextureIds.at(index)).c_str();
-	}
+	const char* GetTextureName(const unsigned int index) const;
 
 public:
 	static void _Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
@@ -60,31 +58,36 @@ private:
 
 	static std::unique_ptr<MaterialResource> mMaterialResource;
 
-	size_t mVertexShaderId = 0;
+	ID mVertexShaderId = 0;
 
-	size_t  mPixelShaderId = 0;
+	ID mPixelShaderId = 0;
 
 	// texture index, texture id
-	std::unordered_map<unsigned int, size_t> mTextureIds;
+	std::unordered_map<unsigned int, ID> mTextureIds;
 
-	// buffer index, constant buffer
-	std::unordered_map<unsigned int, ID3D11Buffer*> mConstantBuffers;
+	// buffer index, vertex shader constant buffer
+	std::unordered_map<unsigned int, ID3D11Buffer*> mVSConstantBuffers;
+
+	// buffer index, pixel shader constant buffer
+	std::unordered_map<unsigned int, ID3D11Buffer*> mPSConstantBuffers;
 };
 
 template<typename T>
-inline void Material::RegisterBuffer(const unsigned int bufferIndex, const size_t bufferSize, const T& data)
+void Material::RegisterBuffer(const ShaderType shaderType, const unsigned int bufferIndex, const UINT bufferSize, const T& data)
 {
 	#if defined(DEBUG) | defined(_DEBUG)
-	if (mConstantBuffers.size() > 1)
+	if (shaderType == ShaderType::VS && mVSConstantBuffers.size() > 1)
 	{
-		ASSERT(bufferIndex > 1, "항상 버퍼 인덱스 0과 1은 worldViewProjection에 사용되니 2 이상 버퍼 인덱스로만 등록해 주세요");
+		ASSERT(bufferIndex > 1, "항상 버텍스 셰이더 버퍼 인덱스 0과 1은 worldViewProjection에 사용되니 2 이상 버퍼 인덱스로만 등록해 주세요");
 	}
 	#endif
 
-	ASSERT(mConstantBuffers.find(bufferIndex) == mConstantBuffers.end()
+	ASSERT((shaderType == ShaderType::VS && mVSConstantBuffers.find(bufferIndex) == mVSConstantBuffers.end())
+		|| (shaderType == ShaderType::PS && mPSConstantBuffers.find(bufferIndex) == mPSConstantBuffers.end())
 		, "이미 사용되고 있는 버퍼 인덱스입니다. 다른 인덱스로 등록해 주세요");
 
-	if (mConstantBuffers.find(bufferIndex) != mConstantBuffers.end())
+	if ((shaderType == ShaderType::VS && mVSConstantBuffers.find(bufferIndex) != mVSConstantBuffers.end())
+		|| (shaderType == ShaderType::PS && mPSConstantBuffers.find(bufferIndex) != mPSConstantBuffers.end()))
 	{
 		return;
 	}
@@ -111,15 +114,31 @@ inline void Material::RegisterBuffer(const unsigned int bufferIndex, const size_
 		HR(mDevice->CreateBuffer(&constantBufferDesc, &subResourceData, &constantBuffer));
 	}
 
-	mConstantBuffers.insert(std::make_pair(bufferIndex, constantBuffer));
+	if (shaderType == ShaderType::VS)
+	{
+		mVSConstantBuffers.insert(std::make_pair(bufferIndex, constantBuffer));
+	}
+	else
+	{
+		mPSConstantBuffers.insert(std::make_pair(bufferIndex, constantBuffer));
+	}
 }
 
 template<typename T>
-inline void Material::UpdateBuffer(const unsigned int bufferIndex, const T& data)
+void Material::UpdateBuffer(const ShaderType shaderType, const unsigned int bufferIndex, const T& data)
 {
 	static_assert(std::is_same<T, std::nullptr_t>::value == false, "the T must not be null");
 
 	ASSERT(&data != nullptr, "The data address is null");
-	mDeviceContext->UpdateSubresource(mConstantBuffers.at(bufferIndex), 0
-		, nullptr, reinterpret_cast<const void*>(&data), 0, 0);
+
+	if (shaderType == ShaderType::VS)
+	{
+		mDeviceContext->UpdateSubresource(mVSConstantBuffers.at(bufferIndex), 0
+			, nullptr, reinterpret_cast<const void*>(&data), 0, 0);
+	}
+	else
+	{
+		mDeviceContext->UpdateSubresource(mPSConstantBuffers.at(bufferIndex), 0
+			, nullptr, reinterpret_cast<const void*>(&data), 0, 0);
+	}
 }

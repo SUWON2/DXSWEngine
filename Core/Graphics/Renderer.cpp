@@ -6,12 +6,13 @@
 
 using namespace DirectX;
 
-Renderer::Renderer()
-{
-}
-
 Renderer::~Renderer()
 {
+	for (auto& i : mMaterials)
+	{
+		RELEASE(i);
+	}
+
 	for (auto& i : mTexts)
 	{
 		RELEASE(i);
@@ -90,11 +91,11 @@ void Renderer::DrawModelAndText()
 				ASSERT(model->GetMaterialIds()[i] != 0
 					, "머티리얼 개수가 메쉬 개수와 대응되지 않습니다. 머티리얼 개수를 메쉬 개수에 맞게 등록해 주세요");
 
-				Material* material = mMaterials.at(model->GetMaterialIds()[i]).get();
+				Material* material = reinterpret_cast<Material*>(model->GetMaterialIds()[i]);
 				material->_Activate({});
 
-				material->UpdateBuffer(0, XMMatrixTranspose(matWorld));
-				material->UpdateBuffer(1, XMMatrixTranspose(matViewProjection));
+				material->UpdateBuffer(Material::ShaderType::VS, 0, XMMatrixTranspose(matWorld));
+				material->UpdateBuffer(Material::ShaderType::VS, 1, XMMatrixTranspose(matViewProjection));
 
 				model->_Draw({}, i);
 			}
@@ -120,21 +121,21 @@ void Renderer::DrawModelAndText()
 
 			// 현재 텍스트가 가지는 머티리얼 아이디가 이전 아이디와 달라지는 경우만 머티리얼을 활성화시킴으로써 성능을 향상시킵니다.
 			if (text->GetMaterialId() == 0
-				&& reinterpret_cast<size_t>(currentMaterial) != mBasicFontMaterialId)
+				&& reinterpret_cast<ID>(currentMaterial) != mBasicFontMaterialId)
 			{
-				currentMaterial = mMaterials.at(mBasicFontMaterialId).get();
+				currentMaterial = reinterpret_cast<Material*>(mBasicFontMaterialId);
 				currentMaterial->_Activate({});
 			}
 			else if (text->GetMaterialId() != 0
-				&& reinterpret_cast<size_t>(currentMaterial) != text->GetMaterialId())
+				&& reinterpret_cast<ID>(currentMaterial) != text->GetMaterialId())
 			{
-				currentMaterial = mMaterials.at(text->GetMaterialId()).get();
+				currentMaterial = reinterpret_cast<Material*>(text->GetMaterialId());
 				currentMaterial->_Activate({});
 			}
 
 			// 타겟 머티리얼의 worldViewProjection matrix를 업데이트합니다.
-			currentMaterial->UpdateBuffer(0, XMMatrixTranspose(matWorld));
-			currentMaterial->UpdateBuffer(1, XMMatrixTranspose(matViewProjection2D));
+			currentMaterial->UpdateBuffer(Material::ShaderType::VS, 0, XMMatrixTranspose(matWorld));
+			currentMaterial->UpdateBuffer(Material::ShaderType::VS, 1, XMMatrixTranspose(matViewProjection2D));
 
 			text->_Draw({});
 		}
@@ -169,14 +170,22 @@ void Renderer::AddText(Text* text)
 	mTexts.push_back(text);
 }
 
-size_t Renderer::AddMaterial(Material* material)
+ID Renderer::AddMaterial(Material* material)
 {
 	ASSERT(material != nullptr, "The material must not be null");
+	ASSERT(std::find(mMaterials.begin(), mMaterials.end(), material) == mMaterials.end(), "There is already the material");
 
-	const size_t materialId = reinterpret_cast<size_t>(material);
-	ASSERT(mMaterials.find(materialId) == mMaterials.end(), "There is already the material");
+	mMaterials.push_back(material);
 
-	mMaterials.insert(std::make_pair(materialId, std::unique_ptr<Material>(material)));
+	return  reinterpret_cast<ID>(material);
+}
 
-	return materialId;
+Camera* Renderer::GetCamera() const
+{
+	return mCamera.get();
+}
+
+SkyDome* Renderer::GetSkyDome() const
+{
+	return mSkyDome.get();
 }

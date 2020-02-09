@@ -17,13 +17,18 @@ Material::Material(const char* vertexShaderName, const char* pixelShaderName)
 
 	// 모든 버텍스 셰이더의 world, viewProjection matrix는 항상 최초로 자동 설정되도록 가정합니다. 따라서 각각 0번째, 1번째 버퍼에 설정합니다.
 	// world와 viewProjection를 나눈 기준은 업데이트되는 시기입니다.
-	RegisterBuffer(0, sizeof(XMMATRIX), nullptr); // register world
-	RegisterBuffer(1, sizeof(XMMATRIX), nullptr); // register viewProjection
+	RegisterBuffer(ShaderType::VS, 0, sizeof(XMMATRIX), nullptr); // register world
+	RegisterBuffer(ShaderType::VS, 1, sizeof(XMMATRIX), nullptr); // register viewProjection
 }
 
 Material::~Material()
 {
-	for (auto& i : mConstantBuffers)
+	for (auto& i : mPSConstantBuffers)
+	{
+		RELEASE_COM(i.second);
+	}
+
+	for (auto& i : mVSConstantBuffers)
 	{
 		RELEASE_COM(i.second);
 	}
@@ -42,8 +47,23 @@ void Material::RegisterTexture(const unsigned int textureIndex, const char* file
 	ASSERT(fileName != nullptr, "The fileName must not be null");
 	ASSERT(mTextureIds.find(textureIndex) == mTextureIds.end(), "이미 사용되고 있는 텍스처 인덱스입니다. 다른 인덱스로 등록해 주세요");
 
-	const size_t textureId = mMaterialResource->LoadTexture(fileName);
+	const ID textureId = mMaterialResource->LoadTexture(fileName);
 	mTextureIds.insert(std::make_pair(textureIndex, textureId));
+}
+
+const char* Material::GetVertexShaderName() const
+{
+	return mMaterialResource->GetResourceName(mVertexShaderId).c_str();
+}
+
+const char* Material::GetPixelShaderName() const
+{
+	return mMaterialResource->GetResourceName(mPixelShaderId).c_str();
+}
+
+const char* Material::GetTextureName(const unsigned int index) const
+{
+	return mMaterialResource->GetResourceName(mTextureIds.at(index)).c_str();
 }
 
 void Material::_Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
@@ -62,9 +82,14 @@ void Material::_Activate(RendererKey)
 	mDeviceContext->IASetInputLayout(mMaterialResource->GetVertexShaderBuffer(mVertexShaderId).InputLayout);
 	mDeviceContext->PSSetShader(mMaterialResource->GetPixelShader(mPixelShaderId), nullptr, 0);
 
-	for (const auto& constantBuffer : mConstantBuffers)
+	for (const auto& vsConstantBuffer : mVSConstantBuffers)
 	{
-		mDeviceContext->VSSetConstantBuffers(constantBuffer.first, 1, &constantBuffer.second);
+		mDeviceContext->VSSetConstantBuffers(vsConstantBuffer.first, 1, &vsConstantBuffer.second);
+	}
+
+	for (const auto& psConstantBuffer : mPSConstantBuffers)
+	{
+		mDeviceContext->PSSetConstantBuffers(psConstantBuffer.first, 1, &psConstantBuffer.second);
 	}
 
 	for (const auto& texture : mTextureIds)

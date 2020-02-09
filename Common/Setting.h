@@ -7,19 +7,15 @@ public:
 
 	Setting& operator=(const Setting&) = delete;
 
-	static inline Setting& Get()
-	{
-		static Setting setting;
-		return setting;
-	}
+	static Setting& Get();
 
-	inline int GetWidth() const { return 1280; }
+	int GetWidth() const;
 
-	inline int GetHeight() const { return 720; }
+	int GetHeight() const;
 
-	inline bool IsWindow() const { return true; }
+	bool IsWindow() const;
 
-	inline bool IsVsync() const { return true; }
+	bool IsVsync() const;
 
 private:
 	Setting() = default;

@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "MaterialResource.h"
-#include "../../../Common/Define.h"
 #include "../../../Common/DirectXTex.h"
 
 using namespace DirectX;
@@ -38,14 +37,14 @@ MaterialResource::~MaterialResource()
 	}
 }
 
-size_t MaterialResource::LoadVertexShader(const char* fileName)
+ID MaterialResource::LoadVertexShader(const char* fileName)
 {
 	ASSERT(fileName != nullptr, "The fileName msut not be null");
 
 	const auto& foundVertexShader = mVertexShaderBuffers.find(fileName);
 	if (foundVertexShader != mVertexShaderBuffers.end())
 	{
-		return reinterpret_cast<size_t>(&foundVertexShader->first);
+		return reinterpret_cast<ID>(&foundVertexShader->first);
 	}
 
 	ID3DBlob* vertexShaderByteCode = nullptr;
@@ -153,17 +152,17 @@ size_t MaterialResource::LoadVertexShader(const char* fileName)
 
 	mVertexShaderBuffers.insert(std::make_pair(fileName, VertexShaderBuffer{ vertexShader, inputLayout }));
 
-	return reinterpret_cast<size_t>(&mVertexShaderBuffers.find(fileName)->first);
+	return reinterpret_cast<ID>(&mVertexShaderBuffers.find(fileName)->first);
 }
 
-size_t MaterialResource::LoadPixelShader(const char* fileName)
+ID MaterialResource::LoadPixelShader(const char* fileName)
 {
 	ASSERT(fileName != nullptr, "The fileName msut not be null");
 
 	const auto& foundPixelShader = mPixelShaders.find(fileName);
 	if (foundPixelShader != mPixelShaders.end())
 	{
-		return reinterpret_cast<size_t>(&foundPixelShader->first);
+		return reinterpret_cast<ID>(&foundPixelShader->first);
 	}
 
 	ID3DBlob* pixelShaderByteCode = nullptr;
@@ -177,17 +176,17 @@ size_t MaterialResource::LoadPixelShader(const char* fileName)
 
 	mPixelShaders.insert(std::make_pair(fileName, pixelShader));
 
-	return reinterpret_cast<size_t>(&mPixelShaders.find(fileName)->first);
+	return reinterpret_cast<ID>(&mPixelShaders.find(fileName)->first);
 }
 
-size_t MaterialResource::LoadTexture(const char* fileName)
+ID MaterialResource::LoadTexture(const char* fileName)
 {
 	ASSERT(fileName != nullptr, "The fileName must not be null");
 
 	const auto& foundTexture = mTextures.find(fileName);
 	if (foundTexture != mTextures.end())
 	{
-		return reinterpret_cast<size_t>(&foundTexture->first);
+		return reinterpret_cast<ID>(&foundTexture->first);
 	}
 
 	std::string str = fileName;
@@ -204,7 +203,27 @@ size_t MaterialResource::LoadTexture(const char* fileName)
 
 	mTextures.insert(std::make_pair(str, texture));
 
-	return reinterpret_cast<size_t>(&mTextures.find(str)->first);
+	return reinterpret_cast<ID>(&mTextures.find(str)->first);
+}
+
+const std::string& MaterialResource::GetResourceName(const ID id) const
+{
+	return *reinterpret_cast<std::string*>(id);
+}
+
+const MaterialResource::VertexShaderBuffer& MaterialResource::GetVertexShaderBuffer(const ID id) const
+{
+	return mVertexShaderBuffers.at(GetResourceName(id));
+}
+
+ID3D11PixelShader* MaterialResource::GetPixelShader(const ID id) const
+{
+	return mPixelShaders.at(GetResourceName(id));
+}
+
+ID3D11ShaderResourceView** MaterialResource::GetTexture(const ID id)
+{
+	return &mTextures.at(GetResourceName(id));
 }
 
 void CompileShader(const char* fileName, const char* entryPoint, const char* shaderModel, ID3DBlob** outShaderByteCode)
@@ -222,10 +241,10 @@ void CompileShader(const char* fileName, const char* entryPoint, const char* sha
 
 	ID3DBlob* errorBlob = nullptr;
 
-	const size_t toWSTRSize = MultiByteToWideChar(CP_ACP, 0, fileName, -1, nullptr, NULL);
-	auto toWSTR = new wchar_t[toWSTRSize];
+	const int toWSTRSize = MultiByteToWideChar(CP_ACP, 0, fileName, -1, nullptr, NULL);
+	wchar_t* toWSTR = new wchar_t[toWSTRSize];
 
-	MultiByteToWideChar(CP_ACP, 0, fileName, strlen(fileName) + 1, toWSTR, toWSTRSize);
+	MultiByteToWideChar(CP_ACP, 0, fileName, static_cast<int>(strlen(fileName)) + 1, toWSTR, toWSTRSize);
 
 	if (FAILED(D3DCompileFromFile(toWSTR, nullptr, nullptr, entryPoint, shaderModel,
 		shaderFlags, 0, outShaderByteCode, &errorBlob)))

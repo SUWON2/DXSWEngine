@@ -1,17 +1,22 @@
 #pragma once
 
 #include <cstdio>
+#include <stdint.h>
 #include <d3d11.h>
+
+#if defined(_WIN64)
+	typedef uint64_t ID;
+#else
+	typedef uint32_t ID;
+#endif
 
 #if defined(DEBUG) | defined(_DEBUG)
 	#ifndef ASSERT
 		#define ASSERT(expr, msg) \
+		if (!(expr)) \
 		{ \
-			if (!(expr)) \
-			{ \
-				fprintf(stderr, "%s, %s, %s(%d)", (msg), (#expr), __FILE__, __LINE__); \
-				__asm { int 3 } \
-			} \
+			fprintf(stderr, "%s, %s, %s(%d)", (msg), (#expr), __FILE__, __LINE__); \
+			__debugbreak(); \
 		}
 	#endif
 #else
@@ -21,7 +26,7 @@
 #endif
 
 #ifndef RELEASE
-#define RELEASE(x) \
+	#define RELEASE(x) \
 	if ((x) != nullptr) \
 	{ \
 		delete (x); \
@@ -49,7 +54,7 @@
 				reinterpret_cast<LPSTR>(&errorLog), 0, nullptr); \
 			fprintf(stderr, "%s", static_cast<char*>(errorLog)); \
 			LocalFree(errorLog); \
-			__asm { int 3 } \
+			__debugbreak(); \
 		}
 	#endif
 #else

@@ -5,6 +5,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "../../../Common/Define.h"
+
 class ModelResource final
 {
 public:
@@ -25,17 +27,11 @@ public:
 	~ModelResource();
 
 	// return vertex buffer id
-	size_t LoadVertexBuffer(const char* fileName);
+	ID LoadVertexBuffer(const char* fileName);
 
-	inline const std::string& GetResourceName(const size_t id) const
-	{
-		return *reinterpret_cast<std::string*>(id);
-	}
+	const std::string& GetResourceName(const ID id) const;
 
-	inline const std::vector<Mesh>& GetModelData(const size_t id) const
-	{
-		return mModelDatas.at(GetResourceName(id));
-	}
+	const std::vector<Mesh>& GetModelData(const ID id) const;
 
 private:
 	ID3D11Device* mDevice = nullptr;

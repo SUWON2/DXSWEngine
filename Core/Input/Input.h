@@ -12,38 +12,20 @@ public:
 
 	Input& operator=(const Input&) = delete;
 
-	static inline Input& Get()
-	{
-		static Input input;
-		return input;
-	}
+	static Input& Get();
 
-	inline bool GetKey(const short virtualKey) const
-	{
-		ASSERT(0 <= virtualKey && virtualKey < VIRTUAL_KEY_COUNT, "지원하지 않는 키입니다.");
-		return mbPressedKeys[virtualKey];
-	}
+	bool GetKey(const short virtualKey) const;
 
 	bool GetKeyDown(const short virtualKey);
 
 	bool GetKeyUp(const short virtualKey);
 
-	inline const DirectX::XMINT2& GetMousePosition() const
-	{
-		return mMousePosition;
-	}
+	const DirectX::XMINT2& GetMousePosition() const;
 
-	inline const DirectX::XMINT2& GetPreviousFrameMousePosition() const
-	{
-		return mPreviousFrameMousePosition;
-	}
+	const DirectX::XMINT2& GetPreviousFrameMousePosition() const;
 
 	// button - 0: 왼쪽 버튼, 1: 오른쪽 버튼, 2: 중간 버튼
-	inline bool GetMouseButton(const int button) const
-	{
-		ASSERT(0 <= button && button < MOUSE_BUTTON_CUONT, "지원하지 않는 버튼입니다.");
-		return mbPressedMouseButton[button];
-	}
+	bool GetMouseButton(const int button) const;
 
 	// button - 0: 왼쪽 버튼, 1: 오른쪽 버튼, 2: 중간 버튼
 	bool GetMouseButtonDown(const int button);
@@ -51,51 +33,28 @@ public:
 	// button - 0: 왼쪽 버튼, 1: 오른쪽 버튼, 2: 중간 버튼
 	bool GetMouseButtonUp(const int button);
 
-	inline int GetMouseScrollWheel() const
-	{
-		return mMouseScrollWheel;
-	}
+	int GetMouseScrollWheel() const;
 
-	inline bool IsCursorVisible() const
-	{
-		return mbVisibleCursor;
-	}
+	bool IsCursorVisible() const;
 
-	inline bool IsCirculatingMouse() const
-	{
-		return mbCirculatingMouse;
-	}
+	bool IsCirculatingMouse() const;
 
 	void SetVisibleCursor(const bool bVisible);
 
-	inline void SetCirculatingMouse(bool bCirculating)
-	{
-		mbCirculatingMouse = bCirculating;
-	}
+	void SetCirculatingMouse(bool bCirculating);
 
 public:
 	void _Initialize(CoreKey, HWND hWnd);
 
-	void _UpdateKeyState(CoreKey, const short key, const bool bPressed);
+	void _Renew(CoreKey);
 
-	void _UpdateMousePosition(CoreKey, const DirectX::XMINT2& mousePosition);
+	void _SetKey(CoreKey, const int key, const bool bPressed);
 
-	void _UpdateMouseButtonState(CoreKey, const int button, const bool bPressed);
+	void _SetMousePosition(CoreKey, const DirectX::XMINT2& mousePosition);
 
-	inline void _SetPreviousFrameMousePosition(CoreKey)
-	{
-		mPreviousFrameMousePosition = mMousePosition;
-	}
+	void _SetMouseButton(CoreKey, const int button, const bool bPressed);
 
-	inline void _SetMouseScrollWheel(CoreKey, const int scrollWheel)
-	{
-		mMouseScrollWheel += scrollWheel;
-	}
-
-	inline void _ClearMouseScrollWheel(CoreKey)
-	{
-		mMouseScrollWheel = 0;
-	}
+	void _SetMouseScrollWheel(CoreKey, const int scrollWheel);
 
 private:
 	Input() = default;

@@ -9,12 +9,6 @@
 
 class Text final
 {
-	struct Vertex
-	{
-		DirectX::XMFLOAT4 Position;
-		DirectX::XMFLOAT2 TextureCoord;
-	};
-
 public:
 	enum class VerticalAnchor
 	{
@@ -30,6 +24,13 @@ public:
 		Right
 	};
 
+private:
+	struct Vertex
+	{
+		DirectX::XMFLOAT4 Position;
+		DirectX::XMFLOAT2 TextureCoord;
+	};
+
 public:
 	Text(const Text&) = delete;
 
@@ -38,66 +39,33 @@ public:
 	~Text();
 
 	// 폰트 데이터와 머티리얼을 따로 지정하지 않아도 기본적으로 제공하는 폰트가 적용됩니다.
-	static inline Text* Create()
-	{
-		return new Text;
-	}
+	static Text* Create();
 
-	static inline Text* Create(const char* fontDataName, const size_t materialId)
-	{
-		return new Text(fontDataName, materialId);
-	}
+	static Text* Create(const char* fontDataName, const ID materialId);
 
-	inline size_t GetMaterialId() const
-	{
-		return mMaterialId;
-	}
+	ID GetMaterialId() const;
 
-	inline bool IsActive() const
-	{
-		return mbActive;
-	}
+	bool IsActive() const;
 
-	inline VerticalAnchor GetVerticalAnchor() const
-	{
-		return mVerticalAnchor;
-	}
+	VerticalAnchor GetVerticalAnchor() const;
 
-	inline HorizontalAnchor GetHorizontalAnchor() const
-	{
-		return mHorizontalAnchor;
-	}
+	HorizontalAnchor GetHorizontalAnchor() const;
 
-	inline const DirectX::XMFLOAT2& GetAnchorPoint() const
-	{
-		return mAnchorPoint;
-	}
+	const DirectX::XMFLOAT2& GetAnchorPoint() const;
 
-	inline const DirectX::XMFLOAT2& GetPosition() const
-	{
-		return mPosition;
-	}
+	const DirectX::XMFLOAT2& GetPosition() const;
 
 	void SetSentence(const char* sentence);
 
-	inline void SetMaterialId(const size_t materialId)
-	{
-		mMaterialId = materialId;
-	}
+	void SetMaterialId(const ID materialId);
 
-	inline void SetActive(const bool bActive)
-	{
-		mbActive = bActive;
-	}
+	void SetActive(const bool bActive);
 
 	void SetVerticalAnchor(const VerticalAnchor verticalAnchor);
 
 	void SetHorizontalAnchor(const HorizontalAnchor horizontalAnchor);
 
-	inline void SetPosition(const DirectX::XMFLOAT2& position)
-	{
-		mPosition = position;
-	}
+	void SetPosition(const DirectX::XMFLOAT2& position);
 
 public:
 	static void _Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
@@ -107,7 +75,7 @@ public:
 private:
 	Text();
 
-	Text(const char* fontDataName, const size_t materialId);
+	Text(const char* fontDataName, const ID materialId);
 
 private:
 	static ID3D11Device* mDevice;
@@ -118,13 +86,13 @@ private:
 
 	ID3D11Buffer* mSentenceVertexBuffer = nullptr;
 
-	size_t mVertexCount = 0;
+	UINT mVertexCount = 0;
 
-	size_t mMaxSentenceLength = 0;
+	UINT mMaxSentenceLength = 0;
 
-	size_t mFontDataId = 0;
+	ID mFontDataId = 0;
 
-	size_t mMaterialId = 0;
+	ID mMaterialId = 0;
 
 	bool mbActive = true;
 

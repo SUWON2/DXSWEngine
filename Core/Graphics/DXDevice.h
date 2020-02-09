@@ -28,15 +28,9 @@ public:
 
 	void TurnOffCulling();
 
-	inline ID3D11Device* GetDevice() const
-	{
-		return mDevice;
-	}
+	ID3D11Device* GetDevice() const;
 
-	inline ID3D11DeviceContext* GetDeviceContext() const
-	{
-		return mDeviceContext;
-	}
+	ID3D11DeviceContext* GetDeviceContext() const;
 
 private:
 	ID3D11Device* mDevice = nullptr;

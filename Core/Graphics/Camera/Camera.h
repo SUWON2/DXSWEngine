@@ -5,13 +5,13 @@
 class Camera final
 {
 public:
-	Camera();
+	Camera() = default;
 
 	Camera(const Camera&) = delete;
 
 	Camera& operator=(const Camera&) = delete;
 
-	~Camera();
+	~Camera() = default;
 
 	// TODO: 매개변수 이름 다시 생각해 보자
 	void MoveForward(const float velocity);
@@ -26,20 +26,11 @@ public:
 
 	void LoadViewProjection2DMatrix(DirectX::XMMATRIX* matViewProjection2D);
 
-	inline const DirectX::XMFLOAT3& GetPosition() const
-	{
-		return mPosition;
-	}
+	const DirectX::XMFLOAT3& GetPosition() const;
 
-	inline const DirectX::XMFLOAT3& GetViewDirection() const
-	{
-		return mZAxis;
-	}
+	const DirectX::XMFLOAT3& GetViewDirection() const;
 
-	inline void SetPosition(const DirectX::XMFLOAT3 position)
-	{
-		mPosition = position;
-	}
+	void SetPosition(const DirectX::XMFLOAT3 position);
 
 private:
 	DirectX::XMFLOAT3 mPosition = {};

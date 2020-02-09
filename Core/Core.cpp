@@ -1,9 +1,7 @@
 #include <chrono>
 
 #include "Core.h"
-#include "Graphics/DXDevice.h"
 #include "Input/Input.h"
-#include "Scene/Scene.h"
 #include "Graphics/RendererKey.h"
 #include "../Common/Define.h"
 #include "../Common/Setting.h"
@@ -23,8 +21,8 @@ Core::Core(Scene* scene)
 	mScene->_GetRenderer({})->SortText();
 
 	MSG msg = {};
-	static float deltaTime = 0;
-	static std::chrono::time_point<std::chrono::system_clock> startTime;
+	static float deltaTime = {};
+	static std::chrono::time_point<std::chrono::system_clock> startTime = {};
 
 	do
 	{
@@ -39,8 +37,7 @@ Core::Core(Scene* scene)
 
 			mScene->Update(deltaTime);
 
-			Input::Get()._SetPreviousFrameMousePosition({});
-			Input::Get()._ClearMouseScrollWheel({});
+			Input::Get()._Renew({});
 
 			mDXDevice->BeginUpdate();
 
@@ -65,10 +62,6 @@ Core::Core(Scene* scene)
 		}
 	}
 	while (msg.message != WM_QUIT);
-}
-
-Core::~Core()
-{
 }
 
 void Core::InitializeWindows()
@@ -117,33 +110,33 @@ LRESULT Core::HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		case WM_SYSKEYUP:
 			if (wParam == VK_MENU)
 			{
-				Input::Get()._UpdateKeyState({}, wParam, WM_SYSKEYUP - message);
+				Input::Get()._SetKey({}, static_cast<int>(wParam), static_cast<bool>(WM_SYSKEYUP - message));
 				return 0;
 			}
 			break;
 
 		case WM_KEYDOWN:
 		case WM_KEYUP:
-			Input::Get()._UpdateKeyState({}, wParam, WM_KEYUP - message);
+			Input::Get()._SetKey({}, static_cast<int>(wParam), static_cast<bool>(WM_KEYUP - message));
 			return 0;
 
 		case WM_MOUSEMOVE:
-			Input::Get()._UpdateMousePosition({}, { static_cast<short>(LOWORD(lParam)), static_cast<short>(HIWORD(lParam)) });
+			Input::Get()._SetMousePosition({}, { static_cast<short>(LOWORD(lParam)), static_cast<short>(HIWORD(lParam)) });
 			return 0;
 
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONUP:
-			Input::Get()._UpdateMouseButtonState({}, 0, WM_LBUTTONUP - message);
+			Input::Get()._SetMouseButton({}, 0, WM_LBUTTONUP - message);
 			return 0;
 
 		case WM_RBUTTONDOWN:
 		case WM_RBUTTONUP:
-			Input::Get()._UpdateMouseButtonState({}, 1, WM_RBUTTONUP - message);
+			Input::Get()._SetMouseButton({}, 1, WM_RBUTTONUP - message);
 			return 0;
 
 		case WM_MBUTTONDOWN:
 		case WM_MBUTTONUP:
-			Input::Get()._UpdateMouseButtonState({}, 2, WM_MBUTTONUP - message);
+			Input::Get()._SetMouseButton({}, 2, WM_MBUTTONUP - message);
 			return 0;
 
 		case WM_MOUSEWHEEL:

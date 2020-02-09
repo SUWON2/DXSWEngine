@@ -2,7 +2,6 @@
 #include <fstream>
 
 #include "ModelResource.h"
-#include "../../../Common/Define.h"
 #include "../../../Common/DirectXMath.h"
 
 using namespace DirectX;
@@ -26,7 +25,7 @@ ModelResource::~ModelResource()
 	}
 }
 
-size_t ModelResource::LoadVertexBuffer(const char* fileName)
+ID ModelResource::LoadVertexBuffer(const char* fileName)
 {
 	ASSERT(fileName != nullptr, "the fileName must not be null");
 
@@ -34,7 +33,7 @@ size_t ModelResource::LoadVertexBuffer(const char* fileName)
 	const auto& foundModelData = mModelDatas.find(fileName);
 	if (foundModelData != mModelDatas.end())
 	{
-		return reinterpret_cast<int>(&foundModelData->first);
+		return reinterpret_cast<ID>(&foundModelData->first);
 	}
 
 	struct F
@@ -137,10 +136,10 @@ size_t ModelResource::LoadVertexBuffer(const char* fileName)
 	for (const auto& m : mList)
 	{
 		mesh.VertexSize = sizeof(Vertex);
-		mesh.VertexCount = m.size() * 3;
+		mesh.VertexCount = static_cast<UINT>(m.size()) * 3;
 
 		auto vertices = std::make_unique<Vertex[]>(mesh.VertexCount);
-		for (UINT i = 0; i < mesh.VertexCount; i += 3)
+		for (size_t i = 0; i < mesh.VertexCount; i += 3)
 		{
 			const F& f = m[i / 3];
 
@@ -174,5 +173,15 @@ size_t ModelResource::LoadVertexBuffer(const char* fileName)
 	mModelDatas.insert(std::make_pair(fileName, std::move(modelData)));
 
 	// model data id를 반환합니다.
-	return reinterpret_cast<int>(&mModelDatas.find(fileName)->first);
+	return reinterpret_cast<ID>(&mModelDatas.find(fileName)->first);
+}
+
+const std::string& ModelResource::GetResourceName(const ID id) const
+{
+	return *reinterpret_cast<std::string*>(id);
+}
+
+const std::vector<ModelResource::Mesh>& ModelResource::GetModelData(const ID id) const
+{
+	return mModelDatas.at(GetResourceName(id));
 }

@@ -4,11 +4,12 @@
 #include <string>
 #include <unordered_map>
 
+#include "../../../Common/Define.h"
+
 class TextResource final
 {
 public:
-	// HACK: 구조체명 다시 생각해 보자
-	struct FontType
+	struct FontLetter
 	{
 		float leftU;
 		float rightU;
@@ -22,20 +23,14 @@ public:
 
 	TextResource& operator=(const TextResource&) = delete;
 
-	~TextResource();
+	~TextResource() = default;
 
 	// return font data id
-	size_t LoadFontData(const char* fileName);
+	ID LoadFontData(const char* fileName);
 
-	inline const std::string& GetResourceName(const size_t id) const
-	{
-		return *reinterpret_cast<std::string*>(id);
-	}
+	const std::string& GetResourceName(const ID id) const;
 
-	inline const FontType& GetFontData(const size_t id) const
-	{
-		return *mFontDatas.at(GetResourceName(id)).get();
-	}
+	const FontLetter& GetFontLetter(const ID id) const;
 
 private:
 	ID3D11Device* mDevice = nullptr;
@@ -43,5 +38,5 @@ private:
 	ID3D11DeviceContext* mDeviceContext = nullptr;
 
 	// font data name, font data
-	std::unordered_map<std::string, std::unique_ptr<FontType[]>> mFontDatas;
+	std::unordered_map<std::string, std::unique_ptr<FontLetter[]>> mFontLetters;
 };

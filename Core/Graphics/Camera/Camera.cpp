@@ -4,14 +4,6 @@
 
 using namespace DirectX;
 
-Camera::Camera()
-{
-}
-
-Camera::~Camera()
-{
-}
-
 void Camera::MoveForward(const float velocity)
 {
 	mPosition =
@@ -84,4 +76,19 @@ void Camera::LoadViewProjection2DMatrix(DirectX::XMMATRIX* matViewProjection2D)
 		, static_cast<float>(Setting::Get().GetHeight()), 0.1f, 1000.0f);
 
 	*matViewProjection2D *= projection;
+}
+
+const DirectX::XMFLOAT3& Camera::GetPosition() const
+{
+	return mPosition;
+}
+
+const DirectX::XMFLOAT3& Camera::GetViewDirection() const
+{
+	return mZAxis;
+}
+
+void Camera::SetPosition(const DirectX::XMFLOAT3 position)
+{
+	mPosition = position;
 }

@@ -18,15 +18,9 @@ public:
 
 	~SkyDome();
 
-	inline bool IsActive() const
-	{
-		return mbActive;
-	}
+	bool IsActive() const;
 
-	inline void SetActive(const bool bActive)
-	{
-		mbActive = bActive;
-	}
+	void SetActive(const bool bActive);
 
 public:
 	void _Draw(RendererKey, const DirectX::XMMATRIX& matWorld, const DirectX::XMMATRIX& matViewProjection);

@@ -4,6 +4,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "../../../Common/Define.h"
+
 class MaterialResource final
 {
 public:
@@ -22,31 +24,19 @@ public:
 
 	~MaterialResource();
 
-	size_t LoadVertexShader(const char* fileName);
+	ID LoadVertexShader(const char* fileName);
 	
-	size_t LoadPixelShader(const char* fileName);
+	ID LoadPixelShader(const char* fileName);
 
-	size_t LoadTexture(const char* fileName);
+	ID LoadTexture(const char* fileName);
 
-	inline const std::string& GetResourceName(const size_t id) const
-	{
-		return *reinterpret_cast<std::string*>(id);
-	}
+	const std::string& GetResourceName(const ID id) const;
 
-	inline const VertexShaderBuffer& GetVertexShaderBuffer(const size_t id) const
-	{
-		return mVertexShaderBuffers.at(GetResourceName(id));
-	}
+	const VertexShaderBuffer& GetVertexShaderBuffer(const ID id) const;
 
-	inline ID3D11PixelShader* GetPixelShader(const size_t id) const
-	{
-		return mPixelShaders.at(GetResourceName(id));
-	}
+	ID3D11PixelShader* GetPixelShader(const ID id) const;
 
-	inline ID3D11ShaderResourceView** GetTexture(const size_t id)
-	{
-		return &mTextures.at(GetResourceName(id));
-	}
+	ID3D11ShaderResourceView** GetTexture(const ID id);
 
 private:
 	ID3D11Device* mDevice = nullptr;

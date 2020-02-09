@@ -15,7 +15,7 @@ public:
 
 	Scene& operator=(const Scene&) = delete;
 
-	virtual ~Scene();
+	virtual ~Scene() = default;
 
 	virtual void Initialize() = 0;
 
@@ -25,23 +25,14 @@ public:
 
 	void AddText(Text* text);
 
-	size_t AddMaterial(Material* material);
+	ID AddMaterial(Material* material);
 
-	inline Camera* GetCamera() const
-	{
-		return mRenderer->GetCamera();
-	}
+	Camera* GetCamera() const;
 
-	inline SkyDome* GetSkyDome() const
-	{
-		return mRenderer->GetSkyDome();
-	}
+	SkyDome* GetSkyDome() const;
 
 public:
-	inline Renderer* _GetRenderer(CoreKey) const
-	{
-		return mRenderer.get();
-	}
+	Renderer* _GetRenderer(CoreKey) const;
 
 private:
 	std::unique_ptr<Renderer> mRenderer = nullptr;

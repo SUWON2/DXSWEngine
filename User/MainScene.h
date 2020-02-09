@@ -5,13 +5,13 @@
 class MainScene final : public Scene
 {
 public:
-	MainScene();
+	MainScene() = default;
 
 	MainScene(const MainScene&) = delete;
 
 	MainScene& operator=(const MainScene&) = delete;
 
-	virtual ~MainScene();
+	virtual ~MainScene() = default;
 
 	void Initialize() override;
 
@@ -21,7 +21,9 @@ private:
 	void UpdateCamera(const float deltaTime);
 
 private:
-	Text* mFrameText = nullptr;
+	Text* mFPS = nullptr;
 
 	Text* mViewDirectionText = nullptr;
+
+	bool mIsCameraModeUnity = false;
 };

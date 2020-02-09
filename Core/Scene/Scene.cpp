@@ -5,10 +5,6 @@ Scene::Scene()
 	mRenderer = std::make_unique<Renderer>();
 }
 
-Scene::~Scene()
-{
-}
-
 void Scene::AddModel(Model* model)
 {
 	ASSERT(model != nullptr, "The model must not be null");
@@ -21,8 +17,23 @@ void Scene::AddText(Text* text)
 	mRenderer->AddText(text);
 }
 
-size_t Scene::AddMaterial(Material* material)
+ID Scene::AddMaterial(Material* material)
 {
 	ASSERT(material != nullptr, "The material must not be null");
 	return mRenderer->AddMaterial(material);
+}
+
+Camera* Scene::GetCamera() const
+{
+	return mRenderer->GetCamera();
+}
+
+SkyDome* Scene::GetSkyDome() const
+{
+	return mRenderer->GetSkyDome();
+}
+
+Renderer* Scene::_GetRenderer(CoreKey) const
+{
+	return mRenderer.get();
 }

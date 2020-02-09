@@ -81,6 +81,9 @@
     <ClCompile Include="Core\Graphics\Model\ModelResource.cpp">
       <Filter>Core\Graphics\Model</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Setting.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\Core.h">

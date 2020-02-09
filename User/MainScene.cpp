@@ -5,26 +5,19 @@
 
 using namespace DirectX;
 
-MainScene::MainScene()
-{
-}
-
-MainScene::~MainScene()
-{
-}
-
 void MainScene::Initialize()
 {
 	GetSkyDome()->SetActive(false);
-	GetCamera()->SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
+	GetCamera()->SetPosition(XMFLOAT3(2.25f, 2.0f, 2.25f));
 
 	// Create debugging texts
 	{
-		mFrameText = Text::Create();
-		mFrameText->SetVerticalAnchor(Text::VerticalAnchor::Top);
-		mFrameText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
-		mFrameText->SetPosition({ 10.0f, -10.0f });
-		AddText(mFrameText);
+		mFPS = Text::Create();
+		mFPS->SetVerticalAnchor(Text::VerticalAnchor::Top);
+		mFPS->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
+		mFPS->SetPosition({ 10.0f, -10.0f });
+		mFPS->SetSentence("FPS: 0");
+		AddText(mFPS);
 
 		mViewDirectionText = Text::Create();
 		mViewDirectionText->SetVerticalAnchor(Text::VerticalAnchor::Top);
@@ -33,29 +26,19 @@ void MainScene::Initialize()
 		AddText(mViewDirectionText);
 	}
 
-	// Create log and
+	// Create log
 	{
-		auto logTopMaterial = Material::Create("Shaders/BlockVS.hlsl", "Shaders/BlockPS.hlsl");
-		logTopMaterial->RegisterTexture(0, "Resource/oak_log_top.DDS");
-		logTopMaterial->RegisterBuffer(0, sizeof(XMVECTOR))
-		const size_t logTopMaterialId = AddMaterial(logTopMaterial);
+		constexpr XMFLOAT2 planeScale = { 50.0f, 50.0f };
 
-		auto logMaterial = Material::Create("Shaders/BlockVS.hlsl", "Shaders/BlockPS.hlsl");
-		logMaterial->RegisterTexture(0, "Resource/oak_log.DDS");
-		const size_t logMaterialId = AddMaterial(logMaterial);
+		Material* topMaterial = Material::Create("Shaders/BlockVS.hlsl", "shaders/BlockPS.hlsl");
+		topMaterial->RegisterTexture(0, "Resource/oak_log_top.DDS");
+		topMaterial->RegisterBuffer(Material::ShaderType::VS, 2, sizeof(XMVECTOR), planeScale);
+		const ID topMaterialId = AddMaterial(topMaterial);
 
-		for (float x = 0.0f; x < 10.0f; ++x)
-		{
-			for (float z = 0.0f; z < 10.0f; ++z)
-			{
-				Model* log = Model::Create("Resource/Block.model");
-				log->SetMaterial(0, logTopMaterialId);
-				log->SetMaterial(1, logMaterialId);
-				log->SetPosition({ x, 0.0f, z });
-
-				AddModel(log);
-			}
-		}
+		Model* plane = Model::Create("Resource/Plane.model");
+		plane->SetScale({ planeScale.x, 1.0f, planeScale.y });
+		plane->SetMaterial(0, topMaterialId);
+		AddModel(plane);
 	}
 }
 
@@ -63,21 +46,40 @@ void MainScene::Update(const float deltaTime)
 {
 	UpdateCamera(deltaTime);
 
-	// HACK: Debugging
+	// HACK: 디버깅 용도
 	{
 		if (Input::Get().GetKeyDown(VK_F1))
 		{
 			GetSkyDome()->SetActive(!GetSkyDome()->IsActive());
 		}
 
+
 		if (Input::Get().GetKeyDown(VK_F2))
+		{
+			mFPS->SetActive(!mFPS->IsActive());
+			mViewDirectionText->SetActive(mFPS->IsActive());
+		}
+
+		if (Input::Get().GetKeyDown(VK_F3))
 		{
 			system("cls");
 		}
 
-		if (mFrameText->IsActive())
+		if (mFPS->IsActive())
 		{
-			mFrameText->SetSentence(("DELTA_TIME: " + std::to_string(deltaTime)).c_str());
+			static int frameCount = 0;
+			static float accumulatedTime = 0.0f;
+
+			++frameCount;
+			accumulatedTime += deltaTime;
+
+			if (accumulatedTime >= 1.0f)
+			{
+				mFPS->SetSentence(("FPS: " + std::to_string(frameCount)).c_str());
+
+				frameCount = 0;
+				accumulatedTime -= 1.0f;
+			}
 		}
 
 		if (mViewDirectionText->IsActive())
@@ -98,16 +100,14 @@ void MainScene::UpdateCamera(const float deltaTime)
 {
 	Camera* camera = GetCamera();
 
-	static bool isCameraModeUnity = true;
-
 	// 카메라 모드를 설정한다.
 	if (Input::Get().GetKeyDown(VK_SPACE))
 	{
-		isCameraModeUnity = !isCameraModeUnity;
+		mIsCameraModeUnity = !mIsCameraModeUnity;
 	}
 
-	const bool isCameraRotating = (isCameraModeUnity && Input::Get().GetKey(VK_SHIFT) && Input::Get().GetMouseButton(0))
-		|| isCameraModeUnity == false;
+	const bool isCameraRotating = (mIsCameraModeUnity && Input::Get().GetKey(VK_SHIFT) && Input::Get().GetMouseButton(0))
+		|| mIsCameraModeUnity == false;
 
 	Input::Get().SetVisibleCursor(!isCameraRotating);
 	Input::Get().SetCirculatingMouse(isCameraRotating);
@@ -123,19 +123,19 @@ void MainScene::UpdateCamera(const float deltaTime)
 
 		if (mouseMovement.x != 0)
 		{
-			const float grapY = mouseMovement.x * 0.08f;
+			const float grapY = mouseMovement.x * 0.05f;
 			camera->RotateY(grapY);
 		}
 
 		if (mouseMovement.y != 0)
 		{
-			const float grapX = mouseMovement.y * 0.08f;
+			const float grapX = mouseMovement.y * 0.05f;
 			camera->RotateX(grapX);
 		}
 	}
 
 	// 카메라 이동을 처리한다.
-	if (isCameraModeUnity)
+	if (mIsCameraModeUnity)
 	{
 		static float zoomScale = 10.0f;
 
@@ -154,7 +154,7 @@ void MainScene::UpdateCamera(const float deltaTime)
 			}
 		}
 
-		const XMFLOAT3 viewPosition = { 4.5f, 0.0f, 4.5f };
+		constexpr XMFLOAT3 viewPosition = { 2.25f, 0.0f, 2.25f };
 
 		const XMFLOAT3 position =
 		{

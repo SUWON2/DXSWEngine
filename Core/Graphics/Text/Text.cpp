@@ -14,7 +14,7 @@ Text::Text()
 	mFontDataId = mTextResource->LoadFontData("Resource/BasicFontData.font");
 }
 
-Text::Text(const char* fontDataName, const size_t materialId)
+Text::Text(const char* fontDataName, const ID materialId)
 	: mMaterialId(materialId)
 {
 	ASSERT(fontDataName != nullptr, "The fontDataName must not be null");
@@ -28,11 +28,51 @@ Text::~Text()
 	RELEASE_COM(mSentenceVertexBuffer);
 }
 
+Text* Text::Create()
+{
+	return new Text;
+}
+
+Text* Text::Create(const char* fontDataName, const ID materialId)
+{
+	return new Text(fontDataName, materialId);
+}
+
+ID Text::GetMaterialId() const
+{
+	return mMaterialId;
+}
+
+bool Text::IsActive() const
+{
+	return mbActive;
+}
+
+Text::VerticalAnchor Text::GetVerticalAnchor() const
+{
+	return mVerticalAnchor;
+}
+
+Text::HorizontalAnchor Text::GetHorizontalAnchor() const
+{
+	return mHorizontalAnchor;
+}
+
+const DirectX::XMFLOAT2& Text::GetAnchorPoint() const
+{
+	return mAnchorPoint;
+}
+
+const DirectX::XMFLOAT2& Text::GetPosition() const
+{
+	return mPosition;
+}
+
 void Text::SetSentence(const char* sentence)
 {
 	ASSERT(sentence != nullptr, "The sentence must not be null");
 
-	const size_t sentenceLength = strlen(sentence);
+	const UINT sentenceLength = static_cast<UINT>(strlen(sentence));
 
 	/*
 		기준 최대치를 넘는 경우 인자로 넘겨 받은 문장의 길이에서 반을 더 더한 값을 최대치로 지정하고 
@@ -40,7 +80,7 @@ void Text::SetSentence(const char* sentence)
 	*/
 	if (sentenceLength > mMaxSentenceLength)
 	{
-		mMaxSentenceLength = sentenceLength + static_cast<size_t>(sentenceLength * 0.5f);
+		mMaxSentenceLength = sentenceLength + static_cast<UINT>(sentenceLength * 0.5f);
 
 		// 기존에 있던 정점 버퍼는 해제합니다.
 		RELEASE_COM(mSentenceVertexBuffer);
@@ -58,7 +98,7 @@ void Text::SetSentence(const char* sentence)
 
 	// 인자로 넘겨 받은 문장에 맞게 정점 버퍼를 구성합니다.
 	{
-		const TextResource::FontType* fontData = &mTextResource->GetFontData(mFontDataId);
+		const TextResource::FontLetter* fontLtter = &mTextResource->GetFontLetter(mFontDataId);
 
 		XMFLOAT2 drawingPosition = {};
 
@@ -73,7 +113,7 @@ void Text::SetSentence(const char* sentence)
 				continue;
 			}
 
-			const TextResource::FontType& fontType = fontData[letter - 32];
+			const TextResource::FontLetter& fontType = fontLtter[letter - 32];
 
 			// Initialize first triangle in quad.
 			vertices[index].Position = XMFLOAT4(drawingPosition.x, drawingPosition.y, 0.0f, 1.0f);
@@ -118,6 +158,16 @@ void Text::SetSentence(const char* sentence)
 	}
 }
 
+void Text::SetMaterialId(const ID materialId)
+{
+	mMaterialId = materialId;
+}
+
+void Text::SetActive(const bool bActive)
+{
+	mbActive = bActive;
+}
+
 void Text::SetVerticalAnchor(const VerticalAnchor verticalAnchor)
 {
 	mVerticalAnchor = verticalAnchor;
@@ -156,6 +206,11 @@ void Text::SetHorizontalAnchor(const HorizontalAnchor horizontalAnchor)
 			mAnchorPoint.x = Setting::Get().GetWidth() * 0.5f;
 			break;
 	}
+}
+
+void Text::SetPosition(const DirectX::XMFLOAT2& position)
+{
+	mPosition = position;
 }
 
 void Text::_Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)

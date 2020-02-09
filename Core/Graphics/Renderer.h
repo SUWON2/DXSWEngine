@@ -15,7 +15,7 @@
 class Renderer final
 {
 public:
-	Renderer();
+	Renderer() = default;
 
 	Renderer(const Renderer&) = default;
 
@@ -35,17 +35,11 @@ public:
 
 	void AddText(Text* text);
 
-	size_t AddMaterial(Material* material);
+	ID AddMaterial(Material* material);
 
-	inline Camera* GetCamera() const
-	{
-		return mCamera.get();
-	}
+	Camera* GetCamera() const;
 
-	inline SkyDome* GetSkyDome() const
-	{
-		return mSkyDome.get();
-	}
+	SkyDome* GetSkyDome() const;
 
 private:
 	ID3D11Device* mDevice = nullptr;
@@ -56,12 +50,11 @@ private:
 
 	std::unique_ptr<SkyDome> mSkyDome = nullptr;
 
-	std::vector<Model*> mModels;
+	std::vector<Model*> mModels = {};
 
-	std::vector<Text*> mTexts;
+	std::vector<Text*> mTexts = {};
 
-	size_t mBasicFontMaterialId = 0;
+	std::vector<Material*> mMaterials = {};
 
-	// material id, material
- 	std::unordered_map<size_t, std::unique_ptr<Material>> mMaterials;
+	ID mBasicFontMaterialId = 0;
 };

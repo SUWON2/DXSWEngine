@@ -13,66 +13,33 @@ public:
 
 	Model& operator=(const Model&) = delete;
 
-	~Model();
+	~Model() = default;
 
 	static Model* Create(const char* fileName);
 
-	inline const char* GetFileName() const
-	{
-		return mModelResource->GetResourceName(mDataId).c_str();
-	}
+	const char* GetFileName() const;
 
-	inline const std::unique_ptr<size_t[]>& GetMaterialIds() const
-	{
-		return mMaterialIds;
-	}
+	const std::unique_ptr<ID[]>& GetMaterialIds() const;
+	
+	size_t GetMeshCount() const;
 
-	inline unsigned int GetMeshCount() const
-	{
-		return mMeshCount;
-	}
+	bool IsActive() const;
 
-	inline bool IsActive() const
-	{
-		return mbActive;
-	}
+	const DirectX::XMFLOAT3& GetPosition() const;
 
-	inline const DirectX::XMFLOAT3& GetPosition() const
-	{
-		return mPosition;
-	}
+	const DirectX::XMFLOAT3& GetScale() const;
 
-	inline const DirectX::XMFLOAT3& GetScale() const
-	{
-		return mScale;
-	}
+	const DirectX::XMFLOAT3& GetRotation() const;
 
-	inline const DirectX::XMFLOAT3& GetRotation() const
-	{
-		return mRotation;
-	}
+	void SetMaterial(const unsigned int materialIndex, const ID materialId);
 
-	void SetMaterial(const unsigned int materialIndex, const size_t materialId);
+	void SetActive(const bool bActive);
 
-	inline void SetActive(const bool bActive)
-	{
-		mbActive = bActive;
-	}
+	void SetPosition(const DirectX::XMFLOAT3& position);
 
-	inline void SetPosition(const DirectX::XMFLOAT3& position)
-	{
-		mPosition = position;
-	}
+	void SetScale(const DirectX::XMFLOAT3& scale);
 
-	inline void SetScale(const DirectX::XMFLOAT3& scale)
-	{
-		mScale = scale;
-	}
-
-	inline void SetRotation(const DirectX::XMFLOAT3& rotation)
-	{
-		mRotation = rotation;
-	}
+	void SetRotation(const DirectX::XMFLOAT3& rotation);
 
 public:
 	static void _Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
@@ -89,11 +56,11 @@ private:
 
 	static std::unique_ptr<ModelResource> mModelResource;
 
-	std::unique_ptr<size_t[]> mMaterialIds = nullptr;
+	std::unique_ptr<ID[]> mMaterialIds = nullptr;
 
-	size_t mDataId = 0;
+	ID mDataId = 0;
 
-	unsigned int mMeshCount = 0;
+	size_t mMeshCount = 0;
 
 	bool mbActive = true;
 

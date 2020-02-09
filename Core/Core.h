@@ -5,8 +5,8 @@
 #include <Windows.h>
 #include <memory>
 
-class Scene;
-class DXDevice;
+#include "Graphics\DXDevice.h"
+#include "Scene\Scene.h"
 
 class Core final
 {
@@ -17,7 +17,7 @@ public:
 
 	Core& operator=(const Core&) = delete;
 
-	~Core();
+	~Core() = default;
 
 private:
 	static LRESULT CALLBACK HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -27,8 +27,8 @@ private:
 private:
 	HWND mHWnd = nullptr;
 
+	std::unique_ptr<DXDevice> mDXDevice = nullptr;
+
 	// TODO: Scene을 여러개 관리할 수 있도록 처리하자.
 	std::unique_ptr<Scene> mScene = nullptr;
-
-	std::unique_ptr<DXDevice> mDXDevice = nullptr;
 };

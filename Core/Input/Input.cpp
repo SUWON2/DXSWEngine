@@ -7,56 +7,71 @@
 
 using namespace DirectX;
 
+Input& Input::Get()
+{
+	static Input input;
+	return input;
+}
+
+bool Input::GetKey(const short virtualKey) const
+{
+	ASSERT(0 <= virtualKey && virtualKey < VIRTUAL_KEY_COUNT, "지원하지 않는 키입니다.");
+	return mbPressedKeys[virtualKey];
+}
+
 bool Input::GetKeyDown(const short virtualKey)
 {
 	ASSERT(0 <= virtualKey && virtualKey < VIRTUAL_KEY_COUNT, "지원하지 않는 키입니다.");
-	const bool bKeyDown = (mbKeyStateChanged[virtualKey] && mbPressedKeys[virtualKey]);
-
-	if (bKeyDown)
-	{
-		mbKeyStateChanged[virtualKey] = false;
-	}
-
-	return bKeyDown;
+	return mbKeyStateChanged[virtualKey] && mbPressedKeys[virtualKey];
 }
 
 bool Input::GetKeyUp(const short virtualKey)
 {
 	ASSERT(0 <= virtualKey && virtualKey < VIRTUAL_KEY_COUNT, "지원하지 않는 키입니다.");
-	const bool bKeyUp = (mbKeyStateChanged[virtualKey] && !mbPressedKeys[virtualKey]);
+	return mbKeyStateChanged[virtualKey] && !mbPressedKeys[virtualKey];
+}
 
-	if (bKeyUp)
-	{
-		mbKeyStateChanged[virtualKey] = false;
-	}
+const DirectX::XMINT2& Input::GetMousePosition() const
+{
+	return mMousePosition;
+}
 
-	return bKeyUp;
+const DirectX::XMINT2& Input::GetPreviousFrameMousePosition() const
+{
+	return mPreviousFrameMousePosition;
+}
+
+bool Input::GetMouseButton(const int button) const
+{
+	ASSERT(0 <= button && button < MOUSE_BUTTON_CUONT, "지원하지 않는 버튼입니다.");
+	return mbPressedMouseButton[button];
 }
 
 bool Input::GetMouseButtonDown(const int button)
 {
 	ASSERT(0 <= button && button < MOUSE_BUTTON_CUONT, "지원하지 않는 버튼입니다.");
-	const bool bButtonDown = (mbMouseButtonStateChanged[button] && mbPressedMouseButton[button]);
-
-	if (bButtonDown)
-	{
-		mbMouseButtonStateChanged[button] = false;
-	}
-
-	return bButtonDown;
+	return mbMouseButtonStateChanged[button] && mbPressedMouseButton[button];
 }
 
 bool Input::GetMouseButtonUp(const int button)
 {
 	ASSERT(0 <= button && button < MOUSE_BUTTON_CUONT, "지원하지 않는 버튼입니다.");
-	const bool bButtonUp = (mbMouseButtonStateChanged[button] && !mbPressedMouseButton[button]);
+	return mbMouseButtonStateChanged[button] && !mbPressedMouseButton[button];
+}
 
-	if (bButtonUp)
-	{
-		mbMouseButtonStateChanged[button] = false;
-	}
+int Input::GetMouseScrollWheel() const
+{
+	return mMouseScrollWheel;
+}
 
-	return bButtonUp;
+bool Input::IsCursorVisible() const
+{
+	return mbVisibleCursor;
+}
+
+bool Input::IsCirculatingMouse() const
+{
+	return mbCirculatingMouse;
 }
 
 void Input::SetVisibleCursor(const bool bVisible)
@@ -66,6 +81,11 @@ void Input::SetVisibleCursor(const bool bVisible)
 		mbVisibleCursor = bVisible;
 		ShowCursor(mbVisibleCursor);
 	}
+}
+
+void Input::SetCirculatingMouse(bool bCirculating)
+{
+	mbCirculatingMouse = bCirculating;
 }
 
 void Input::_Initialize(CoreKey, HWND hWnd)
@@ -79,13 +99,22 @@ void Input::_Initialize(CoreKey, HWND hWnd)
 	ClipCursor(&clientRect);
 }
 
-void Input::_UpdateKeyState(CoreKey, const short key, const bool bPressed)
+void Input::_Renew(CoreKey)
+{
+	memset(mbKeyStateChanged, false, sizeof(bool) * VIRTUAL_KEY_COUNT);
+	memset(mbMouseButtonStateChanged, false, sizeof(bool) * MOUSE_BUTTON_CUONT);
+
+	mMouseScrollWheel = 0;
+	mPreviousFrameMousePosition = mMousePosition;
+}
+
+void Input::_SetKey(CoreKey, const int key, const bool bPressed)
 {
 	mbKeyStateChanged[key] = (mbPressedKeys[key] != bPressed);
 	mbPressedKeys[key] = bPressed;
 }
 
-void Input::_UpdateMousePosition(CoreKey, const DirectX::XMINT2& mousePosition)
+void Input::_SetMousePosition(CoreKey, const DirectX::XMINT2& mousePosition)
 {
 	mPreviousFrameMousePosition = mMousePosition;
 	mMousePosition = mousePosition;
@@ -142,9 +171,14 @@ void Input::_UpdateMousePosition(CoreKey, const DirectX::XMINT2& mousePosition)
 	}
 }
 
-void Input::_UpdateMouseButtonState(CoreKey, const int button, const bool bPressed)
+void Input::_SetMouseButton(CoreKey, const int button, const bool bPressed)
 {
 	ASSERT(0 <= button && button < MOUSE_BUTTON_CUONT, "지원하지 않는 버튼입니다.");
 	mbMouseButtonStateChanged[button] = (mbPressedMouseButton[button] != bPressed);
 	mbPressedMouseButton[button] = bPressed;
+}
+
+void Input::_SetMouseScrollWheel(CoreKey, const int scrollWheel)
+{
+	mMouseScrollWheel += scrollWheel;
 }

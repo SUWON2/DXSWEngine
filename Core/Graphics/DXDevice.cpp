@@ -217,7 +217,7 @@ DXDevice::DXDevice(HWND hWnd)
 	// Initialize sampler state
 	{
 		D3D11_SAMPLER_DESC samplerStateDesc = {};
-		samplerStateDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+		samplerStateDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
 		samplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -236,7 +236,7 @@ DXDevice::DXDevice(HWND hWnd)
 	{
 		D3D11_BLEND_DESC blendDesc = {};
 		blendDesc.RenderTarget[0].BlendEnable = true;
-		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
@@ -300,4 +300,14 @@ void DXDevice::TurnOnCulling()
 void DXDevice::TurnOffCulling()
 {
 	mDeviceContext->RSSetState(mRasterizerStateNoCulling);
+}
+
+ID3D11Device* DXDevice::GetDevice() const
+{
+	return mDevice;
+}
+
+ID3D11DeviceContext* DXDevice::GetDeviceContext() const
+{
+	return mDeviceContext;
 }
