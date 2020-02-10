@@ -94,8 +94,8 @@ void Renderer::DrawModelAndText()
 				Material* material = reinterpret_cast<Material*>(model->GetMaterialIds()[i]);
 				material->_Activate({});
 
-				material->UpdateBuffer(Material::ShaderType::VS, 0, XMMatrixTranspose(matWorld));
-				material->UpdateBuffer(Material::ShaderType::VS, 1, XMMatrixTranspose(matViewProjection));
+				material->UpdateBuffer<Material::ShaderType::VS>(0, XMMatrixTranspose(matWorld));
+				material->UpdateBuffer<Material::ShaderType::VS>(1, XMMatrixTranspose(matViewProjection));
 
 				model->_Draw({}, i);
 			}
@@ -134,8 +134,8 @@ void Renderer::DrawModelAndText()
 			}
 
 			// 타겟 머티리얼의 worldViewProjection matrix를 업데이트합니다.
-			currentMaterial->UpdateBuffer(Material::ShaderType::VS, 0, XMMatrixTranspose(matWorld));
-			currentMaterial->UpdateBuffer(Material::ShaderType::VS, 1, XMMatrixTranspose(matViewProjection2D));
+			currentMaterial->UpdateBuffer<Material::ShaderType::VS>(0, XMMatrixTranspose(matWorld));
+			currentMaterial->UpdateBuffer<Material::ShaderType::VS>(1, XMMatrixTranspose(matViewProjection2D));
 
 			text->_Draw({});
 		}

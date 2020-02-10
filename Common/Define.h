@@ -4,11 +4,7 @@
 #include <stdint.h>
 #include <d3d11.h>
 
-#if defined(_WIN64)
-	typedef uint64_t ID;
-#else
-	typedef uint32_t ID;
-#endif
+typedef size_t ID;
 
 #if defined(DEBUG) | defined(_DEBUG)
 	#ifndef ASSERT

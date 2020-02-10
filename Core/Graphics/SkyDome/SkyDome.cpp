@@ -31,8 +31,8 @@ void SkyDome::SetActive(const bool bActive)
 void SkyDome::_Draw(RendererKey, const DirectX::XMMATRIX& matWorld, const XMMATRIX& matViewProjection)
 {
 	mMaterial->_Activate({});
-	mMaterial->UpdateBuffer(Material::ShaderType::VS, 0, XMMatrixTranspose(matWorld));
-	mMaterial->UpdateBuffer(Material::ShaderType::VS, 1, XMMatrixTranspose(matViewProjection));
+	mMaterial->UpdateBuffer<Material::ShaderType::VS>(0, XMMatrixTranspose(matWorld));
+	mMaterial->UpdateBuffer<Material::ShaderType::VS>(1, XMMatrixTranspose(matViewProjection));
 
 	mModel->_Draw({}, 0);
 }

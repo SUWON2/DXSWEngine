@@ -32,7 +32,7 @@ void MainScene::Initialize()
 
 		Material* topMaterial = Material::Create("Shaders/BlockVS.hlsl", "shaders/BlockPS.hlsl");
 		topMaterial->RegisterTexture(0, "Resource/oak_log_top.DDS");
-		topMaterial->RegisterBuffer(Material::ShaderType::VS, 2, sizeof(XMVECTOR), planeScale);
+		topMaterial->RegisterBuffer<Material::ShaderType::VS>(2, sizeof(XMVECTOR), planeScale);
 		const ID topMaterialId = AddMaterial(topMaterial);
 
 		Model* plane = Model::Create("Resource/Plane.model");

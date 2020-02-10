@@ -29,11 +29,11 @@ public:
 
 	static Material* Create(const char* vertexShaderName, const char* pixelShaderName);
 
-	template <typename T>
-	void RegisterBuffer(const ShaderType shaderType, const unsigned int bufferIndex, const UINT bufferSize, const T& data);
+	template <ShaderType shaderType, typename T>
+	void RegisterBuffer(const unsigned int bufferIndex, const UINT bufferSize, const T& data);
 
-	template <typename T>
-	void UpdateBuffer(const ShaderType shaderType, const unsigned int bufferIndex, const T& data);
+	template <ShaderType shaderType, typename T>
+	void UpdateBuffer(const unsigned int bufferIndex, const T& data);
 
 	void RegisterTexture(const unsigned int textureIndex, const char* fileName);
 
@@ -72,25 +72,22 @@ private:
 	std::unordered_map<unsigned int, ID3D11Buffer*> mPSConstantBuffers;
 };
 
-template<typename T>
-void Material::RegisterBuffer(const ShaderType shaderType, const unsigned int bufferIndex, const UINT bufferSize, const T& data)
+template<Material::ShaderType shaderType, typename T>
+void Material::RegisterBuffer(const unsigned int bufferIndex, const UINT bufferSize, const T& data)
 {
-	#if defined(DEBUG) | defined(_DEBUG)
-	if (shaderType == ShaderType::VS && mVSConstantBuffers.size() > 1)
+#if defined(DEBUG) | defined(_DEBUG)
+	if constexpr (shaderType == ShaderType::VS)
 	{
-		ASSERT(bufferIndex > 1, "항상 버텍스 셰이더 버퍼 인덱스 0과 1은 worldViewProjection에 사용되니 2 이상 버퍼 인덱스로만 등록해 주세요");
+		if (mVSConstantBuffers.size() > 1)
+		{
+			ASSERT(bufferIndex > 1, "버텍스 셰이더 버퍼 인덱스 0과 1은 항상 worldViewProjection에 사용되니 2 이상 버퍼 인덱스로만 등록해 주세요");
+		}
 	}
-	#endif
+#endif
 
 	ASSERT((shaderType == ShaderType::VS && mVSConstantBuffers.find(bufferIndex) == mVSConstantBuffers.end())
 		|| (shaderType == ShaderType::PS && mPSConstantBuffers.find(bufferIndex) == mPSConstantBuffers.end())
 		, "이미 사용되고 있는 버퍼 인덱스입니다. 다른 인덱스로 등록해 주세요");
-
-	if ((shaderType == ShaderType::VS && mVSConstantBuffers.find(bufferIndex) != mVSConstantBuffers.end())
-		|| (shaderType == ShaderType::PS && mPSConstantBuffers.find(bufferIndex) != mPSConstantBuffers.end()))
-	{
-		return;
-	}
 
 	D3D11_BUFFER_DESC constantBufferDesc = {};
 	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -114,7 +111,7 @@ void Material::RegisterBuffer(const ShaderType shaderType, const unsigned int bu
 		HR(mDevice->CreateBuffer(&constantBufferDesc, &subResourceData, &constantBuffer));
 	}
 
-	if (shaderType == ShaderType::VS)
+	if constexpr (shaderType == ShaderType::VS)
 	{
 		mVSConstantBuffers.insert(std::make_pair(bufferIndex, constantBuffer));
 	}
@@ -124,14 +121,14 @@ void Material::RegisterBuffer(const ShaderType shaderType, const unsigned int bu
 	}
 }
 
-template<typename T>
-void Material::UpdateBuffer(const ShaderType shaderType, const unsigned int bufferIndex, const T& data)
+template <Material::ShaderType shaderType, typename T>
+void Material::UpdateBuffer(const unsigned int bufferIndex, const T& data)
 {
 	static_assert(std::is_same<T, std::nullptr_t>::value == false, "the T must not be null");
 
 	ASSERT(&data != nullptr, "The data address is null");
 
-	if (shaderType == ShaderType::VS)
+	if constexpr (shaderType == ShaderType::VS)
 	{
 		mDeviceContext->UpdateSubresource(mVSConstantBuffers.at(bufferIndex), 0
 			, nullptr, reinterpret_cast<const void*>(&data), 0, 0);
