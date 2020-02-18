@@ -9,5 +9,8 @@ struct PS_INPUT
 
 float4 PS(PS_INPUT input) : SV_Target
 {
-	return GeneralTexture.Sample(SamplerLinear, input.TextureCoord);
+	float4 textureColor = GeneralTexture.Sample(SamplerLinear, input.TextureCoord);
+	clip(textureColor.r - 0.05f);
+
+	return textureColor;
 }

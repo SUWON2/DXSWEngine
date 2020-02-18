@@ -62,7 +62,7 @@ private:
 	~Input() = default;
 
 private:
-	static constexpr int VIRTUAL_KEY_COUNT = 128;
+	static constexpr int VIRTUAL_KEY_COUNT = 190;
 
 	bool mbPressedKeys[VIRTUAL_KEY_COUNT] = {};
 

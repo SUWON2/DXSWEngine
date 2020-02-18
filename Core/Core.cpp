@@ -143,6 +143,10 @@ LRESULT Core::HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			Input::Get()._SetMouseScrollWheel({}, static_cast<short>(HIWORD(wParam)));
 			return 0;
 
+		case WM_SETFOCUS:
+			Input::Get()._Initialize({}, hWnd);
+			break;
+
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			return 0;

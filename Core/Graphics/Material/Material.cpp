@@ -78,8 +78,10 @@ void Material::_Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContex
 
 void Material::_Activate(RendererKey)
 {
-	mDeviceContext->VSSetShader(mMaterialResource->GetVertexShaderBuffer(mVertexShaderId).Interface, nullptr, 0);
-	mDeviceContext->IASetInputLayout(mMaterialResource->GetVertexShaderBuffer(mVertexShaderId).InputLayout);
+	const MaterialResource::VertexShaderBuffer& vertexShaderBuffer = mMaterialResource->GetVertexShaderBuffer(mVertexShaderId);
+	mDeviceContext->VSSetShader(vertexShaderBuffer.Interface, nullptr, 0);
+	mDeviceContext->IASetInputLayout(vertexShaderBuffer.InputLayout);
+
 	mDeviceContext->PSSetShader(mMaterialResource->GetPixelShader(mPixelShaderId), nullptr, 0);
 
 	for (const auto& vsConstantBuffer : mVSConstantBuffers)
