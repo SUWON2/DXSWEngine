@@ -58,7 +58,7 @@ const DirectX::XMFLOAT3& Model::GetRotation() const
 
 void Model::SetMaterial(const unsigned int materialIndex, const ID materialId)
 {
-	ASSERT(0 <= materialIndex && materialIndex <= mMeshCount, "model이 보유하는 메쉬 개수보다 더 큰 머티리얼 인덱스를 등록할 수 없습니다.");
+	ASSERT(0 <= materialIndex && materialIndex < mMeshCount, "model이 보유하는 메쉬 개수보다 더 큰 머티리얼 인덱스를 등록할 수 없습니다.");
 	mMaterialIds[materialIndex] = materialId;
 }
 

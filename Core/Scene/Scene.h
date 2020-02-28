@@ -31,6 +31,8 @@ public:
 
 	SkyDome* GetSkyDome() const;
 
+	size_t GetModelCount() const;
+
 public:
 	Renderer* _GetRenderer(CoreKey) const;
 

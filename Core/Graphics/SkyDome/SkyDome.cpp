@@ -5,7 +5,7 @@ using namespace DirectX;
 
 SkyDome::SkyDome()
 {
-	mMaterial = Material::Create("Shaders/BasicSkyDomeShaderVS.hlsl", "Shaders/BasicSkyDomeShaderPS.hlsl");
+	mMaterial = Material::Create("Shaders/BasicSkyDomeVS.hlsl", "Shaders/BasicSkyDomePS.hlsl");
 	mMaterial->RegisterTexture(0, "Resource/BasicSky.dds");
 
 	mModel = Model::Create("Resource/BasicSkyDome.model");

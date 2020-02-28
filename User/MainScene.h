@@ -20,11 +20,21 @@ public:
 private:
 	void UpdateCamera(const float deltaTime);
 
+	bool IsBoxCollidedByRaycast();
+
 private:
+	static constexpr DirectX::XMFLOAT3 PLAYER_START_POSITION = { 24.0f, 1.3f, 24.0f };
+
 	static constexpr float BLOCK_SIZE = 0.5f;
+
+	static constexpr DirectX::XMINT3 BLOCK_COUNT = { 100, 100, 100 };
+
+	static constexpr int BLOCK_KIND_COUNT = 8;
 
 #pragma region DEBUG_MODE
 	Text* mFPS = nullptr;
+
+	Text* mModelCountText = nullptr;
 
 	Text* mViewDirectionText = nullptr;
 
@@ -37,19 +47,24 @@ private:
 	Text* mBlockCountText = nullptr;
 
 	Text* mZoom = nullptr;
+
+	DirectX::XMFLOAT3 mLightPosition = { 24.0f, 10.0f, 24.0f };
 #pragma endregion
 
 #pragma region BLOCK
-	Model* mMark = nullptr; // 줌 포인트가 가르키는 블럭을 표시하는 용도입니다.
+	DirectX::XMFLOAT3 mMarkPosition = {};
 
-	DirectX::XMINT2 mMarkPositionIndex = {};
+	int mBlockKind = 0;
 
-	ID mLogTopMaterialId = {};
+	ID mBlockTopMaterialIds[BLOCK_KIND_COUNT] = {};
 
-	ID mLogSideMaterialId = {};
+	ID mBlockSideMaterialIds[BLOCK_KIND_COUNT] = {};
 
-	// HACK: 우선 index가 0이상인 곳부터 처리한다.
-	int mBlockHeights[50][50]; // z, x
+	DirectX::XMINT3 mBoxIndex = {};
+
+	int mNearestSideIndex = 0;
+
+	Model* mBlocks[BLOCK_COUNT.z][BLOCK_COUNT.y][BLOCK_COUNT.x] = {};
 #pragma endregion
 
 #pragma region CAMERA

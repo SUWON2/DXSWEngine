@@ -84,6 +84,8 @@ ID ModelResource::LoadVertexBuffer(const char* fileName)
 				else if (type == 'n')
 				{
 					in >> vn.x >> vn.y >> vn.z;
+					vn.z *= -1.0f;
+
 					vnList.push_back(vn);
 				}
 			}

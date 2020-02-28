@@ -41,6 +41,8 @@ public:
 
 	SkyDome* GetSkyDome() const;
 
+	size_t GetModelCount() const;
+
 private:
 	ID3D11Device* mDevice = nullptr;
 

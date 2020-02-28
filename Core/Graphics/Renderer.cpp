@@ -40,7 +40,7 @@ void Renderer::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devi
 	mSkyDome = std::make_unique<SkyDome>();
 
 	// 폰트를 따로 지정하지 않은 텍스트를 위해 기본 폰트 머티리얼을 미리 추가하여 제공합니다.
-	Material* fontMaterial = Material::Create("Shaders/BasicFontShaderVS.hlsl", "Shaders/BasicFontShaderPS.hlsl");
+	Material* fontMaterial = Material::Create("Shaders/BasicFontVS.hlsl", "Shaders/BasicFontPS.hlsl");
 	fontMaterial->RegisterTexture(0, "Resource/BasicFont.dds");
 	mBasicFontMaterialId = AddMaterial(fontMaterial);
 }
@@ -188,4 +188,9 @@ Camera* Renderer::GetCamera() const
 SkyDome* Renderer::GetSkyDome() const
 {
 	return mSkyDome.get();
+}
+
+size_t Renderer::GetModelCount() const
+{
+	return mModels.size();
 }

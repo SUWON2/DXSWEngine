@@ -33,6 +33,11 @@ SkyDome* Scene::GetSkyDome() const
 	return mRenderer->GetSkyDome();
 }
 
+size_t Scene::GetModelCount() const
+{
+	return mRenderer->GetModelCount();
+}
+
 Renderer* Scene::_GetRenderer(CoreKey) const
 {
 	return mRenderer.get();

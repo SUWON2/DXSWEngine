@@ -9,7 +9,7 @@ using namespace DirectX;
 void MainScene::Initialize()
 {
 	GetSkyDome()->SetActive(false);
-	GetCamera()->SetPosition(XMFLOAT3(0.0f, 1.3f, 0.0f));
+	GetCamera()->SetPosition(PLAYER_START_POSITION);
 
 	// Create debugging texts
 	{
@@ -20,28 +20,34 @@ void MainScene::Initialize()
 		mFPS->SetSentence("FPS: 0");
 		AddText(mFPS);
 
+		mModelCountText = Text::Create();
+		mModelCountText->SetVerticalAnchor(Text::VerticalAnchor::Top);
+		mModelCountText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
+		mModelCountText->SetPosition({ 10.0f, -30.0f });
+		AddText(mModelCountText);
+
 		mViewDirectionText = Text::Create();
 		mViewDirectionText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mViewDirectionText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
-		mViewDirectionText->SetPosition({ 10.0f, -30.0f });
+		mViewDirectionText->SetPosition({ 10.0f, -50.0f });
 		AddText(mViewDirectionText);
 
 		mVerticalVelocityText = Text::Create();
 		mVerticalVelocityText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mVerticalVelocityText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
-		mVerticalVelocityText->SetPosition({ 10.0f, -50.0f });
+		mVerticalVelocityText->SetPosition({ 10.0f, -70.0f });
 		AddText(mVerticalVelocityText);
 
 		mHorizontalVelocityText = Text::Create();
 		mHorizontalVelocityText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mHorizontalVelocityText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
-		mHorizontalVelocityText->SetPosition({ 10.0f, -70.0f });
+		mHorizontalVelocityText->SetPosition({ 10.0f, -90.0f });
 		AddText(mHorizontalVelocityText);
 
 		mBlockCountText = Text::Create();
 		mBlockCountText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mBlockCountText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
-		mBlockCountText->SetPosition({ 10.0f, -90.0f });
+		mBlockCountText->SetPosition({ 10.0f, -110.0f });
 		AddText(mBlockCountText);
 
 		mZoom = Text::Create();
@@ -55,43 +61,61 @@ void MainScene::Initialize()
 	{
 		constexpr XMFLOAT2 planeScale = { 50.0f, 50.0f };
 
-		Material* material = Material::Create("Shaders/BlockVS.hlsl", "shaders/BlockPS.hlsl");
-		material->RegisterTexture(0, "Resource/oak_log_top.DDS");
+		Material* material = Material::Create("Shaders/PlaneVS.hlsl", "shaders/PlanePS.hlsl");
+		material->RegisterTexture(0, "Resource/Block/grass_block_top.DDS");
 		material->RegisterBuffer<Material::ShaderType::VS>(2, sizeof(XMVECTOR), XMFLOAT2{ planeScale.x * 2.0f, planeScale.y * 2.0f });
-		material->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 0.0f, 1.0f, 0.0f }));
+		material->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 0.557f, 0.725f, 0.443f }));
 		const ID materialId = AddMaterial(material);
 
 		Model* plane = Model::Create("Resource/Plane.model");
 		plane->SetScale({ planeScale.x, 1.0f, planeScale.y });
+		plane->SetPosition({ 25.0f, 0.0f, 25.0f });
 		plane->SetMaterial(0, materialId);
 		AddModel(plane);
 	}
 
-	// Create a mark
+	// Create block materials
 	{
-		Material* material = Material::Create("Shaders/BasicShaderVS.hlsl", "shaders/BasicShaderPS.hlsl");
-		material->RegisterTexture(0, "Resource/New Piskel.DDS");
-		const ID materialId = AddMaterial(material);
+		const char* topMaterialsNames[BLOCK_KIND_COUNT] =
+		{
+			"Resource/Block/stripped_birch_log_top.DDS",
+			"Resource/Block/oak_planks_vertical.DDS",
+			"Resource/Block/bricks.DDS",
+			"Resource/Block/sand.DDS",
+			"Resource/Block/jungle_log_top.DDS",
+			"Resource/Block/granite_bricks.DDS",
+			"Resource/Block/cobblestone1.DDS",
+			"Resource/Block/hay_block_top.DDS",
+		};
 
-		mMark = Model::Create("Resource/Model.model");
-		mMark->SetMaterial(0, materialId);
-		mMark->SetScale({ BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE });
-		AddModel(mMark);
-	}
+		const char* sideMaterialNames[BLOCK_KIND_COUNT] =
+		{
+			"Resource/Block/stripped_birch_log.DDS",
+			"Resource/Block/oak_planks.DDS",
+			"Resource/Block/bricks.DDS",
+			"Resource/Block/sand.DDS",
+			"Resource/Block/jungle_planks.DDS",
+			"Resource/Block/granite_bricks.DDS",
+			"Resource/Block/cobblestone1.DDS",
+			"Resource/Block/hay_block_side.DDS",
+		};
 
-	// Create block material
-	{
-		Material* topMaterial = Material::Create("Shaders/BlockVS.hlsl", "shaders/BlockPS.hlsl");
-		topMaterial->RegisterTexture(0, "Resource/oak_log_top.DDS");
-		topMaterial->RegisterBuffer<Material::ShaderType::VS>(2, sizeof(XMVECTOR), XMFLOAT2{ 1.0f, 1.0f });
-		topMaterial->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 1.0f, 1.0f, 1.0f }));
-		mLogTopMaterialId = AddMaterial(topMaterial);
+		for (int i = 0; i < BLOCK_KIND_COUNT; ++i)
+		{
+			Material* topMaterial = Material::Create("Shaders/BlockVS.hlsl", "shaders/BlockPS.hlsl");
+			topMaterial->RegisterTexture(0, topMaterialsNames[i]);
+			topMaterial->RegisterBuffer<Material::ShaderType::VS>(2, sizeof(XMVECTOR), XMFLOAT2{ 1.0f, 1.0f });
+			topMaterial->RegisterBuffer<Material::ShaderType::VS>(3, sizeof(XMVECTOR), XMFLOAT3(mLightPosition));
+			topMaterial->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 1.0f, 1.0f, 1.0f }));
+			mBlockTopMaterialIds[i] = AddMaterial(topMaterial);
 
-		Material* sideMaterial = Material::Create("Shaders/BlockVS.hlsl", "shaders/BlockPS.hlsl");
-		sideMaterial->RegisterTexture(0, "Resource/oak_log.DDS");
-		sideMaterial->RegisterBuffer<Material::ShaderType::VS>(2, sizeof(XMVECTOR), XMFLOAT2{ 1.0f, 1.0f });
-		sideMaterial->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 1.0f, 1.0f, 1.0f }));
-		mLogSideMaterialId = AddMaterial(sideMaterial);
+			Material* sideMaterial = Material::Create("Shaders/BlockVS.hlsl", "shaders/BlockPS.hlsl");
+			sideMaterial->RegisterTexture(0, sideMaterialNames[i]);
+			sideMaterial->RegisterBuffer<Material::ShaderType::VS>(2, sizeof(XMVECTOR), XMFLOAT2{ 1.0f, 1.0f });
+			sideMaterial->RegisterBuffer<Material::ShaderType::VS>(3, sizeof(XMVECTOR), XMFLOAT3(mLightPosition));
+			sideMaterial->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 1.0f, 1.0f, 1.0f }));
+			mBlockSideMaterialIds[i] = AddMaterial(sideMaterial);
+		}
 	}
 
 	// Set mouse state
@@ -105,153 +129,150 @@ void MainScene::Update(const float deltaTime)
 {
 	UpdateCamera(deltaTime);
 
-	mMark->SetActive(false);
-
-	if (Input::Get().GetMouseButton(1))
+	// 큐브 종류를 선택합니다.
+	for (int i = 0; i < BLOCK_KIND_COUNT; ++i)
 	{
-		bool bCollision = false;
-
-		// 일정한 간격으로 포인트들을 쏘아 블럭과 충돌되는 곳에 mark를 놓습니다.
-		for (int i = 0; i < 85; ++i)
+		if (Input::Get().GetKeyDown(i + '1'))
 		{
-			constexpr float pointInterval = BLOCK_SIZE * 0.1f;
-			const float pointDistance = i * pointInterval;
+			mBlockKind = i;
 
-			XMFLOAT3 collsionPoint = GetCamera()->GetPosition();
-			collsionPoint.x += GetCamera()->GetViewDirection().x * pointDistance;
-			collsionPoint.y += GetCamera()->GetViewDirection().y * pointDistance;
-			collsionPoint.z += GetCamera()->GetViewDirection().z * pointDistance;
-
-			for (int z = 0; z < 50; ++z)
-			{
-				for (int x = 0; x < 50; ++x)
-				{
-					const int blockHeight = mBlockHeights[z][x];
-
-					if (blockHeight == 0)
-					{
-						continue;
-					}
-
-					if ((x * BLOCK_SIZE <= collsionPoint.x && collsionPoint.x < x * BLOCK_SIZE + BLOCK_SIZE)
-						&& (0 <= collsionPoint.y && collsionPoint.y < blockHeight * BLOCK_SIZE)
-						&& (z * BLOCK_SIZE <= collsionPoint.z && collsionPoint.z < z * BLOCK_SIZE + BLOCK_SIZE))
-					{
-						constexpr float markOffset = BLOCK_SIZE * 0.5f;
-
-						bCollision = true;
-
-						// TODO: 뭐하는 코드인지 주석달자
-						if (!(blockHeight * BLOCK_SIZE - BLOCK_SIZE <= collsionPoint.y && collsionPoint.y < blockHeight * BLOCK_SIZE))
-						{
-							goto ESCAPE_LOOP;
-						}
-
-						mMarkPositionIndex =
-						{
-							static_cast<int>(std::floorf(collsionPoint.x * 2.0f)),
-							static_cast<int>(std::floorf(collsionPoint.z * 2.0f))
-						};
-
-						collsionPoint.x = markOffset + BLOCK_SIZE * mMarkPositionIndex.x;
-						collsionPoint.z = markOffset + BLOCK_SIZE * mMarkPositionIndex.y;
-						mMark->SetPosition({ collsionPoint.x, blockHeight * BLOCK_SIZE + 0.01f, collsionPoint.z });
-
-						mMark->SetActive(true);
-
-						goto ESCAPE_LOOP;
-					}
-				}
-			}
-
-		ESCAPE_LOOP:
-
-			if (bCollision)
-			{
-				break;
-			}
+			break;
 		}
+	}
 
-		// 일정한 간격으로 포인트들을 쏘아 지면과 충돌되는 곳에 mark를 놓습니다.
-		if (bCollision == false)
+	const int buttonState = Input::Get().GetMouseButtonDown(0) - Input::Get().GetMouseButtonDown(1);
+
+	if (buttonState != 0 && IsBoxCollidedByRaycast())
+	{
+		if (buttonState > 0)
 		{
-			for (int i = 0; i < 85; ++i)
+			XMINT3 markIndex = mBoxIndex;
+
+			switch (mNearestSideIndex)
 			{
-				constexpr float pointInterval = BLOCK_SIZE * 0.1f;
-				const float pointDistance = i * pointInterval;
-
-				XMFLOAT3 collsionPoint = GetCamera()->GetPosition();
-				collsionPoint.x += GetCamera()->GetViewDirection().x * pointDistance;
-				collsionPoint.y += GetCamera()->GetViewDirection().y * pointDistance;
-				collsionPoint.z += GetCamera()->GetViewDirection().z * pointDistance;
-
-				constexpr float planeY = 0.0f;
-
-				// 포인트가 지면과 충돌한 경우 충돌한 위치에 mark 위치를 설정합니다.
-				if (planeY - BLOCK_SIZE <= collsionPoint.y && collsionPoint.y < planeY)
-				{
-					mMarkPositionIndex =
-					{
-						static_cast<int>(std::floorf(collsionPoint.x * 2.0f)),
-						static_cast<int>(std::floorf(collsionPoint.z * 2.0f))
-					};
-
-					// 이미 블럭이 있는 경우 무시합니다.
-					if (mBlockHeights[mMarkPositionIndex.y][mMarkPositionIndex.x] > 0)
-					{
-						break;
-					}
-
-					constexpr float markOffset = BLOCK_SIZE * 0.5f;
-					collsionPoint.x = markOffset + BLOCK_SIZE * mMarkPositionIndex.x;
-					collsionPoint.z = markOffset + BLOCK_SIZE * mMarkPositionIndex.y;
-					mMark->SetPosition({ collsionPoint.x, 0.01f, collsionPoint.z });
-
-					mMark->SetActive(true);
-
+				case 0:
+					--markIndex.x;
 					break;
-				}
-			}
-		}
 
-		if (Input::Get().GetMouseButtonDown(0))
-		{
-			if (mMark->IsActive()) // 마크가 위치한 곳에 새로운 블럭을 생성합니다.
+				case 1:
+					++markIndex.x;
+					break;
+
+				case 2:
+					--markIndex.z;
+					break;
+
+				case 3:
+					++markIndex.z;
+					break;
+
+				case 4:
+					--markIndex.y;
+					break;
+
+				case 5:
+					++markIndex.y;
+					break;
+			}
+
+			if (0 <= markIndex.x && markIndex.x < BLOCK_COUNT.x
+				&& 0 <= markIndex.y && markIndex.y < BLOCK_COUNT.y
+				&& 0 <= markIndex.z && markIndex.z < BLOCK_COUNT.z
+				&& mBlocks[markIndex.z][markIndex.y][markIndex.x] == nullptr)
 			{
-				Model* block = Model::Create("Resource/Block.model");
-				block->SetMaterial(0, mLogTopMaterialId);
-				block->SetMaterial(1, mLogSideMaterialId);
-				block->SetScale({ BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE });
-				block->SetPosition({ mMark->GetPosition().x, mMark->GetPosition().y, mMark->GetPosition().z });
+				// 마크가 위치한 곳에 새로운 블럭을 생성합니다.
+				Model* block = nullptr;
+
+				if (mBlockKind != 1)
+				{
+					block = Model::Create("Resource/Block.model");
+					block->SetMaterial(0, mBlockTopMaterialIds[mBlockKind]);
+					block->SetMaterial(1, mBlockSideMaterialIds[mBlockKind]);
+
+					block->SetPosition({
+						BLOCK_SIZE * 0.5f + BLOCK_SIZE * markIndex.x,
+						BLOCK_SIZE * markIndex.y,
+						BLOCK_SIZE * 0.5f + BLOCK_SIZE * markIndex.z });
+
+					block->SetScale({ BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE });
+				}
+				else
+				{
+					block = Model::Create("Resource/Staris.model");
+					block->SetMaterial(0, mBlockSideMaterialIds[mBlockKind]);
+
+					block->SetPosition({
+						BLOCK_SIZE * 0.5f + BLOCK_SIZE * markIndex.x,
+						BLOCK_SIZE * markIndex.y + BLOCK_SIZE * 0.5f,
+						BLOCK_SIZE * 0.5f + BLOCK_SIZE * markIndex.z });
+
+					block->SetScale({ BLOCK_SIZE * 0.5f, BLOCK_SIZE * 0.5f, BLOCK_SIZE * 0.5f });
+				}
+
 				AddModel(block);
 
-				++mBlockCount;
-				++mBlockHeights[mMarkPositionIndex.y][mMarkPositionIndex.x];
-			}
-			else
-			{
+				mBlocks[markIndex.z][markIndex.y][markIndex.x] = block;
 
+				++mBlockCount;
+			}
+		}
+		else
+		{
+			if (0 <= mBoxIndex.y && mBoxIndex.y < BLOCK_COUNT.y
+				&& mBlocks[mBoxIndex.z][mBoxIndex.y][mBoxIndex.x] != nullptr)
+			{
+				// TODO: 이렇게 처리하면 메모리 누수 발생함, 오브젝트 풀링 기법을 사용하자
+				mBlocks[mBoxIndex.z][mBoxIndex.y][mBoxIndex.x]->SetActive(false);
+				mBlocks[mBoxIndex.z][mBoxIndex.y][mBoxIndex.x] = nullptr;
+
+				--mBlockCount;
 			}
 		}
 	}
 
 	// HACK: 디버깅 용도
 	{
-		if (Input::Get().GetKeyDown(VK_F1))
+		if (Input::Get().GetKey(VK_UP))
+		{
+			mLightPosition.z += 0.5f;
+		}
+
+		if (Input::Get().GetKey(VK_DOWN))
+		{
+			mLightPosition.z -= 0.5f;
+		}
+		if (Input::Get().GetKey(VK_LEFT))
+		{
+			mLightPosition.x -= 0.5f;
+		}
+
+		if (Input::Get().GetKey(VK_RIGHT))
+		{
+			mLightPosition.x += 0.5f;
+		}
+
+		for (int i = 0; i < BLOCK_KIND_COUNT; ++i)
+		{
+			reinterpret_cast<Material*>(mBlockTopMaterialIds[i])->UpdateBuffer<Material::ShaderType::VS>(3, XMFLOAT3(mLightPosition));
+			reinterpret_cast<Material*>(mBlockSideMaterialIds[i])->UpdateBuffer<Material::ShaderType::VS>(3, XMFLOAT3(mLightPosition));
+		}
+
+		if (Input::Get().GetKeyDown('J'))
 		{
 			GetSkyDome()->SetActive(!GetSkyDome()->IsActive());
 		}
 
-		if (Input::Get().GetKeyDown(VK_F2))
+		if (Input::Get().GetKeyDown('K'))
 		{
 			mFPS->SetActive(!mFPS->IsActive());
+			mModelCountText->SetActive(mFPS->IsActive());
 			mViewDirectionText->SetActive(mFPS->IsActive());
 			mVerticalVelocityText->SetActive(mFPS->IsActive());
 			mHorizontalVelocityText->SetActive(mFPS->IsActive());
 			mBlockCountText->SetActive(mFPS->IsActive());
 		}
 
-		if (Input::Get().GetKeyDown(VK_F3))
+		if (Input::Get().GetKeyDown('L'))
 		{
 			system("cls");
 		}
@@ -273,6 +294,12 @@ void MainScene::Update(const float deltaTime)
 			}
 		}
 
+		if (mModelCountText->IsActive())
+		{
+			const std::string text = "MODEL_COUNT: " + std::to_string(GetModelCount());
+			mModelCountText->SetSentence(text.c_str());
+		}
+
 		if (mViewDirectionText->IsActive())
 		{
 			const XMFLOAT3 viewDirection = GetCamera()->GetViewDirection();
@@ -287,19 +314,20 @@ void MainScene::Update(const float deltaTime)
 
 		if (mVerticalVelocityText->IsActive())
 		{
-			const std::string text = ("VERTICAL_VELOCITY: " + std::to_string(mMoveVelocityZ)).c_str();
+			const std::string text = "VERTICAL_VELOCITY: " + std::to_string(mMoveVelocityZ);
 			mVerticalVelocityText->SetSentence(text.c_str());
 		}
 
 		if (mHorizontalVelocityText->IsActive())
 		{
-			const std::string text = ("HORIZONTAL_VELOCITY: " + std::to_string(mMoveVelocityX)).c_str();
+			const std::string text = "HORIZONTAL_VELOCITY: " + std::to_string(mMoveVelocityX);
 			mHorizontalVelocityText->SetSentence(text.c_str());
 		}
 
 		if (mBlockCountText->IsActive())
 		{
-			mBlockCountText->SetSentence(("BLOCK_COUNT:" + std::to_string(mBlockCount)).c_str());
+			const std::string text = "BLOCK_COUNT:" + std::to_string(mBlockCount);
+			mBlockCountText->SetSentence(text.c_str());
 		}
 	}
 }
@@ -413,6 +441,165 @@ void MainScene::UpdateCamera(const float deltaTime)
 		cameraPosition.x += mMoveAxisX.x * finalMoveVelocityX;
 		cameraPosition.z += mMoveAxisX.z * finalMoveVelocityX;
 
+		if (Input::Get().GetKeyDown(VK_SPACE))
+		{
+			cameraPosition.y = PLAYER_START_POSITION.y;
+		}
+		else
+		{
+			cameraPosition.y += Input::Get().GetMouseScrollWheel() * 0.08f * deltaTime;
+		}
+
 		GetCamera()->SetPosition(cameraPosition);
 	}
+}
+
+bool MainScene::IsBoxCollidedByRaycast()
+{
+	constexpr int pointDistanceMin = 25;
+	constexpr int pointDistanceMax = 85;
+	constexpr float pointInterval = BLOCK_SIZE * 0.1f;
+
+	constexpr float nearesRaycastPoint = pointDistanceMin * pointInterval;
+	constexpr float furthermostRaycastPoint = (pointDistanceMax - 1) * pointInterval;
+
+	const XMFLOAT3& cameraPosition = GetCamera()->GetPosition();
+	const XMFLOAT3& cameraViewDirection = GetCamera()->GetViewDirection();
+
+	const XMFLOAT3 nearestBox
+	{
+		cameraPosition.x + cameraViewDirection.x * nearesRaycastPoint,
+		cameraPosition.y + cameraViewDirection.y * nearesRaycastPoint,
+		cameraPosition.z + cameraViewDirection.z * nearesRaycastPoint
+	};
+
+	XMINT3 nearestBoxIndex =
+	{
+		static_cast<int>(std::floorf(nearestBox.x * 2.0f)),
+		static_cast<int>(std::floorf(nearestBox.y * 2.0f)),
+		static_cast<int>(std::floorf(nearestBox.z * 2.0f)),
+	};
+
+	const XMFLOAT3 furthermostBox
+	{
+		cameraPosition.x + cameraViewDirection.x * furthermostRaycastPoint,
+		cameraPosition.y + cameraViewDirection.y * furthermostRaycastPoint,
+		cameraPosition.z + cameraViewDirection.z * furthermostRaycastPoint
+	};
+
+	XMINT3 furthermostBoxIndex =
+	{
+		static_cast<int>(std::floorf(furthermostBox.x * 2.0f)),
+		static_cast<int>(std::floorf(furthermostBox.y * 2.0f)),
+		static_cast<int>(std::floorf(furthermostBox.z * 2.0f)),
+	};
+
+	const auto Sort = [](int& a, int& b)
+	{
+		if (a > b)
+		{
+			const int temp = a;
+			a = b;
+			b = temp;
+		}
+	};
+
+	Sort(nearestBoxIndex.x, furthermostBoxIndex.x);
+	Sort(nearestBoxIndex.y, furthermostBoxIndex.y);
+	Sort(nearestBoxIndex.z, furthermostBoxIndex.z);
+
+	nearestBoxIndex.x = static_cast<int>(std::fmax(0, nearestBoxIndex.x));
+	nearestBoxIndex.y = static_cast<int>(std::fmax(-1, nearestBoxIndex.y));
+	nearestBoxIndex.z = static_cast<int>(std::fmax(0, nearestBoxIndex.z));
+
+	furthermostBoxIndex.x = static_cast<int>(std::fmin(BLOCK_COUNT.x, furthermostBoxIndex.x));
+	furthermostBoxIndex.y = static_cast<int>(std::fmin(BLOCK_COUNT.y, furthermostBoxIndex.y));
+	furthermostBoxIndex.z = static_cast<int>(std::fmin(BLOCK_COUNT.z, furthermostBoxIndex.z));
+
+	for (int i = pointDistanceMin; i < pointDistanceMax; ++i)
+	{
+		const float pointDistance = i * pointInterval;
+
+		const XMFLOAT3 collisionPoint =
+		{
+			cameraPosition.x + cameraViewDirection.x * pointDistance,
+			cameraPosition.y + cameraViewDirection.y * pointDistance,
+			cameraPosition.z + cameraViewDirection.z * pointDistance,
+		};
+
+		const XMINT3 collisionPointIndex =
+		{
+			static_cast<int>(std::floorf(collisionPoint.x * 2.0f)),
+			static_cast<int>(std::floorf(collisionPoint.y * 2.0f)),
+			static_cast<int>(std::floorf(collisionPoint.z * 2.0f))
+		};
+
+		for (int z = nearestBoxIndex.z; z <= furthermostBoxIndex.z; ++z)
+		{
+			for (int y = nearestBoxIndex.y; y <= furthermostBoxIndex.y; ++y)
+			{
+				for (int x = nearestBoxIndex.x; x <= furthermostBoxIndex.x; ++x)
+				{
+					if (x == collisionPointIndex.x
+						&& y == collisionPointIndex.y
+						&& z == collisionPointIndex.z)
+					{
+						// 충돌 포인트가 위치하는 곳에 블럭이 없으면 계속 충돌 포인트를 쏩니다.
+						if (y >= 0 && mBlocks[z][y][x] == nullptr)
+						{
+							continue;
+						}
+
+						mBoxIndex = collisionPointIndex;
+
+						if (Input::Get().GetKey(VK_SHIFT))
+						{
+							// 블럭의 옆면을 지정합니다.
+							const float leftSide = x * BLOCK_SIZE;
+							const float rightSide = leftSide + BLOCK_SIZE;
+							const float backSide = z * BLOCK_SIZE;
+							const float frontSide = backSide + BLOCK_SIZE;
+
+							const float sideDistances[4] =
+							{
+								std::fabsf(collisionPoint.x - leftSide),
+								std::fabsf(collisionPoint.x - rightSide),
+								std::fabsf(collisionPoint.z - backSide),
+								std::fabsf(collisionPoint.z - frontSide)
+							};
+
+							mNearestSideIndex = 0;
+
+							for (int i = 1; i < 4; ++i)
+							{
+								if (sideDistances[mNearestSideIndex] > sideDistances[i])
+								{
+									mNearestSideIndex = i;
+								}
+							}
+						}
+						else
+						{
+							// 블럭의 윗면 혹은 밑면을 지정합니다.
+							const float underSide = y * BLOCK_SIZE;
+							const float upperSide = underSide + BLOCK_SIZE;
+
+							if (std::fabsf(collisionPoint.y - underSide) < std::fabsf(collisionPoint.y - upperSide))
+							{
+								mNearestSideIndex = 4;
+							}
+							else
+							{
+								mNearestSideIndex = 5;
+							}
+						}
+
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
 }

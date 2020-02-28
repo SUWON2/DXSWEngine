@@ -22,7 +22,7 @@ struct VS_OUTPUT
 
 VS_OUTPUT VS(VS_INPUT input)
 {
-    VS_OUTPUT output = (VS_OUTPUT)0;
+    VS_OUTPUT output = (VS_OUTPUT) 0;
     output.Position = mul(input.Position, World);
     output.Position = mul(output.Position, ViewProjection);
 
