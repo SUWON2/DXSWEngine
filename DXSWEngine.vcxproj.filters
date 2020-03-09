@@ -36,17 +36,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Core\Core.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Scene\Scene.cpp">
-      <Filter>Core\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Graphics\DXDevice.cpp">
-      <Filter>Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Graphics\Camera\Camera.cpp">
-      <Filter>Core\Graphics\Camera</Filter>
+    <ClCompile Include="Common\Setting.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Core\Graphics\Material\Material.cpp">
       <Filter>Core\Graphics\Material</Filter>
@@ -54,41 +45,50 @@
     <ClCompile Include="Core\Graphics\Material\MaterialResource.cpp">
       <Filter>Core\Graphics\Material</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Graphics\Text\Text.cpp">
-      <Filter>Core\Graphics\Text</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Graphics\Text\TextResource.cpp">
-      <Filter>Core\Graphics\Text</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Graphics\Renderer.cpp">
-      <Filter>Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Graphics\SkyDome\SkyDome.cpp">
-      <Filter>Core\Graphics\SkyDome</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Input\Input.cpp">
-      <Filter>Core\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Graphics\Model\Model.cpp">
+    <ClCompile Include="Core\Graphics\Model\ModelFrame.cpp">
       <Filter>Core\Graphics\Model</Filter>
     </ClCompile>
     <ClCompile Include="Core\Graphics\Model\ModelResource.cpp">
       <Filter>Core\Graphics\Model</Filter>
     </ClCompile>
-    <ClCompile Include="Common\Setting.cpp">
-      <Filter>Common</Filter>
+    <ClCompile Include="Core\Graphics\Model\Model.cpp">
+      <Filter>Core\Graphics\Model</Filter>
     </ClCompile>
-    <ClCompile Include="User\main.cpp">
-      <Filter>User</Filter>
+    <ClCompile Include="Core\Graphics\SkyDome\SkyDome.cpp">
+      <Filter>Core\Graphics\SkyDome</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Text\TextResource.cpp">
+      <Filter>Core\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Text\Text.cpp">
+      <Filter>Core\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Camera\Camera.cpp">
+      <Filter>Core\Graphics\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\DXDevice.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Graphics\Renderer.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Input\Input.cpp">
+      <Filter>Core\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Scene\Scene.cpp">
+      <Filter>Core\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Core.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="User\MainScene.cpp">
       <Filter>User</Filter>
     </ClCompile>
+    <ClCompile Include="User\main.cpp">
+      <Filter>User</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Core\Core.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Common\Define.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -97,15 +97,6 @@
     </ClInclude>
     <ClInclude Include="Common\DirectXMath.h">
       <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Scene\Scene.h">
-      <Filter>Core\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Graphics\DXDevice.h">
-      <Filter>Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Graphics\Camera\Camera.h">
-      <Filter>Core\Graphics\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Common\DirectXTex.h">
       <Filter>Common</Filter>
@@ -116,11 +107,29 @@
     <ClInclude Include="Core\Graphics\Material\Material.h">
       <Filter>Core\Graphics\Material</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Graphics\Model\Model.h">
+      <Filter>Core\Graphics\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Model\ModelFrame.h">
+      <Filter>Core\Graphics\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Model\ModelResource.h">
+      <Filter>Core\Graphics\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\SkyDome\SkyDome.h">
+      <Filter>Core\Graphics\SkyDome</Filter>
+    </ClInclude>
     <ClInclude Include="Core\Graphics\Text\Text.h">
       <Filter>Core\Graphics\Text</Filter>
     </ClInclude>
     <ClInclude Include="Core\Graphics\Text\TextResource.h">
       <Filter>Core\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\Camera\Camera.h">
+      <Filter>Core\Graphics\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graphics\DXDevice.h">
+      <Filter>Core\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Core\Graphics\Renderer.h">
       <Filter>Core\Graphics</Filter>
@@ -128,20 +137,17 @@
     <ClInclude Include="Core\Graphics\RendererKey.h">
       <Filter>Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Graphics\SkyDome\SkyDome.h">
-      <Filter>Core\Graphics\SkyDome</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Input\Input.h">
       <Filter>Core\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Core\CoreKey.h">
+    <ClInclude Include="Core\Scene\Scene.h">
+      <Filter>Core\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Core.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Graphics\Model\Model.h">
-      <Filter>Core\Graphics\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Graphics\Model\ModelResource.h">
-      <Filter>Core\Graphics\Model</Filter>
+    <ClInclude Include="Core\CoreKey.h">
+      <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="User\MainScene.h">
       <Filter>User</Filter>

@@ -26,6 +26,7 @@
     <ClCompile Include="Core\Graphics\Material\Material.cpp" />
     <ClCompile Include="Core\Graphics\Material\MaterialResource.cpp" />
     <ClCompile Include="Core\Graphics\Model\Model.cpp" />
+    <ClCompile Include="Core\Graphics\Model\ModelFrame.cpp" />
     <ClCompile Include="Core\Graphics\Model\ModelResource.cpp" />
     <ClCompile Include="Core\Graphics\Renderer.cpp" />
     <ClCompile Include="Core\Graphics\SkyDome\SkyDome.cpp" />
@@ -48,6 +49,7 @@
     <ClInclude Include="Core\Graphics\Material\Material.h" />
     <ClInclude Include="Core\Graphics\Material\MaterialResource.h" />
     <ClInclude Include="Core\Graphics\Model\Model.h" />
+    <ClInclude Include="Core\Graphics\Model\ModelFrame.h" />
     <ClInclude Include="Core\Graphics\Model\ModelResource.h" />
     <ClInclude Include="Core\Graphics\Renderer.h" />
     <ClInclude Include="Core\Graphics\RendererKey.h" />
@@ -113,18 +115,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>$(ProjectDir)Lib\x86\D;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>$(ProjectDir)Lib\x64\D;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>$(ProjectDir)Lib\x86\R;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>$(ProjectDir)Lib\x64\R;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -170,6 +176,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

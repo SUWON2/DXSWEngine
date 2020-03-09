@@ -16,6 +16,9 @@ public:
 
 	~DXDevice();
 
+	// HACK:
+	void BeginUpdateShadow();
+
 	void BeginUpdate();
 
 	void EndUpdate();
@@ -31,6 +34,9 @@ public:
 	ID3D11Device* GetDevice() const;
 
 	ID3D11DeviceContext* GetDeviceContext() const;
+
+	// HACK: Shadow
+	ID3D11ShaderResourceView** GetShadowMap();
 
 private:
 	ID3D11Device* mDevice = nullptr;
@@ -50,4 +56,15 @@ private:
 	ID3D11RasterizerState* mRasterizerState = nullptr;
 
 	ID3D11RasterizerState* mRasterizerStateNoCulling = nullptr;
+
+	ID3D11SamplerState* mSamplerState = nullptr;
+
+	// HACK: Shadow
+	ID3D11Texture2D* mRenderTargetTextureShadow = nullptr;
+	ID3D11RenderTargetView* mRenderTargetViewShadow = nullptr;
+	ID3D11ShaderResourceView* mShaderResourceViewShadow = nullptr;
+	ID3D11Texture2D* mDepthStencilBufferShadow = nullptr;
+	ID3D11DepthStencilView* mDepthStencilViewShadow = nullptr;
+	ID3D11RasterizerState* mRasterizerStateShadow = nullptr;
+	ID3D11SamplerState* mSamplerStateShadow = nullptr;
 };

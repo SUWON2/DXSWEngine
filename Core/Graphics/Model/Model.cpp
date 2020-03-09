@@ -1,39 +1,13 @@
 #include "Model.h"
 #include "../../../Common/Define.h"
 
-ID3D11Device* Model::mDevice = nullptr;
-ID3D11DeviceContext* Model::mDeviceContext = nullptr;
-std::unique_ptr<ModelResource> Model::mModelResource = nullptr;
-
-Model::Model(const char* fileName)
+Model::Model(const int materialCount)
 {
-	ASSERT(fileName != nullptr, "The fileName must not be null");
-	ASSERT(mModelResource != nullptr, "The mModelResource is null");
+	#if defined(DEBUG) | defined(_DEBUG)
+	mMaterialCount = materialCount;
+	#endif
 
-	mDataId = mModelResource->LoadVertexBuffer(fileName);
-
-	mMeshCount = mModelResource->GetModelData(mDataId).size();
-	mMaterialIds = std::make_unique<ID[]>(mMeshCount);
-}
-
-Model* Model::Create(const char* fileName)
-{
-	return new Model(fileName);
-}
-
-const char* Model::GetFileName() const
-{
-	return mModelResource->GetResourceName(mDataId).c_str();
-}
-
-const std::unique_ptr<ID[]>& Model::GetMaterialIds() const
-{
-	return mMaterialIds;
-}
-
-size_t Model::GetMeshCount() const
-{
-	return mMeshCount;
+	mTextureIndices = std::make_unique<int[]>(materialCount);
 }
 
 bool Model::IsActive() const
@@ -56,10 +30,9 @@ const DirectX::XMFLOAT3& Model::GetRotation() const
 	return mRotation;
 }
 
-void Model::SetMaterial(const unsigned int materialIndex, const ID materialId)
+int Model::GetTextureIndex(const int materialIndex)
 {
-	ASSERT(0 <= materialIndex && materialIndex < mMeshCount, "model이 보유하는 메쉬 개수보다 더 큰 머티리얼 인덱스를 등록할 수 없습니다.");
-	mMaterialIds[materialIndex] = materialId;
+	return mTextureIndices[materialIndex];
 }
 
 void Model::SetActive(const bool bActive)
@@ -82,23 +55,10 @@ void Model::SetRotation(const DirectX::XMFLOAT3& rotation)
 	mRotation = rotation;
 }
 
-void Model::_Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+void Model::SetTextureIndex(const int materialIndex, const int textureIndex)
 {
-	ASSERT(device != nullptr, "The device must not be null");
-	ASSERT(deviceContext != nullptr, "The deviceContext must not be null");
+	ASSERT(0 <= materialIndex && materialIndex < mMaterialCount
+		, "머티리얼 인덱스는 0보다 크거나 모델이 갖는 메쉬 개수보다 작아야 합니다.");
 
-	mDevice = device;
-	mDeviceContext = deviceContext;
-	mModelResource = std::make_unique<ModelResource>(device, deviceContext);
-}
-
-void Model::_Draw(RendererKey, const unsigned int meshIndex)
-{
-	const ModelResource::Mesh& mesh = mModelResource->GetModelData(mDataId).at(meshIndex);
-
-	const UINT stride = mesh.VertexSize;
-	const UINT offset = 0;
-	mDeviceContext->IASetVertexBuffers(0, 1, &mesh.VertexBuffer, &stride, &offset);
-
-	mDeviceContext->Draw(mesh.VertexCount, 0);
+	mTextureIndices[materialIndex] = textureIndex;
 }

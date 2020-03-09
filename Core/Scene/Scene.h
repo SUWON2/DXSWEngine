@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "../CoreKey.h"
 #include "../Graphics/Renderer.h"
+#include "../CoreKey.h"
 #include "../../Common/Define.h"
 
 class Scene abstract
@@ -21,17 +21,15 @@ public:
 
 	virtual void Update(const float deltaTime) = 0;
 
-	void AddModel(Model* model);
+	Material* CreateMaterial(const char* vertexShaderName, const char* pixelShaderName) const;
 
-	void AddText(Text* text);
+	ModelFrame* CreateModelFrame(const char* fileName, const std::vector<Material*>& materials) const;
 
-	ID AddMaterial(Material* material);
-
+	Text* CreateText() const;
+	
 	Camera* GetCamera() const;
 
 	SkyDome* GetSkyDome() const;
-
-	size_t GetModelCount() const;
 
 public:
 	Renderer* _GetRenderer(CoreKey) const;

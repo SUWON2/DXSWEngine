@@ -29,7 +29,7 @@ private:
 
 	static constexpr DirectX::XMINT3 BLOCK_COUNT = { 100, 100, 100 };
 
-	static constexpr int BLOCK_KIND_COUNT = 8;
+	static constexpr int BLOCK_KIND_COUNT = 9;
 
 #pragma region DEBUG_MODE
 	Text* mFPS = nullptr;
@@ -48,7 +48,10 @@ private:
 
 	Text* mZoom = nullptr;
 
-	DirectX::XMFLOAT3 mLightPosition = { 24.0f, 10.0f, 24.0f };
+	//DirectX::XMFLOAT3 mLightPosition = { 24.0f, 10.0f, 24.0f };
+	DirectX::XMFLOAT3 mLightPosition = { 24.0000000f, 3.20579338f, 21.7455273f };
+
+	bool mbMouseLock = true;
 #pragma endregion
 
 #pragma region BLOCK
@@ -56,13 +59,11 @@ private:
 
 	int mBlockKind = 0;
 
-	ID mBlockTopMaterialIds[BLOCK_KIND_COUNT] = {};
-
-	ID mBlockSideMaterialIds[BLOCK_KIND_COUNT] = {};
-
 	DirectX::XMINT3 mBoxIndex = {};
 
 	int mNearestSideIndex = 0;
+
+	ModelFrame* mBlockFrame = nullptr;
 
 	Model* mBlocks[BLOCK_COUNT.z][BLOCK_COUNT.y][BLOCK_COUNT.x] = {};
 #pragma endregion

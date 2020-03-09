@@ -5,6 +5,7 @@
 
 #include "TextResource.h"
 #include "../RendererKey.h"
+#include "../Material/Material.h"
 #include "../../../Common/DirectXMath.h"
 
 class Text final
@@ -32,18 +33,18 @@ private:
 	};
 
 public:
+	// 폰트 데이터와 머티리얼을 따로 지정하지 않아도 기본적으로 제공하는 폰트가 적용됩니다.
+	Text(RendererKey);
+
+	Text(RendererKey, const char* fontDataName, Material* material);
+
 	Text(const Text&) = delete;
 
 	Text& operator=(const Text&) = delete;
 
 	~Text();
 
-	// 폰트 데이터와 머티리얼을 따로 지정하지 않아도 기본적으로 제공하는 폰트가 적용됩니다.
-	static Text* Create();
-
-	static Text* Create(const char* fontDataName, const ID materialId);
-
-	ID GetMaterialId() const;
+	Material* GetMaterial() const;
 
 	bool IsActive() const;
 
@@ -57,7 +58,7 @@ public:
 
 	void SetSentence(const char* sentence);
 
-	void SetMaterialId(const ID materialId);
+	void SetMaterial(Material* materialId);
 
 	void SetActive(const bool bActive);
 
@@ -71,11 +72,6 @@ public:
 	static void _Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
 	void _Draw(RendererKey);
-
-private:
-	Text();
-
-	Text(const char* fontDataName, const ID materialId);
 
 private:
 	static ID3D11Device* mDevice;
@@ -92,7 +88,7 @@ private:
 
 	ID mFontDataId = 0;
 
-	ID mMaterialId = 0;
+	Material* mMaterial = 0;
 
 	bool mbActive = true;
 

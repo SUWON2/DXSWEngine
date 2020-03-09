@@ -39,6 +39,10 @@ Core::Core(Scene* scene)
 
 			Input::Get()._Renew({});
 
+			// TODO: 쉐도우 맵 제대로 처리할 때까지 주석한다.
+			//mDXDevice->BeginUpdateShadow();
+			//mScene->_GetRenderer({})->DrawAllModel(nullptr);
+
 			mDXDevice->BeginUpdate();
 
 			if (mScene->_GetRenderer({})->GetSkyDome()->IsActive())
@@ -53,7 +57,8 @@ Core::Core(Scene* scene)
 				mDXDevice->TurnOnZBuffer();
 				mDXDevice->TurnOnCulling();
 
-				mScene->_GetRenderer({})->DrawModelAndText();
+				mScene->_GetRenderer({})->DrawAllModel(mDXDevice->GetShadowMap());
+				mScene->_GetRenderer({})->DrawAllText();
 			}
 
 			mDXDevice->EndUpdate();

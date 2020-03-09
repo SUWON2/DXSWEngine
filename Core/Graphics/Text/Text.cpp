@@ -9,13 +9,13 @@ ID3D11Device* Text::mDevice = nullptr;
 ID3D11DeviceContext* Text::mDeviceContext = nullptr;
 std::unique_ptr<TextResource> Text::mTextResource = nullptr;
 
-Text::Text()
+Text::Text(RendererKey)
 {
 	mFontDataId = mTextResource->LoadFontData("Resource/BasicFontData.font");
 }
 
-Text::Text(const char* fontDataName, const ID materialId)
-	: mMaterialId(materialId)
+Text::Text(RendererKey, const char* fontDataName, Material* material)
+	: mMaterial(material)
 {
 	ASSERT(fontDataName != nullptr, "The fontDataName must not be null");
 	ASSERT(mTextResource != nullptr, "The TextResource must not be null");
@@ -28,19 +28,9 @@ Text::~Text()
 	RELEASE_COM(mSentenceVertexBuffer);
 }
 
-Text* Text::Create()
+Material* Text::GetMaterial() const
 {
-	return new Text;
-}
-
-Text* Text::Create(const char* fontDataName, const ID materialId)
-{
-	return new Text(fontDataName, materialId);
-}
-
-ID Text::GetMaterialId() const
-{
-	return mMaterialId;
+	return mMaterial;
 }
 
 bool Text::IsActive() const
@@ -158,9 +148,9 @@ void Text::SetSentence(const char* sentence)
 	}
 }
 
-void Text::SetMaterialId(const ID materialId)
+void Text::SetMaterial(Material* material)
 {
-	mMaterialId = materialId;
+	mMaterial = material;
 }
 
 void Text::SetActive(const bool bActive)

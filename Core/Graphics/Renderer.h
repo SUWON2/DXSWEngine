@@ -6,10 +6,10 @@
 #include <unordered_map>
 
 #include "Camera/Camera.h"
-#include "SkyDome/SkyDome.h"
-#include "Model/Model.h"
-#include "Text/Text.h"
 #include "Material/Material.h"
+#include "Model/ModelFrame.h"
+#include "Text/Text.h"
+#include "SkyDome/SkyDome.h"
 #include "../../Common/Define.h"
 
 class Renderer final
@@ -27,21 +27,24 @@ public:
 
 	void SortText();
 
+	Material* CreateMaterial(const char* vertexShaderName, const char* pixelShaderName);
+
+	ModelFrame* CreateModelFrame(const char* fileName, const std::vector<Material*>& materials);
+
+	Text* CreateText();
+
 	void DrawSkyDome();
 
-	void DrawModelAndText();
+	void DrawAllModel(ID3D11ShaderResourceView** shadowMap);
 
-	void AddModel(Model* model);
-
-	void AddText(Text* text);
-
-	ID AddMaterial(Material* material);
+	void DrawAllText();
 
 	Camera* GetCamera() const;
 
 	SkyDome* GetSkyDome() const;
 
-	size_t GetModelCount() const;
+private:
+	void CreateFrustumPlanes(const DirectX::XMMATRIX& matViewProjection, std::array<DirectX::XMVECTOR, 6>* outPlanes);
 
 private:
 	ID3D11Device* mDevice = nullptr;
@@ -52,11 +55,15 @@ private:
 
 	std::unique_ptr<SkyDome> mSkyDome = nullptr;
 
-	std::vector<Model*> mModels = {};
+	std::vector<ModelFrame*> mModelFrames = {};
 
 	std::vector<Text*> mTexts = {};
 
-	std::vector<Material*> mMaterials = {};
+	// material, vector<model frame, mesh index of model frame>
+	std::unordered_map<const Material*, std::vector<std::pair<ModelFrame*, int>>> mMaterials = {};
 
-	ID mBasicFontMaterialId = 0;
+	Material* mBasicFontMaterial = nullptr;
+
+	// HACK: Shadow
+	Material* mShadowMaterial = nullptr;
 };

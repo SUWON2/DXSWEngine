@@ -1,5 +1,7 @@
 #include <string>
-#include <cmath>
+#include <vector>
+#include <algorithm>
+#include <noise/PerlinNoise.h>
 
 #include "MainScene.h"
 #include "../Core/Input/Input.h"
@@ -13,71 +15,66 @@ void MainScene::Initialize()
 
 	// Create debugging texts
 	{
-		mFPS = Text::Create();
+		mFPS = CreateText();
 		mFPS->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mFPS->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
 		mFPS->SetPosition({ 10.0f, -10.0f });
 		mFPS->SetSentence("FPS: 0");
-		AddText(mFPS);
 
-		mModelCountText = Text::Create();
+		mModelCountText = CreateText();
 		mModelCountText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mModelCountText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
 		mModelCountText->SetPosition({ 10.0f, -30.0f });
-		AddText(mModelCountText);
 
-		mViewDirectionText = Text::Create();
+		mViewDirectionText = CreateText();
 		mViewDirectionText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mViewDirectionText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
 		mViewDirectionText->SetPosition({ 10.0f, -50.0f });
-		AddText(mViewDirectionText);
 
-		mVerticalVelocityText = Text::Create();
+		mVerticalVelocityText = CreateText();
 		mVerticalVelocityText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mVerticalVelocityText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
 		mVerticalVelocityText->SetPosition({ 10.0f, -70.0f });
-		AddText(mVerticalVelocityText);
 
-		mHorizontalVelocityText = Text::Create();
+		mHorizontalVelocityText = CreateText();
 		mHorizontalVelocityText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mHorizontalVelocityText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
 		mHorizontalVelocityText->SetPosition({ 10.0f, -90.0f });
-		AddText(mHorizontalVelocityText);
 
-		mBlockCountText = Text::Create();
+		mBlockCountText = CreateText();
 		mBlockCountText->SetVerticalAnchor(Text::VerticalAnchor::Top);
 		mBlockCountText->SetHorizontalAnchor(Text::HorizontalAnchor::Left);
 		mBlockCountText->SetPosition({ 10.0f, -110.0f });
-		AddText(mBlockCountText);
 
-		mZoom = Text::Create();
+		mZoom = CreateText();
 		mZoom->SetVerticalAnchor(Text::VerticalAnchor::Middle);
 		mZoom->SetHorizontalAnchor(Text::HorizontalAnchor::Center);
 		mZoom->SetSentence("+");
-		AddText(mZoom);
 	}
 
 	// Create a plane
 	{
-		constexpr XMFLOAT2 planeScale = { 50.0f, 50.0f };
+		//constexpr XMFLOAT2 planeScale = { 50.0f, 50.0f };
 
-		Material* material = Material::Create("Shaders/PlaneVS.hlsl", "shaders/PlanePS.hlsl");
-		material->RegisterTexture(0, "Resource/Block/grass_block_top.DDS");
-		material->RegisterBuffer<Material::ShaderType::VS>(2, sizeof(XMVECTOR), XMFLOAT2{ planeScale.x * 2.0f, planeScale.y * 2.0f });
-		material->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 0.557f, 0.725f, 0.443f }));
-		const ID materialId = AddMaterial(material);
+		//Material* material = CreateMaterial("Shaders/PlaneVS.hlsl", "shaders/PlanePS.hlsl");
+		//material->RegisterTexture(0, "Resource/Block/grass_block_top.DDS");
+		//material->RegisterBuffer<Material::ShaderType::VS>(2, sizeof(XMVECTOR), XMFLOAT2{ planeScale.x * 2.0f, planeScale.y * 2.0f });
+		//material->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 0.557f, 0.725f, 0.443f }));
 
-		Model* plane = Model::Create("Resource/Plane.model");
-		plane->SetScale({ planeScale.x, 1.0f, planeScale.y });
-		plane->SetPosition({ 25.0f, 0.0f, 25.0f });
-		plane->SetMaterial(0, materialId);
-		AddModel(plane);
+		//Model* plane;
+		//CreateModelFrame("Resource/Plane.model", { material })->Create(&plane);
+
+		//plane->SetScale({ planeScale.x, 1.0f, planeScale.y });
+		//plane->SetPosition({ 25.0f, 0.0f, 25.0f });
 	}
 
-	// Create block materials
+	// Create blocks
 	{
-		const char* topMaterialsNames[BLOCK_KIND_COUNT] =
-		{
+		Material* blockMaterial = CreateMaterial("Shaders/BlockVS.hlsl", "shaders/BlockPS.hlsl");
+		blockMaterial->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 1.0f, 1.0f, 1.0f }));
+
+		blockMaterial->RegisterTextureArray(0, { 16, 16 }, {
+			// TOP
 			"Resource/Block/stripped_birch_log_top.DDS",
 			"Resource/Block/oak_planks_vertical.DDS",
 			"Resource/Block/bricks.DDS",
@@ -86,10 +83,9 @@ void MainScene::Initialize()
 			"Resource/Block/granite_bricks.DDS",
 			"Resource/Block/cobblestone1.DDS",
 			"Resource/Block/hay_block_top.DDS",
-		};
+			"Resource/Block/grass_block_top.DDS",
 
-		const char* sideMaterialNames[BLOCK_KIND_COUNT] =
-		{
+			// SIDE
 			"Resource/Block/stripped_birch_log.DDS",
 			"Resource/Block/oak_planks.DDS",
 			"Resource/Block/bricks.DDS",
@@ -98,23 +94,34 @@ void MainScene::Initialize()
 			"Resource/Block/granite_bricks.DDS",
 			"Resource/Block/cobblestone1.DDS",
 			"Resource/Block/hay_block_side.DDS",
-		};
+			"Resource/Block/grass_block_top.DDS",
+			});
 
-		for (int i = 0; i < BLOCK_KIND_COUNT; ++i)
+		mBlockFrame = CreateModelFrame("Resource/Block.model", { blockMaterial, blockMaterial });
+
+		std::vector<Model*> blocks;
+		mBlockFrame->Create(2500, &blocks);
+
+		siv::PerlinNoise perlinNoise(123);
+
+		for (int z = 0; z < 50; ++z)
 		{
-			Material* topMaterial = Material::Create("Shaders/BlockVS.hlsl", "shaders/BlockPS.hlsl");
-			topMaterial->RegisterTexture(0, topMaterialsNames[i]);
-			topMaterial->RegisterBuffer<Material::ShaderType::VS>(2, sizeof(XMVECTOR), XMFLOAT2{ 1.0f, 1.0f });
-			topMaterial->RegisterBuffer<Material::ShaderType::VS>(3, sizeof(XMVECTOR), XMFLOAT3(mLightPosition));
-			topMaterial->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 1.0f, 1.0f, 1.0f }));
-			mBlockTopMaterialIds[i] = AddMaterial(topMaterial);
+			for (int x = 0; x < 50; ++x)
+			{
+				const int y = std::clamp(static_cast<int>(perlinNoise.accumulatedOctaveNoise2D(x / 80.0, z / 80.0, 4) * 15.0), 0, BLOCK_COUNT.y);
 
-			Material* sideMaterial = Material::Create("Shaders/BlockVS.hlsl", "shaders/BlockPS.hlsl");
-			sideMaterial->RegisterTexture(0, sideMaterialNames[i]);
-			sideMaterial->RegisterBuffer<Material::ShaderType::VS>(2, sizeof(XMVECTOR), XMFLOAT2{ 1.0f, 1.0f });
-			sideMaterial->RegisterBuffer<Material::ShaderType::VS>(3, sizeof(XMVECTOR), XMFLOAT3(mLightPosition));
-			sideMaterial->RegisterBuffer<Material::ShaderType::PS>(0, sizeof(XMVECTOR), XMFLOAT3({ 1.0f, 1.0f, 1.0f }));
-			mBlockSideMaterialIds[i] = AddMaterial(sideMaterial);
+				const int index = x + (z * 50);
+
+				blocks[index]->SetPosition({
+					BLOCK_SIZE * 0.5f + BLOCK_SIZE * x,
+					BLOCK_SIZE * y,
+					BLOCK_SIZE * 0.5f + BLOCK_SIZE * z });
+
+				blocks[index]->SetTextureIndex(0, 0);
+				blocks[index]->SetTextureIndex(1, 9);
+
+				blocks[index]->SetScale({ BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE });
+			}
 		}
 	}
 
@@ -182,34 +189,14 @@ void MainScene::Update(const float deltaTime)
 			{
 				// 마크가 위치한 곳에 새로운 블럭을 생성합니다.
 				Model* block = nullptr;
+				mBlockFrame->Create(&block);
 
-				if (mBlockKind != 1)
-				{
-					block = Model::Create("Resource/Block.model");
-					block->SetMaterial(0, mBlockTopMaterialIds[mBlockKind]);
-					block->SetMaterial(1, mBlockSideMaterialIds[mBlockKind]);
+				block->SetPosition({
+					BLOCK_SIZE * 0.5f + BLOCK_SIZE * markIndex.x,
+					BLOCK_SIZE * markIndex.y,
+					BLOCK_SIZE * 0.5f + BLOCK_SIZE * markIndex.z });
 
-					block->SetPosition({
-						BLOCK_SIZE * 0.5f + BLOCK_SIZE * markIndex.x,
-						BLOCK_SIZE * markIndex.y,
-						BLOCK_SIZE * 0.5f + BLOCK_SIZE * markIndex.z });
-
-					block->SetScale({ BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE });
-				}
-				else
-				{
-					block = Model::Create("Resource/Staris.model");
-					block->SetMaterial(0, mBlockSideMaterialIds[mBlockKind]);
-
-					block->SetPosition({
-						BLOCK_SIZE * 0.5f + BLOCK_SIZE * markIndex.x,
-						BLOCK_SIZE * markIndex.y + BLOCK_SIZE * 0.5f,
-						BLOCK_SIZE * 0.5f + BLOCK_SIZE * markIndex.z });
-
-					block->SetScale({ BLOCK_SIZE * 0.5f, BLOCK_SIZE * 0.5f, BLOCK_SIZE * 0.5f });
-				}
-
-				AddModel(block);
+				block->SetScale({ BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE });
 
 				mBlocks[markIndex.z][markIndex.y][markIndex.x] = block;
 
@@ -251,12 +238,6 @@ void MainScene::Update(const float deltaTime)
 			mLightPosition.x += 0.5f;
 		}
 
-		for (int i = 0; i < BLOCK_KIND_COUNT; ++i)
-		{
-			reinterpret_cast<Material*>(mBlockTopMaterialIds[i])->UpdateBuffer<Material::ShaderType::VS>(3, XMFLOAT3(mLightPosition));
-			reinterpret_cast<Material*>(mBlockSideMaterialIds[i])->UpdateBuffer<Material::ShaderType::VS>(3, XMFLOAT3(mLightPosition));
-		}
-
 		if (Input::Get().GetKeyDown('J'))
 		{
 			GetSkyDome()->SetActive(!GetSkyDome()->IsActive());
@@ -275,6 +256,11 @@ void MainScene::Update(const float deltaTime)
 		if (Input::Get().GetKeyDown('L'))
 		{
 			system("cls");
+		}
+
+		if (Input::Get().GetKeyDown(VK_OEM_1))
+		{
+			mbMouseLock = !mbMouseLock;
 		}
 
 		if (mFPS->IsActive())
@@ -296,7 +282,7 @@ void MainScene::Update(const float deltaTime)
 
 		if (mModelCountText->IsActive())
 		{
-			const std::string text = "MODEL_COUNT: " + std::to_string(GetModelCount());
+			const std::string text = "MODEL_COUNT: " + std::to_string(1);
 			mModelCountText->SetSentence(text.c_str());
 		}
 
@@ -337,6 +323,7 @@ void MainScene::UpdateCamera(const float deltaTime)
 	Camera* camera = GetCamera();
 
 	// 카메라 회전을 처리합니다.
+	if (mbMouseLock)
 	{
 		const XMINT2 mouseMovement =
 		{
@@ -378,11 +365,11 @@ void MainScene::UpdateCamera(const float deltaTime)
 			// 위쪽 방향 혹은 아래쪽 방향으로 가속을 합니다.
 			if (zDirectionKeyState > 0)
 			{
-				mMoveVelocityZ = std::fminf(mMoveVelocityZ + acceleration, maxVelocity);
+				mMoveVelocityZ = std::fmin(mMoveVelocityZ + acceleration, maxVelocity);
 			}
 			else
 			{
-				mMoveVelocityZ = std::fmaxf(mMoveVelocityZ - acceleration, -maxVelocity);
+				mMoveVelocityZ = std::fmax(mMoveVelocityZ - acceleration, -maxVelocity);
 			}
 		}
 		else
@@ -390,11 +377,11 @@ void MainScene::UpdateCamera(const float deltaTime)
 			// 위쪽 방향 혹은 아래쪽 방향으로 감속을 합니다.
 			if (mMoveVelocityZ > 0)
 			{
-				mMoveVelocityZ = std::fmaxf(mMoveVelocityZ - deceleration, 0.0f);
+				mMoveVelocityZ = std::fmax(mMoveVelocityZ - deceleration, 0.0f);
 			}
 			else
 			{
-				mMoveVelocityZ = std::fminf(mMoveVelocityZ + deceleration, 0.0f);
+				mMoveVelocityZ = std::fmin(mMoveVelocityZ + deceleration, 0.0f);
 			}
 		}
 
@@ -429,10 +416,10 @@ void MainScene::UpdateCamera(const float deltaTime)
 		// z축과 x축으로 동시에 이동하는 경우 속력을 조절합니다.
 		if (mMoveVelocityZ != 0.0f && mMoveVelocityX != 0.0f)
 		{
-			const float vectorMagnitude = std::sqrtf(mMoveVelocityZ * mMoveVelocityZ + mMoveVelocityX * mMoveVelocityX);
+			const float vectorMagnitude = std::sqrt(mMoveVelocityZ * mMoveVelocityZ + mMoveVelocityX * mMoveVelocityX);
 
-			finalMoveVelocityZ *= std::fabsf(mMoveVelocityZ) / vectorMagnitude;
-			finalMoveVelocityX *= std::fabsf(mMoveVelocityX) / vectorMagnitude;
+			finalMoveVelocityZ *= std::abs(mMoveVelocityZ) / vectorMagnitude;
+			finalMoveVelocityX *= std::abs(mMoveVelocityX) / vectorMagnitude;
 		}
 
 		XMFLOAT3 cameraPosition = GetCamera()->GetPosition();
@@ -475,9 +462,9 @@ bool MainScene::IsBoxCollidedByRaycast()
 
 	XMINT3 nearestBoxIndex =
 	{
-		static_cast<int>(std::floorf(nearestBox.x * 2.0f)),
-		static_cast<int>(std::floorf(nearestBox.y * 2.0f)),
-		static_cast<int>(std::floorf(nearestBox.z * 2.0f)),
+		static_cast<int>(std::floor(nearestBox.x * 2.0f)),
+		static_cast<int>(std::floor(nearestBox.y * 2.0f)),
+		static_cast<int>(std::floor(nearestBox.z * 2.0f)),
 	};
 
 	const XMFLOAT3 furthermostBox
@@ -489,9 +476,9 @@ bool MainScene::IsBoxCollidedByRaycast()
 
 	XMINT3 furthermostBoxIndex =
 	{
-		static_cast<int>(std::floorf(furthermostBox.x * 2.0f)),
-		static_cast<int>(std::floorf(furthermostBox.y * 2.0f)),
-		static_cast<int>(std::floorf(furthermostBox.z * 2.0f)),
+		static_cast<int>(std::floor(furthermostBox.x * 2.0f)),
+		static_cast<int>(std::floor(furthermostBox.y * 2.0f)),
+		static_cast<int>(std::floor(furthermostBox.z * 2.0f)),
 	};
 
 	const auto Sort = [](int& a, int& b)
@@ -529,9 +516,9 @@ bool MainScene::IsBoxCollidedByRaycast()
 
 		const XMINT3 collisionPointIndex =
 		{
-			static_cast<int>(std::floorf(collisionPoint.x * 2.0f)),
-			static_cast<int>(std::floorf(collisionPoint.y * 2.0f)),
-			static_cast<int>(std::floorf(collisionPoint.z * 2.0f))
+			static_cast<int>(std::floor(collisionPoint.x * 2.0f)),
+			static_cast<int>(std::floor(collisionPoint.y * 2.0f)),
+			static_cast<int>(std::floor(collisionPoint.z * 2.0f))
 		};
 
 		for (int z = nearestBoxIndex.z; z <= furthermostBoxIndex.z; ++z)
@@ -562,10 +549,10 @@ bool MainScene::IsBoxCollidedByRaycast()
 
 							const float sideDistances[4] =
 							{
-								std::fabsf(collisionPoint.x - leftSide),
-								std::fabsf(collisionPoint.x - rightSide),
-								std::fabsf(collisionPoint.z - backSide),
-								std::fabsf(collisionPoint.z - frontSide)
+								std::abs(collisionPoint.x - leftSide),
+								std::abs(collisionPoint.x - rightSide),
+								std::abs(collisionPoint.z - backSide),
+								std::abs(collisionPoint.z - frontSide)
 							};
 
 							mNearestSideIndex = 0;
@@ -584,7 +571,7 @@ bool MainScene::IsBoxCollidedByRaycast()
 							const float underSide = y * BLOCK_SIZE;
 							const float upperSide = underSide + BLOCK_SIZE;
 
-							if (std::fabsf(collisionPoint.y - underSide) < std::fabsf(collisionPoint.y - upperSide))
+							if (std::abs(collisionPoint.y - underSide) < std::abs(collisionPoint.y - upperSide))
 							{
 								mNearestSideIndex = 4;
 							}

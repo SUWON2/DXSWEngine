@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "../Model/Model.h"
-#include "../Material/Material.h"
 #include "../RendererKey.h"
+#include "../Model/ModelFrame.h"
+#include "../Material/Material.h"
 #include "../../../Common/DirectXMath.h"
 
 class SkyDome final
@@ -26,7 +26,7 @@ public:
 	void _Draw(RendererKey, const DirectX::XMMATRIX& matWorld, const DirectX::XMMATRIX& matViewProjection);
 
 private:
-	Model* mModel = nullptr;
+	ModelFrame* mModelFrame = nullptr;
 
 	Material* mMaterial = nullptr;
 

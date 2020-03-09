@@ -5,7 +5,9 @@
 #include <string>
 #include <unordered_map>
 
+#include "../RendererKey.h"
 #include "../../../Common/Define.h"
+#include "../../../Common/DirectXMath.h"
 
 class ModelResource final
 {
@@ -13,12 +15,19 @@ public:
 	struct Mesh
 	{
 		ID3D11Buffer* VertexBuffer;
-		UINT VertexSize;
-		UINT VertexCount;
+		ID3D11Buffer* IndexBuffer;
+		UINT IndexCount;
+	};
+
+	struct Vertex
+	{
+		DirectX::XMFLOAT4 Position;
+		DirectX::XMFLOAT2 UV;
+		DirectX::XMFLOAT3 Normal;
 	};
 
 public:
-	ModelResource(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	ModelResource() = default;
 
 	ModelResource(const ModelResource&) = delete;
 
@@ -26,7 +35,8 @@ public:
 
 	~ModelResource();
 
-	// return vertex buffer id
+	void Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+
 	ID LoadVertexBuffer(const char* fileName);
 
 	const std::string& GetResourceName(const ID id) const;

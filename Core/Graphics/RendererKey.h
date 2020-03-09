@@ -8,6 +8,8 @@ class RendererKey final
 
 	friend class SkyDome;
 
+	friend class ModelFrame;
+
 private:
 	RendererKey() = delete;
 

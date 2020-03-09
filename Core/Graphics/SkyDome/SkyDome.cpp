@@ -5,17 +5,18 @@ using namespace DirectX;
 
 SkyDome::SkyDome()
 {
-	mMaterial = Material::Create("Shaders/BasicSkyDomeVS.hlsl", "Shaders/BasicSkyDomePS.hlsl");
+	mMaterial = new Material({}, "Shaders/BasicSkyDomeVS.hlsl", "Shaders/BasicSkyDomePS.hlsl");
 	mMaterial->RegisterTexture(0, "Resource/BasicSky.dds");
 
-	mModel = Model::Create("Resource/BasicSkyDome.model");
-	mModel->SetMaterial(0, reinterpret_cast<ID>(mMaterial));
+	Model* skyDome;
+	mModelFrame = new ModelFrame({}, "Resource/BasicSkyDome.model", { mMaterial });
+	mModelFrame->Create(&skyDome);
 }
 
 SkyDome::~SkyDome()
 {
 	RELEASE(mMaterial);
-	RELEASE(mModel);
+	RELEASE(mModelFrame);
 }
 
 bool SkyDome::IsActive() const
@@ -30,9 +31,8 @@ void SkyDome::SetActive(const bool bActive)
 
 void SkyDome::_Draw(RendererKey, const DirectX::XMMATRIX& matWorld, const XMMATRIX& matViewProjection)
 {
-	mMaterial->_Activate({});
+	mMaterial->_Active({}, nullptr, matViewProjection);
 	mMaterial->UpdateBuffer<Material::ShaderType::VS>(0, XMMatrixTranspose(matWorld));
-	mMaterial->UpdateBuffer<Material::ShaderType::VS>(1, XMMatrixTranspose(matViewProjection));
 
-	mModel->_Draw({}, 0);
+	mModelFrame->_DrawMesh({}, 0);
 }

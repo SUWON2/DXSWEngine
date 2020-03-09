@@ -8,33 +8,26 @@ cbuffer cbViewProjection : register(b1)
     matrix ViewProjection;
 }
 
-cbuffer cbTextureCoordScale : register(b2)
-{
-    float2 TextureCoordScale;
-}
-
 struct VS_INPUT
 {
     float4 Position : POSITION;
     float2 TextureCoord : TEXCOORD;
     float3 Normal : NORMAL;
-    
-    row_major float4x4 InstanceWorld : I_WORLD;
 };
 
 struct VS_OUTPUT
 {
     float4 Position : SV_POSITION;
-    float2 TextureCoord : TEXCOORD;
+    float4 DepthPosition : DEPTH_POSITION;
 };
 
 VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output = (VS_OUTPUT) 0;
-    output.Position = mul(input.Position, input.InstanceWorld);
+    output.Position = mul(input.Position, World);
     output.Position = mul(output.Position, ViewProjection);
-	
-    output.TextureCoord = input.TextureCoord * TextureCoordScale;
-	
+    
+    output.DepthPosition = output.Position;
+
     return output;
 }

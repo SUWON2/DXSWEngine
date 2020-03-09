@@ -5,22 +5,19 @@ Scene::Scene()
 	mRenderer = std::make_unique<Renderer>();
 }
 
-void Scene::AddModel(Model* model)
+Material* Scene::CreateMaterial(const char* vertexShaderName, const char* pixelShaderName) const
 {
-	ASSERT(model != nullptr, "The model must not be null");
-	mRenderer->AddModel(model);
+	return mRenderer->CreateMaterial(vertexShaderName, pixelShaderName);
 }
 
-void Scene::AddText(Text* text)
+ModelFrame* Scene::CreateModelFrame(const char* fileName, const std::vector<Material*>& materials) const
 {
-	ASSERT(text != nullptr, "The text must not be null");
-	mRenderer->AddText(text);
+	return mRenderer->CreateModelFrame(fileName, materials);
 }
 
-ID Scene::AddMaterial(Material* material)
+Text* Scene::CreateText() const
 {
-	ASSERT(material != nullptr, "The material must not be null");
-	return mRenderer->AddMaterial(material);
+	return mRenderer->CreateText();
 }
 
 Camera* Scene::GetCamera() const
@@ -31,11 +28,6 @@ Camera* Scene::GetCamera() const
 SkyDome* Scene::GetSkyDome() const
 {
 	return mRenderer->GetSkyDome();
-}
-
-size_t Scene::GetModelCount() const
-{
-	return mRenderer->GetModelCount();
 }
 
 Renderer* Scene::_GetRenderer(CoreKey) const

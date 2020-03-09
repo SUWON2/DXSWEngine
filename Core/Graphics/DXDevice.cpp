@@ -111,9 +111,6 @@ DXDevice::DXDevice(HWND hWnd)
 		// 렌더 타겟 뷰를 생성합니다.
 		HR(mDevice->CreateRenderTargetView(backBuffer, nullptr, &mRenderTargetView));
 		RELEASE_COM(backBuffer);
-
-		// 렌더링 타겟 뷰와 스텐실 버퍼를 바인딩합니다.
-		mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 	}
 
 	// Initialize depth stencil state
@@ -172,7 +169,7 @@ DXDevice::DXDevice(HWND hWnd)
 
 	// Initialize rasterizer state
 	{
-		D3D11_RASTERIZER_DESC rasterizerDesc;
+		D3D11_RASTERIZER_DESC rasterizerDesc = {};
 		rasterizerDesc.AntialiasedLineEnable = false;
 		rasterizerDesc.CullMode = D3D11_CULL_BACK;
 		rasterizerDesc.DepthBias = 0;
@@ -188,7 +185,7 @@ DXDevice::DXDevice(HWND hWnd)
 
 	// Initialize culling disabled rasterizer state
 	{
-		D3D11_RASTERIZER_DESC rasterizerDesc;
+		D3D11_RASTERIZER_DESC rasterizerDesc = {};
 		rasterizerDesc.AntialiasedLineEnable = false;
 		rasterizerDesc.CullMode = D3D11_CULL_NONE;
 		rasterizerDesc.DepthBias = 0;
@@ -221,15 +218,12 @@ DXDevice::DXDevice(HWND hWnd)
 		samplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerStateDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		samplerStateDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 		samplerStateDesc.MinLOD = 0;
 		samplerStateDesc.MaxLOD = D3D11_FLOAT32_MAX;
+		HR(mDevice->CreateSamplerState(&samplerStateDesc, &mSamplerState));
 
-		ID3D11SamplerState* samplerState = nullptr;
-		HR(mDevice->CreateSamplerState(&samplerStateDesc, &samplerState));
-
-		mDeviceContext->PSSetSamplers(0, 1, &samplerState);
-		RELEASE_COM(samplerState);
+		mDeviceContext->PSSetSamplers(0, 1, &mSamplerState);
 	}
 
 	// Initialize blend
@@ -253,12 +247,96 @@ DXDevice::DXDevice(HWND hWnd)
 		RELEASE_COM(blendState);
 	}
 
+	// HACK: Shadow
+	{
+		D3D11_TEXTURE2D_DESC textureDesc = {};
+		textureDesc.Width = Setting::Get().GetWidth();
+		textureDesc.Height = Setting::Get().GetHeight();
+		textureDesc.MipLevels = 1;
+		textureDesc.ArraySize = 1;
+		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.Usage = D3D11_USAGE_DEFAULT;
+		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		textureDesc.CPUAccessFlags = 0;
+		textureDesc.MiscFlags = 0;
+		HR(mDevice->CreateTexture2D(&textureDesc, nullptr, &mRenderTargetTextureShadow));
+
+		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
+		renderTargetViewDesc.Format = textureDesc.Format;
+		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		renderTargetViewDesc.Texture2D.MipSlice = 0;
+		HR(mDevice->CreateRenderTargetView(mRenderTargetTextureShadow, &renderTargetViewDesc, &mRenderTargetViewShadow));
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
+		shaderResourceViewDesc.Format = textureDesc.Format;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+		shaderResourceViewDesc.Texture2D.MipLevels = 1;
+		HR(mDevice->CreateShaderResourceView(mRenderTargetTextureShadow, &shaderResourceViewDesc, &mShaderResourceViewShadow));
+
+		D3D11_TEXTURE2D_DESC depthBufferDesc = {};
+		depthBufferDesc.Width = Setting::Get().GetWidth();
+		depthBufferDesc.Height = Setting::Get().GetHeight();
+		depthBufferDesc.MipLevels = 1;
+		depthBufferDesc.ArraySize = 1;
+		depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthBufferDesc.SampleDesc.Count = 1;
+		depthBufferDesc.SampleDesc.Quality = 0;
+		depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthBufferDesc.CPUAccessFlags = 0;
+		depthBufferDesc.MiscFlags = 0;
+		HR(mDevice->CreateTexture2D(&depthBufferDesc, nullptr, &mDepthStencilBufferShadow));
+
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		depthStencilViewDesc.Texture2D.MipSlice = 0;
+		HR(mDevice->CreateDepthStencilView(mDepthStencilBufferShadow, &depthStencilViewDesc, &mDepthStencilViewShadow));
+
+		D3D11_RASTERIZER_DESC rasterizerDesc = {};
+		rasterizerDesc.AntialiasedLineEnable = false;
+		rasterizerDesc.CullMode = D3D11_CULL_FRONT;
+		rasterizerDesc.DepthBias = 0;
+		rasterizerDesc.DepthBiasClamp = 0.0f;
+		rasterizerDesc.DepthClipEnable = true;
+		rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+		rasterizerDesc.FrontCounterClockwise = false;
+		rasterizerDesc.MultisampleEnable = false;
+		rasterizerDesc.ScissorEnable = false;
+		rasterizerDesc.SlopeScaledDepthBias = 0.0f;
+		HR(mDevice->CreateRasterizerState(&rasterizerDesc, &mRasterizerStateShadow));
+
+		D3D11_SAMPLER_DESC samplerStateDesc = {};
+		samplerStateDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerStateDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		samplerStateDesc.MinLOD = 0;
+		samplerStateDesc.MaxLOD = D3D11_FLOAT32_MAX;
+		HR(mDevice->CreateSamplerState(&samplerStateDesc, &mSamplerStateShadow));
+
+		//mDeviceContext->PSSetSamplers(1, 1, &mSamplerStateShadow);
+	}
+
 	// 드로우할 때는 항상 삼각형을 기준으로 지정합니다.
 	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 DXDevice::~DXDevice()
 {
+	// HACK: Shadow
+	RELEASE_COM(mSamplerStateShadow);
+	RELEASE_COM(mRasterizerStateShadow)
+	RELEASE_COM(mRenderTargetTextureShadow);
+	RELEASE_COM(mRenderTargetViewShadow);
+	RELEASE_COM(mShaderResourceViewShadow);
+	RELEASE_COM(mDepthStencilBufferShadow);
+	RELEASE_COM(mDepthStencilViewShadow);
+
+	RELEASE_COM(mSamplerState);
 	RELEASE_COM(mRasterizerStateNoCulling);
 	RELEASE_COM(mRasterizerState);
 	RELEASE_COM(mDepthDisabledStencilState);
@@ -270,8 +348,21 @@ DXDevice::~DXDevice()
 	RELEASE_COM(mDevice);
 }
 
+void DXDevice::BeginUpdateShadow()
+{
+	mDeviceContext->RSSetState(mRasterizerStateShadow);
+
+	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetViewShadow, mDepthStencilViewShadow);
+
+	const float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	mDeviceContext->ClearRenderTargetView(mRenderTargetViewShadow, color);
+	mDeviceContext->ClearDepthStencilView(mDepthStencilViewShadow, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
 void DXDevice::BeginUpdate()
 {
+	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+
 	const float color[] = { 0.84f, 0.9f, 0.96f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, color);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -310,4 +401,9 @@ ID3D11Device* DXDevice::GetDevice() const
 ID3D11DeviceContext* DXDevice::GetDeviceContext() const
 {
 	return mDeviceContext;
+}
+
+ID3D11ShaderResourceView** DXDevice::GetShadowMap()
+{
+	return &mShaderResourceViewShadow;
 }

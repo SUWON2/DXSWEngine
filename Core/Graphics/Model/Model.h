@@ -2,26 +2,19 @@
 
 #include <memory>
 
-#include "ModelResource.h"
 #include "../RendererKey.h"
 #include "../../../Common/DirectXMath.h"
 
 class Model final
 {
 public:
+	Model(int materialCount);
+
 	Model(const Model&) = delete;
 
 	Model& operator=(const Model&) = delete;
 
 	~Model() = default;
-
-	static Model* Create(const char* fileName);
-
-	const char* GetFileName() const;
-
-	const std::unique_ptr<ID[]>& GetMaterialIds() const;
-	
-	size_t GetMeshCount() const;
 
 	bool IsActive() const;
 
@@ -31,7 +24,7 @@ public:
 
 	const DirectX::XMFLOAT3& GetRotation() const;
 
-	void SetMaterial(const unsigned int materialIndex, const ID materialId);
+	int GetTextureIndex(const int materialIndex);
 
 	void SetActive(const bool bActive);
 
@@ -41,27 +34,9 @@ public:
 
 	void SetRotation(const DirectX::XMFLOAT3& rotation);
 
-public:
-	static void _Initialize(RendererKey, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
-
-	void _Draw(RendererKey, const unsigned int meshIndex);
+	void SetTextureIndex(const int materialIndex, const int textureIndex);
 
 private:
-	explicit Model(const char* fileName);
-
-private:
-	static ID3D11Device* mDevice;
-
-	static ID3D11DeviceContext* mDeviceContext;
-
-	static std::unique_ptr<ModelResource> mModelResource;
-
-	std::unique_ptr<ID[]> mMaterialIds = nullptr;
-
-	ID mDataId = 0;
-
-	size_t mMeshCount = 0;
-
 	bool mbActive = true;
 
 	DirectX::XMFLOAT3 mPosition = {};
@@ -69,4 +44,10 @@ private:
 	DirectX::XMFLOAT3 mScale = { 1.0f, 1.0f, 1.0f };
 
 	DirectX::XMFLOAT3 mRotation = {};
+
+	std::unique_ptr<int[]> mTextureIndices = nullptr;
+
+	#if defined(DEBUG) | defined(_DEBUG)
+	int mMaterialCount;
+	#endif
 };
