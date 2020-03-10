@@ -113,33 +113,6 @@ DXDevice::DXDevice(HWND hWnd)
 		RELEASE_COM(backBuffer);
 	}
 
-	// Initialize depth stencil state
-	{
-		CD3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
-		depthStencilDesc.DepthEnable = true;
-		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-		depthStencilDesc.StencilEnable = true;
-		depthStencilDesc.StencilReadMask = 0xFF;
-		depthStencilDesc.StencilWriteMask = 0xFF;
-
-		// 픽셀 정면의 스텐실 정보를 설정 합니다.
-		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-		// 픽셀 뒷면의 스텐실 정보를 설정합니다.
-		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-		// 깊이 스텐실 상태를 생성합니다.
-		HR(mDevice->CreateDepthStencilState(&depthStencilDesc, &mDepthStencilState));
-	}
-
 	// Initialize depth disabled stencil state
 	{
 		CD3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
@@ -165,6 +138,16 @@ DXDevice::DXDevice(HWND hWnd)
 
 		// 깊이 스텐실 상태를 생성합니다.
 		HR(mDevice->CreateDepthStencilState(&depthStencilDesc, &mDepthDisabledStencilState));
+	}
+
+	{
+		CD3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+		depthStencilDesc.DepthEnable = true;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_EQUAL;
+		depthStencilDesc.StencilEnable = false;
+
+		HR(mDevice->CreateDepthStencilState(&depthStencilDesc, &mDepthStencilStateEqual));
 	}
 
 	// Initialize rasterizer state
@@ -339,8 +322,8 @@ DXDevice::~DXDevice()
 	RELEASE_COM(mSamplerState);
 	RELEASE_COM(mRasterizerStateNoCulling);
 	RELEASE_COM(mRasterizerState);
+	RELEASE_COM(mDepthStencilStateEqual);
 	RELEASE_COM(mDepthDisabledStencilState);
-	RELEASE_COM(mDepthStencilState);
 	RELEASE_COM(mDepthStencilView);
 	RELEASE_COM(mRenderTargetView);
 	RELEASE_COM(mSwapChain);
@@ -348,49 +331,9 @@ DXDevice::~DXDevice()
 	RELEASE_COM(mDevice);
 }
 
-void DXDevice::BeginUpdateShadow()
-{
-	mDeviceContext->RSSetState(mRasterizerStateShadow);
-
-	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetViewShadow, mDepthStencilViewShadow);
-
-	const float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	mDeviceContext->ClearRenderTargetView(mRenderTargetViewShadow, color);
-	mDeviceContext->ClearDepthStencilView(mDepthStencilViewShadow, D3D11_CLEAR_DEPTH, 1.0f, 0);
-}
-
-void DXDevice::BeginUpdate()
-{
-	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
-
-	const float color[] = { 0.84f, 0.9f, 0.96f, 1.0f };
-	mDeviceContext->ClearRenderTargetView(mRenderTargetView, color);
-	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-}
-
-void DXDevice::EndUpdate()
+void DXDevice::Present()
 {
 	HR(mSwapChain->Present(Setting::Get().IsVsync(), 0));
-}
-
-void DXDevice::TurnOnZBuffer()
-{
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
-}
-
-void DXDevice::TurnOffZBuffer()
-{
-	mDeviceContext->OMSetDepthStencilState(mDepthDisabledStencilState, 1);
-}
-
-void DXDevice::TurnOnCulling()
-{
-	mDeviceContext->RSSetState(mRasterizerState);
-}
-
-void DXDevice::TurnOffCulling()
-{
-	mDeviceContext->RSSetState(mRasterizerStateNoCulling);
 }
 
 ID3D11Device* DXDevice::GetDevice() const
@@ -401,6 +344,36 @@ ID3D11Device* DXDevice::GetDevice() const
 ID3D11DeviceContext* DXDevice::GetDeviceContext() const
 {
 	return mDeviceContext;
+}
+
+ID3D11RenderTargetView** DXDevice::GetRenderTargetView()
+{
+	return &mRenderTargetView;
+}
+
+ID3D11DepthStencilView* DXDevice::GetDepthStencilView() const
+{
+	return mDepthStencilView;
+}
+
+ID3D11DepthStencilState* DXDevice::GetDepthDisabledStencilState() const
+{
+	return mDepthDisabledStencilState;
+}
+
+ID3D11DepthStencilState* DXDevice::GetDepthStencilStateEqual() const
+{
+	return mDepthStencilStateEqual;
+}
+
+ID3D11RasterizerState* DXDevice::GetRasterizerState() const
+{
+	return mRasterizerState;
+}
+
+ID3D11RasterizerState* DXDevice::GetRasterizerStateNoCulling() const
+{
+	return mRasterizerStateNoCulling;
 }
 
 ID3D11ShaderResourceView** DXDevice::GetShadowMap()

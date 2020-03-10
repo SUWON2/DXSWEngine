@@ -1,4 +1,4 @@
-#define INITGUID // D3DReflect()를 사용하기 위해 정의한다.
+#define INITGUID // D3DReflect()를 사용하기 위해 정의합니다.
 
 #include <d3dcompiler.h>
 #include <memory>
@@ -54,7 +54,7 @@ ID MaterialResource::LoadVertexShader(const char* fileName)
 	}
 
 	ID3DBlob* vertexShaderByteCode = nullptr;
-	CompileShader(fileName, "VS", "vs_4_0", &vertexShaderByteCode);
+	CompileShader(fileName, "VS", "vs_5_0", &vertexShaderByteCode);
 
 	ID3D11VertexShader* vertexShader = nullptr;
 	HR(mDevice->CreateVertexShader(vertexShaderByteCode->GetBufferPointer(), vertexShaderByteCode->GetBufferSize()
@@ -81,13 +81,13 @@ ID MaterialResource::LoadVertexShader(const char* fileName)
 		D3D11_INPUT_ELEMENT_DESC& inputLayout = inputLayoutDescList[i];
 		inputLayout.SemanticName = parameterDesc.SemanticName;
 		inputLayout.SemanticIndex = parameterDesc.SemanticIndex;
+		inputLayout.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 
 		// 셰이더 시멘틱 이름에 접두어 I_가 있으면 인스턴스 단위 데이터로 간주하고 아닌 경우는 버텍스 단위 데이터로 간주합니다.
 		if (parameterDesc.SemanticName[0] != 'I'
 			|| parameterDesc.SemanticName[1] != '_')
 		{
 			inputLayout.InputSlot = 0;
-			inputLayout.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 			inputLayout.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 			inputLayout.InstanceDataStepRate = 0;
 		}
@@ -108,7 +108,6 @@ ID MaterialResource::LoadVertexShader(const char* fileName)
 				ASSERT(false, "지원하지 않는 시멘틱 이름입니다.");
 			}
 
-			inputLayout.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 			inputLayout.InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
 			inputLayout.InstanceDataStepRate = 1;
 		}
@@ -200,7 +199,7 @@ ID MaterialResource::LoadPixelShader(const char* fileName)
 	}
 
 	ID3DBlob* pixelShaderByteCode = nullptr;
-	CompileShader(fileName, "PS", "ps_4_0", &pixelShaderByteCode);
+	CompileShader(fileName, "PS", "ps_5_0", &pixelShaderByteCode);
 
 	ID3D11PixelShader* pixelShader = nullptr;
 	HR(mDevice->CreatePixelShader(pixelShaderByteCode->GetBufferPointer()

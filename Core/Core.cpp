@@ -18,7 +18,6 @@ Core::Core(Scene* scene)
 	mScene = std::unique_ptr<Scene>(scene);
 	mScene->_GetRenderer({})->InitializeManager(mDXDevice->GetDevice(), mDXDevice->GetDeviceContext());
 	mScene->Initialize();
-	mScene->_GetRenderer({})->SortText();
 
 	MSG msg = {};
 	static float deltaTime = {};
@@ -39,29 +38,7 @@ Core::Core(Scene* scene)
 
 			Input::Get()._Renew({});
 
-			// TODO: 쉐도우 맵 제대로 처리할 때까지 주석한다.
-			//mDXDevice->BeginUpdateShadow();
-			//mScene->_GetRenderer({})->DrawAllModel(nullptr);
-
-			mDXDevice->BeginUpdate();
-
-			if (mScene->_GetRenderer({})->GetSkyDome()->IsActive())
-			{
-				mDXDevice->TurnOffCulling();
-				mDXDevice->TurnOffZBuffer();
-
-				mScene->_GetRenderer({})->DrawSkyDome();
-			}
-
-			{
-				mDXDevice->TurnOnZBuffer();
-				mDXDevice->TurnOnCulling();
-
-				mScene->_GetRenderer({})->DrawAllModel(mDXDevice->GetShadowMap());
-				mScene->_GetRenderer({})->DrawAllText();
-			}
-
-			mDXDevice->EndUpdate();
+			Draw();
 
 			deltaTime = std::chrono::duration<float>(std::chrono::system_clock::now() - startTime).count();
 		}
@@ -105,6 +82,72 @@ void Core::InitializeWindows()
 	ASSERT(mHWnd != nullptr, "Failed to CreateWindow()");
 
 	ShowWindow(mHWnd, SW_SHOW);
+}
+
+void Core::Draw()
+{
+	Renderer* renderer = mScene->_GetRenderer({});
+	ID3D11DeviceContext* deviceContext = mDXDevice->GetDeviceContext();
+
+	const float color[] = { 0.84f, 0.9f, 0.96f, 1.0f };
+	deviceContext->ClearRenderTargetView(*mDXDevice->GetRenderTargetView(), color);
+	deviceContext->ClearDepthStencilView(mDXDevice->GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	if (renderer->GetSkyDome()->IsActive())
+	{
+		deviceContext->RSSetState(mDXDevice->GetRasterizerStateNoCulling());
+		deviceContext->OMSetDepthStencilState(mDXDevice->GetDepthDisabledStencilState(), 0);
+		renderer->DrawSkyDome();
+
+		deviceContext->RSSetState(mDXDevice->GetRasterizerState());
+	}
+
+	constexpr bool bEarlyZRejction = true;
+
+	if constexpr (bEarlyZRejction)
+	{
+		// 깊이 버퍼만 우선 그립니다.
+		{
+			deviceContext->OMSetDepthStencilState(nullptr, 0);
+			deviceContext->OMSetRenderTargets(0, nullptr, mDXDevice->GetDepthStencilView());
+			renderer->PrepareForDrawingModel(bEarlyZRejction);
+		}
+
+		// 깊이 버퍼를 이용하여 깊이값이 같은 픽셀만 그립니다.
+		{
+			deviceContext->OMSetDepthStencilState(mDXDevice->GetDepthStencilStateEqual(), 0);
+			deviceContext->OMSetRenderTargets(1, mDXDevice->GetRenderTargetView(), mDXDevice->GetDepthStencilView());
+			renderer->DrawAllModel(mDXDevice->GetShadowMap());
+
+			deviceContext->OMSetDepthStencilState(nullptr, 0);
+			renderer->DrawAllText();
+		}
+	}
+	else
+	{
+		deviceContext->OMSetRenderTargets(1, mDXDevice->GetRenderTargetView(), mDXDevice->GetDepthStencilView());
+		deviceContext->OMSetDepthStencilState(nullptr, 0);
+		deviceContext->RSSetState(mDXDevice->GetRasterizerState());
+
+		renderer->PrepareForDrawingModel(bEarlyZRejction);
+		renderer->DrawAllModel(mDXDevice->GetShadowMap());
+		renderer->DrawAllText();
+	}
+
+	mDXDevice->Present();
+
+	// TODO: 쉐도우 맵 제대로 처리할 때까지 주석한다.
+	{
+		//deviceContext->RSSetState(mRasterizerStateShadow);
+
+		//deviceContext->OMSetRenderTargets(1, &mRenderTargetViewShadow, mDepthStencilViewShadow);
+
+		//const float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		//deviceContext->ClearRenderTargetView(mRenderTargetViewShadow, color);
+		//deviceContext->ClearDepthStencilView(mDepthStencilViewShadow, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+		//mScene->_GetRenderer({})->DrawAllModel(nullptr);
+	}
 }
 
 LRESULT Core::HandleWindowCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

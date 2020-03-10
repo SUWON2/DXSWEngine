@@ -16,24 +16,23 @@ public:
 
 	~DXDevice();
 
-	// HACK:
-	void BeginUpdateShadow();
-
-	void BeginUpdate();
-
-	void EndUpdate();
-
-	void TurnOnZBuffer();
-
-	void TurnOffZBuffer();
-
-	void TurnOnCulling();
-
-	void TurnOffCulling();
+	void Present();
 
 	ID3D11Device* GetDevice() const;
 
 	ID3D11DeviceContext* GetDeviceContext() const;
+
+	ID3D11RenderTargetView** GetRenderTargetView();
+
+	ID3D11DepthStencilView* GetDepthStencilView() const;
+
+	ID3D11DepthStencilState* GetDepthDisabledStencilState() const;
+
+	ID3D11DepthStencilState* GetDepthStencilStateEqual() const;
+
+	ID3D11RasterizerState* GetRasterizerState() const;
+
+	ID3D11RasterizerState* GetRasterizerStateNoCulling() const;
 
 	// HACK: Shadow
 	ID3D11ShaderResourceView** GetShadowMap();
@@ -49,9 +48,9 @@ private:
 
 	ID3D11DepthStencilView* mDepthStencilView = nullptr;
 
-	ID3D11DepthStencilState* mDepthStencilState = nullptr;
-
 	ID3D11DepthStencilState* mDepthDisabledStencilState = nullptr;
+
+	ID3D11DepthStencilState* mDepthStencilStateEqual = nullptr;
 
 	ID3D11RasterizerState* mRasterizerState = nullptr;
 

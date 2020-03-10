@@ -1,3 +1,6 @@
+#define INITGUID // D3DReflect()를 사용하기 위해 정의합니다.
+
+#include <d3dcompiler.h>
 #include <algorithm>
 
 #include "Renderer.h"
@@ -22,6 +25,10 @@ Renderer::~Renderer()
 	{
 		RELEASE(i);
 	}
+
+	RELEASE_COM(mZPassConstantBuffer);
+	RELEASE_COM(mZPassLayout);
+	RELEASE_COM(mZPassShader);
 }
 
 void Renderer::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
@@ -32,30 +39,21 @@ void Renderer::InitializeManager(ID3D11Device* device, ID3D11DeviceContext* devi
 	mDevice = device;
 	mDeviceContext = deviceContext;
 
-	ModelFrame::_Initialize({}, mDevice, mDeviceContext);
-	Text::_Initialize({}, mDevice, mDeviceContext);
-	Material::_Initialize({}, mDevice, mDeviceContext);
+	// early z rejction을 위해 z값만 전달하는 셰이더를 따로 만듭니다.
+	// reference: https://software.intel.com/en-us/articles/early-z-rejection-sample
+	CreateShaderAndBufferZOnlyPass();
 
 	mCamera = std::make_unique<Camera>();
+
+	ModelFrame::_Initialize({}, mDevice, mDeviceContext);
+	Material::_Initialize({}, mDevice, mDeviceContext);
+	Text::_Initialize({}, mDevice, mDeviceContext);
+
 	mSkyDome = std::make_unique<SkyDome>();
 
 	// 폰트를 따로 지정하지 않은 텍스트를 위해 기본 폰트 머티리얼을 미리 추가하여 제공합니다.
 	mBasicFontMaterial = CreateMaterial("Shaders/BasicFontVS.hlsl", "Shaders/BasicFontPS.hlsl");
 	mBasicFontMaterial->RegisterTexture(0, "Resource/BasicFont.dds");
-
-	// HACK: Shadow
-	Material* shadowMaterial = CreateMaterial("Shaders/DepthVS.hlsl", "Shaders/DepthPS.hlsl");
-}
-
-void Renderer::SortText()
-{
-	// 머티리얼을 한 번에 패스하기 위해 머티리얼 아이디를 기준으로 텍스트를 정렬합니다.
-	{
-		std::sort(begin(mTexts), end(mTexts), [](const Text* a, const Text* b)
-			{
-				return a->GetMaterial() < b->GetMaterial();
-			});
-	}
 }
 
 Material* Renderer::CreateMaterial(const char* vertexShaderName, const char* pixelShaderName)
@@ -105,9 +103,45 @@ void Renderer::DrawSkyDome()
 	mSkyDome->_Draw({}, matWorld, matViewProjection);
 }
 
-void Renderer::DrawAllModel(ID3D11ShaderResourceView** shadowMap)
+void Renderer::PrepareForDrawingModel(const bool bEarlyZRejction)
 {
-	// TODO: 깊이용, 그냥 일반 그리기용으로 해서 함수 분리시키자
+	mCamera->LoadViewProjectionMatrix(&mMatViewProjection);
+
+	std::array<XMVECTOR, 6> planes;
+	CreateFrustumPlanes(mMatViewProjection, &planes);
+
+	if (bEarlyZRejction)
+	{
+		mDeviceContext->VSSetShader(mZPassShader, nullptr, 0);
+		mDeviceContext->IASetInputLayout(mZPassLayout);
+
+		mDeviceContext->VSSetConstantBuffers(0, 1, &mZPassConstantBuffer);
+		mDeviceContext->UpdateSubresource(mZPassConstantBuffer, 0
+			, nullptr, reinterpret_cast<const void*>(&XMMatrixTranspose(mMatViewProjection)), 0, 0);
+
+		mDeviceContext->PSSetShader(nullptr, nullptr, 0);
+
+		for (const auto& modelframe : mModelFrames)
+		{
+			modelframe->_UpdateInstanceBuffer({}, planes);
+
+			for (size_t i = 0; i < modelframe->GetMaterialCount(); ++i)
+			{
+				modelframe->_DrawMesh({}, i);
+			}
+		}
+	}
+	else
+	{
+		for (const auto& modelframe : mModelFrames)
+		{
+			modelframe->_UpdateInstanceBuffer({}, planes);
+		}
+	}
+
+	// TODO: 그림자 제대로 처리할 때 이 코드 이용하자.
+	/*
+{
 	const bool bDrawShadowMap = (shadowMap == nullptr);
 
 	XMMATRIX matViewProjection;
@@ -158,32 +192,25 @@ void Renderer::DrawAllModel(ID3D11ShaderResourceView** shadowMap)
 
 		matViewProjection2 *= XMMatrixOrthographicLH(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1.0f, 50.0f);
 	}
+}*/
+}
 
-	std::array<XMVECTOR, 6> planes;
-	CreateFrustumPlanes(matViewProjection, &planes);
-
-	// 모든 model frame의 인스턴스 버퍼를 모두 업데이트한 뒤 머티리얼에 대응되는 메쉬를 찾아 그립니다.
+void Renderer::DrawAllModel(ID3D11ShaderResourceView** shadowMap)
+{
+	// 머티리얼에 대응되는 메쉬를 찾아 그립니다.
+	for (const auto& material : mMaterials)
 	{
-		for (const auto& modelFrame : mModelFrames)
+		// 사용되고 있지 않는 머티리얼은 무시합니다.
+		if (material.second.empty())
 		{
-			modelFrame->_UpdateInstanceBuffer({}, planes);
+			continue;
 		}
 
-		for (const auto& material : mMaterials)
+		material.first->_Active({}, nullptr, mMatViewProjection);
+
+		for (const auto& modelFrame : material.second)
 		{
-			// 사용되고 있지 않는 머티리얼은 무시합니다.
-			if (material.second.empty())
-			{
-				continue;
-			}
-
-			material.first->_Active({}, nullptr, matViewProjection);
-
-			for (const auto& modelFrame : material.second)
-			{
-				// TODO: 화면에 안 보이는 모델은 무시하도록 처리하자.
-				modelFrame.first->_DrawMesh({}, modelFrame.second);
-			}
+			modelFrame.first->_DrawMesh({}, modelFrame.second);
 		}
 	}
 }
@@ -270,4 +297,47 @@ void Renderer::CreateFrustumPlanes(const DirectX::XMMATRIX& matViewProjection, s
 		XMPlaneFromPoints(vertices[7], vertices[6], vertices[5]),
 		XMPlaneFromPoints(vertices[0], vertices[1], vertices[2]),
 	};
+}
+
+void Renderer::CreateShaderAndBufferZOnlyPass()
+{
+	DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+
+	#if defined(DEBUG) | defined(_DEBUG)
+	shaderFlags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+	#endif
+
+	ID3DBlob* errorBlob;
+	ID3DBlob* vertexShaderByteCode;
+
+	if (FAILED(D3DCompileFromFile(L"Shaders/ZPassVS.hlsl", nullptr, nullptr, "VS", "vs_5_0",
+		shaderFlags, 0, &vertexShaderByteCode, &errorBlob)))
+	{
+		ASSERT(errorBlob == nullptr, static_cast<const char*>(errorBlob->GetBufferPointer()));
+		RELEASE_COM(errorBlob);
+	}
+
+	HR(mDevice->CreateVertexShader(vertexShaderByteCode->GetBufferPointer(), vertexShaderByteCode->GetBufferSize()
+		, nullptr, &mZPassShader));
+
+	const D3D11_INPUT_ELEMENT_DESC inputLayout[7] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "I_WORLD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{ "I_WORLD", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{ "I_WORLD", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{ "I_WORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+	};
+
+	HR(mDevice->CreateInputLayout(inputLayout, sizeof(inputLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC)
+		, vertexShaderByteCode->GetBufferPointer(), vertexShaderByteCode->GetBufferSize(), &mZPassLayout));
+
+	D3D11_BUFFER_DESC constantBufferDesc = {};
+	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	constantBufferDesc.ByteWidth = sizeof(XMMATRIX);
+	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+	HR(mDevice->CreateBuffer(&constantBufferDesc, nullptr, &mZPassConstantBuffer));
 }

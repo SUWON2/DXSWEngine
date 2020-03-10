@@ -119,6 +119,11 @@ void ModelFrame::_UpdateInstanceBuffer(RendererKey, const std::array<DirectX::XM
 
 	for (const auto& model : mModels)
 	{
+		if (!model->IsActive())
+		{
+			continue;
+		}
+
 		// 모델이 카메라 시야 밖에 있으면 무시합니다.
 		{
 			bool bEscape = false;

@@ -24,6 +24,8 @@ private:
 
 	void InitializeWindows();
 
+	void Draw();
+
 private:
 	HWND mHWnd = nullptr;
 
